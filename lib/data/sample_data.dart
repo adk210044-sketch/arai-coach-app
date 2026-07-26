@@ -3,7 +3,6 @@
 
 import '../models/question.dart';
 import '../models/category.dart';
-import '../models/badge.dart';
 import '../models/chat_message.dart';
 
 /// カテゴリ一覧（実際の試験区分に準拠）
@@ -97,19 +96,12 @@ final List<int> kHeatmap30 = [
   14,
 ];
 
-/// バッジ
-final List<AppBadge> kBadges = [
-  const AppBadge(icon: '🔥', name: '7日ストリーク', unlocked: true),
-  const AppBadge(icon: '📚', name: '100問クリア', unlocked: true),
-  const AppBadge(icon: '🎯', name: '正答率80%', unlocked: true),
-  const AppBadge(icon: '⚡', name: '30日ストリーク', unlocked: false),
-  const AppBadge(icon: '🏆', name: '模試A判定', unlocked: false),
-  const AppBadge(icon: '🌙', name: '深夜の勉強家', unlocked: true),
-];
-
 /// AIチャットのサンプル履歴
 List<ChatMessage> buildInitialChatMessages() => [
-  ChatMessage(role: ChatRole.ai, text: 'こんばんは、康一さん。今日もお疲れさまだよ。\n何か気になった問題はあるかな?'),
+  ChatMessage(
+    role: ChatRole.ai,
+    text: 'こんばんは、康一さん。今日もお疲れさまだよ。\n何か気になった問題はあるかな?',
+  ),
   ChatMessage(role: ChatRole.user, text: '有害業務の作業主任者の選任基準、いつも混乱します'),
   ChatMessage(
     role: ChatRole.ai,
@@ -118,7 +110,7 @@ List<ChatMessage> buildInitialChatMessages() => [
   ),
 ];
 
-const List<String> kQuickReplies = ['3問だけ出す', '暗記のコツ', '合格した先輩の話'];
+const List<String> kQuickReplies = ['3問だけ出す', 'よく出る問題は?', '平均合格率は?', '暗記のコツ'];
 
 /// 苦手テーマ ヒートマップ (Analysisで使用)
 const List<MapEntry<String, double>> kWeakTopics = [

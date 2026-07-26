@@ -1,4 +1,16 @@
+import 'plan.dart';
+
 enum ExamType { type1, type2 }
+
+/// 文字サイズ設定(2段階)。「文字が小さい」という声への対応。
+enum TextSizeOption { standard, large }
+
+extension TextSizeOptionX on TextSizeOption {
+  String get label => this == TextSizeOption.large ? '大きい' : '標準';
+
+  /// アプリ全体のテキストスケール倍率。
+  double get scaleFactor => this == TextSizeOption.large ? 1.18 : 1.0;
+}
 
 class UserProfile {
   final String displayName;
@@ -13,6 +25,14 @@ class UserProfile {
   final bool onboardingDone;
   final bool notificationsEnabled;
   final String reminderTime; // "HH:mm"
+  final TextSizeOption textSizeOption;
+  final bool onboardingDemoDone; // オンボーディング内デモ問題を体験済みか
+
+  // ─── 料金プラン(価格モデル) ──────────────────────
+  final PlanTier planTier;
+  final DateTime? planExpiresAt; // premium/intensivePack の有効期限(nullなら無期限/未設定)
+  final bool trialUsed; // 3か月集中パックの無料トライアルを使用済みか
+  final bool planIsTrial; // 現在の有効プランが無料トライアル中かどうか
 
   const UserProfile({
     this.displayName = '康一',
@@ -27,6 +47,12 @@ class UserProfile {
     this.onboardingDone = false,
     this.notificationsEnabled = true,
     this.reminderTime = '21:00',
+    this.textSizeOption = TextSizeOption.standard,
+    this.onboardingDemoDone = false,
+    this.planTier = PlanTier.free,
+    this.planExpiresAt,
+    this.trialUsed = false,
+    this.planIsTrial = false,
   });
 
   int? get daysUntilExam {
@@ -38,6 +64,27 @@ class UserProfile {
   }
 
   String get examTypeLabel => examType == ExamType.type1 ? '第一種' : '第二種';
+
+  /// 有料プラン(プレミアム/集中パック)が有効かどうか。
+  /// 期限切れの場合はfree相当として扱う。
+  bool get isPremium {
+    if (planTier == PlanTier.free) return false;
+    if (planExpiresAt == null) return true;
+    return DateTime.now().isBefore(planExpiresAt!);
+  }
+
+  int? get planDaysRemaining {
+    if (planExpiresAt == null) return null;
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final target = DateTime(
+      planExpiresAt!.year,
+      planExpiresAt!.month,
+      planExpiresAt!.day,
+    );
+    final diff = target.difference(today).inDays;
+    return diff < 0 ? 0 : diff;
+  }
 
   UserProfile copyWith({
     String? displayName,
@@ -52,6 +99,13 @@ class UserProfile {
     bool? onboardingDone,
     bool? notificationsEnabled,
     String? reminderTime,
+    TextSizeOption? textSizeOption,
+    bool? onboardingDemoDone,
+    PlanTier? planTier,
+    DateTime? planExpiresAt,
+    bool clearPlanExpiresAt = false,
+    bool? trialUsed,
+    bool? planIsTrial,
   }) {
     return UserProfile(
       displayName: displayName ?? this.displayName,
@@ -66,6 +120,14 @@ class UserProfile {
       onboardingDone: onboardingDone ?? this.onboardingDone,
       notificationsEnabled: notificationsEnabled ?? this.notificationsEnabled,
       reminderTime: reminderTime ?? this.reminderTime,
+      textSizeOption: textSizeOption ?? this.textSizeOption,
+      onboardingDemoDone: onboardingDemoDone ?? this.onboardingDemoDone,
+      planTier: planTier ?? this.planTier,
+      planExpiresAt: clearPlanExpiresAt
+          ? null
+          : (planExpiresAt ?? this.planExpiresAt),
+      trialUsed: trialUsed ?? this.trialUsed,
+      planIsTrial: planIsTrial ?? this.planIsTrial,
     );
   }
 
@@ -82,6 +144,12 @@ class UserProfile {
     'onboardingDone': onboardingDone,
     'notificationsEnabled': notificationsEnabled,
     'reminderTime': reminderTime,
+    'textSizeOption': textSizeOption.name,
+    'onboardingDemoDone': onboardingDemoDone,
+    'planTier': planTier.name,
+    'planExpiresAt': planExpiresAt?.toIso8601String(),
+    'trialUsed': trialUsed,
+    'planIsTrial': planIsTrial,
   };
 
   factory UserProfile.fromJson(Map<String, dynamic> json) {
@@ -102,6 +170,27 @@ class UserProfile {
       onboardingDone: json['onboardingDone'] as bool? ?? false,
       notificationsEnabled: json['notificationsEnabled'] as bool? ?? true,
       reminderTime: json['reminderTime'] as String? ?? '21:00',
+      textSizeOption: (json['textSizeOption'] as String?) == 'large'
+          ? TextSizeOption.large
+          : TextSizeOption.standard,
+      onboardingDemoDone: json['onboardingDemoDone'] as bool? ?? false,
+      planTier: _planTierFromName(json['planTier'] as String?),
+      planExpiresAt: json['planExpiresAt'] != null
+          ? DateTime.tryParse(json['planExpiresAt'] as String)
+          : null,
+      trialUsed: json['trialUsed'] as bool? ?? false,
+      planIsTrial: json['planIsTrial'] as bool? ?? false,
     );
+  }
+
+  static PlanTier _planTierFromName(String? name) {
+    switch (name) {
+      case 'premium':
+        return PlanTier.premium;
+      case 'intensivePack':
+        return PlanTier.intensivePack;
+      default:
+        return PlanTier.free;
+    }
   }
 }

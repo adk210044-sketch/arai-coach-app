@@ -5,12 +5,16 @@ import '../theme/tokens.dart';
 enum CoachMood {
   /// 通常時(ホーム画面・コーチ画面など)
   normal,
+
   /// 正解した時(両手を上げて花丸で喜ぶ)
   correct,
+
   /// 不正解の時(優しく励ますハート付き)
   incorrect,
+
   /// やる気を出す時(ガッツポーズ)
   motivate,
+
   /// 満点・達成した時(トロフィーでお祝い)
   perfect,
 }
@@ -36,7 +40,7 @@ extension CoachMoodAsset on CoachMood {
 class CoachAvatar extends StatelessWidget {
   final double size;
   final CoachMood mood;
-  const CoachAvatar({super.key, this.size = 44, this.mood = CoachMood.normal});
+  const CoachAvatar({super.key, this.size = 56, this.mood = CoachMood.normal});
 
   @override
   Widget build(BuildContext context) {

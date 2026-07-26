@@ -18,7 +18,9 @@ class QuestionRepository {
   Future<void> load() async {
     if (_loaded) return;
     try {
-      final raw = await rootBundle.loadString('assets/data/exam_questions.json');
+      final raw = await rootBundle.loadString(
+        'assets/data/exam_questions.json',
+      );
       final List<dynamic> data = jsonDecode(raw) as List<dynamic>;
       _all = data
           .map((e) => Question.fromJson(e as Map<String, dynamic>))
@@ -34,10 +36,14 @@ class QuestionRepository {
       _all.where((q) => q.examTypeKey == examTypeKey).toList();
 
   /// 試験区分 + カテゴリキーでフィルタ
-  List<Question> byExamTypeAndCategory(String examTypeKey, String categoryKey) =>
-      _all
-          .where((q) => q.examTypeKey == examTypeKey && q.categoryKey == categoryKey)
-          .toList();
+  List<Question> byExamTypeAndCategory(
+    String examTypeKey,
+    String categoryKey,
+  ) => _all
+      .where(
+        (q) => q.examTypeKey == examTypeKey && q.categoryKey == categoryKey,
+      )
+      .toList();
 
   /// カテゴリ定義: 試験区分ごとに存在するカテゴリキー一覧(表示順を保証)
   static const Map<String, List<MapEntry<String, String>>> categoryOrder = {
@@ -54,6 +60,34 @@ class QuestionRepository {
       MapEntry('physiology', '労働生理'),
     ],
   };
+
+  // ─── 料金プラン(フリープラン用の問題制限) ──────────────────────
+  final Map<String, Set<String>> _freeIdsCache = {};
+
+  /// フリープラン向けの利用可能問題ID一覧(最大50問)。
+  /// カテゴリごとに均等に振り分けて選出することで、フリープランでも
+  /// 全カテゴリを一通り体験できるようにする。選出は決定的(同じ問題データなら
+  /// 常に同じ50問)なので、アプリ再起動でも一覧が変わらない。
+  Set<String> freeQuestionIds(String examTypeKey) {
+    final cached = _freeIdsCache[examTypeKey];
+    if (cached != null) return cached;
+
+    const freeLimit = 50;
+    final orders = categoryOrder[examTypeKey] ?? categoryOrder['type1']!;
+    if (orders.isEmpty) return {};
+    final perCategory = (freeLimit / orders.length).ceil();
+    final ids = <String>{};
+    for (final entry in orders) {
+      final catQuestions = byExamTypeAndCategory(examTypeKey, entry.key);
+      for (final q in catQuestions.take(perCategory)) {
+        if (ids.length >= freeLimit) break;
+        ids.add(q.id);
+      }
+      if (ids.length >= freeLimit) break;
+    }
+    _freeIdsCache[examTypeKey] = ids;
+    return ids;
+  }
 
   /// 実データ(回答ログ)から算出したカテゴリ別統計を返す。
   /// answered/correct が無いカテゴリは total=出題数, correct=0 として返す。

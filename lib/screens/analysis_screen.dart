@@ -4,6 +4,8 @@ import '../theme/tokens.dart';
 import '../data/sample_data.dart';
 import '../state/app_state.dart';
 import '../widgets/progress_ring.dart';
+import '../widgets/pass_probability_card.dart';
+import 'paywall_screen.dart';
 
 class AnalysisScreen extends StatefulWidget {
   const AnalysisScreen({super.key});
@@ -17,12 +19,15 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final kCategories = context.watch<AppState>().categoryStats;
+    final appState = context.watch<AppState>();
+    final kCategories = appState.categoryStats;
     final totalCorrect = kCategories.fold<int>(0, (s, c) => s + c.correct);
     final totalCount = kCategories.fold<int>(0, (s, c) => s + c.total);
     final overallPct = totalCount == 0
         ? 0
         : (totalCorrect / totalCount * 100).round();
+    final passProbability = appState.passProbability;
+    final isPremium = appState.isPremium;
 
     return SafeArea(
       child: SingleChildScrollView(
@@ -177,6 +182,14 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
             ),
             const SizedBox(height: 14),
 
+            // 合格可能性(AI診断)
+            PassProbabilityCard(result: passProbability),
+            const SizedBox(height: 14),
+
+            // 合格可能性トレンド(プレミアム限定のAI強化機能)
+            _passProbabilityTrendSection(context, appState, isPremium),
+            const SizedBox(height: 14),
+
             // AI comment
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
@@ -220,6 +233,13 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
                           TextSpan(
                             text: '10分間の集中復習セットを用意しました。',
                             style: TextStyle(color: AppColors.textDim),
+                          ),
+                          TextSpan(
+                            text: '\n※「演習」ページでチャレンジしてね',
+                            style: TextStyle(
+                              color: AppColors.textMute,
+                              fontSize: 11,
+                            ),
                           ),
                         ],
                       ),
@@ -332,6 +352,10 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
             ),
             const SizedBox(height: 16),
 
+            // AI優先復習ランキング(プレミアム限定のAI強化機能)
+            _weakPointRankingSection(context, appState, isPremium),
+            const SizedBox(height: 16),
+
             const Text(
               '苦手テーマ ヒートマップ',
               style: TextStyle(
@@ -381,6 +405,361 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
                 },
               ),
             ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// 合格可能性の週次トレンド(直近4週間)。プレミアム限定のAI強化機能。
+  /// フリープランではロックされたプレビュー(ブラー風カード)を表示し、アップグレードを促す。
+  Widget _passProbabilityTrendSection(
+    BuildContext context,
+    AppState appState,
+    bool isPremium,
+  ) {
+    final trend = appState.passProbabilityWeeklyTrend;
+
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(AppRadius.lg),
+        boxShadow: AppShadow.card,
+        border: Border.all(color: AppColors.accent.withValues(alpha: 0.2)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Text('📈', style: TextStyle(fontSize: 18)),
+              const SizedBox(width: 6),
+              const Text(
+                '合格可能性トレンド(週次AI診断)',
+                style: TextStyle(
+                  fontSize: AppFontSize.md,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+              const Spacer(),
+              if (!isPremium)
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 7,
+                    vertical: 2,
+                  ),
+                  decoration: BoxDecoration(
+                    color: AppColors.primaryFaint,
+                    borderRadius: BorderRadius.circular(AppRadius.pill),
+                  ),
+                  child: const Text(
+                    'PREMIUM',
+                    style: TextStyle(
+                      fontSize: 9,
+                      color: AppColors.primary,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          if (!isPremium)
+            _lockedPreview(
+              context: context,
+              message: 'AIが毎週の伸び方を\n自動で分析するよ。\nプレミアムでトレンドの推移が見られるようになるよ。',
+              trigger: PaywallTrigger.explanation,
+            )
+          else if (trend.length < 2)
+            const Text(
+              'もう少しデータが集まると、週ごとの伸びをAIが分析できるようになるよ。',
+              style: TextStyle(
+                fontSize: AppFontSize.sm,
+                color: AppColors.textDim,
+                height: 1.6,
+              ),
+            )
+          else
+            SizedBox(
+              height: 90,
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: List.generate(trend.length, (i) {
+                  final v = trend[i];
+                  final isLast = i == trend.length - 1;
+                  final barColor = v >= 65
+                      ? AppColors.ok
+                      : (v >= 45 ? AppColors.yellow : AppColors.ng);
+                  return Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 4),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          Text(
+                            '$v%',
+                            style: TextStyle(
+                              fontSize: 10,
+                              fontWeight: isLast
+                                  ? FontWeight.w800
+                                  : FontWeight.w500,
+                              color: isLast
+                                  ? AppColors.primary
+                                  : AppColors.textMute,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Container(
+                            height: (v.clamp(5, 100)) * 0.55,
+                            decoration: BoxDecoration(
+                              color: isLast
+                                  ? barColor
+                                  : barColor.withValues(alpha: 0.5),
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            i == trend.length - 1
+                                ? '今週'
+                                : '${trend.length - 1 - i}週前',
+                            style: const TextStyle(
+                              fontSize: 9,
+                              color: AppColors.textMute,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                }),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
+  /// AIによる優先復習ランキング。プレミアム限定のAI強化機能。
+  Widget _weakPointRankingSection(
+    BuildContext context,
+    AppState appState,
+    bool isPremium,
+  ) {
+    final insights = appState.weakPointInsights;
+
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(AppRadius.lg),
+        boxShadow: AppShadow.card,
+        border: Border.all(color: AppColors.accent.withValues(alpha: 0.2)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Text('🧠', style: TextStyle(fontSize: 18)),
+              const SizedBox(width: 6),
+              const Text(
+                'AI優先復習ランキング',
+                style: TextStyle(
+                  fontSize: AppFontSize.md,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+              const Spacer(),
+              if (!isPremium)
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 7,
+                    vertical: 2,
+                  ),
+                  decoration: BoxDecoration(
+                    color: AppColors.primaryFaint,
+                    borderRadius: BorderRadius.circular(AppRadius.pill),
+                  ),
+                  child: const Text(
+                    'PREMIUM',
+                    style: TextStyle(
+                      fontSize: 9,
+                      color: AppColors.primary,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                ),
+            ],
+          ),
+          const SizedBox(height: 4),
+          const Text(
+            '正答率と合格基準への影響度から、AIが復習の優先順位を自動で並べ替えるよ',
+            style: TextStyle(
+              fontSize: AppFontSize.sm,
+              color: AppColors.textDim,
+              height: 1.5,
+            ),
+          ),
+          const SizedBox(height: 12),
+          if (!isPremium)
+            _lockedPreview(
+              context: context,
+              message:
+                  '「${insights.isNotEmpty ? insights.first.categoryName : '苦手科目'}」から優先すべき理由を\nAIが解説するよ。\nプレミアムで全ランキングを\n確認できるよ。',
+              trigger: PaywallTrigger.explanation,
+            )
+          else if (insights.isEmpty)
+            const Text(
+              'まだ解答データが少ないよ。いくつか問題を解くと、AIが優先順位を分析できるようになるよ。',
+              style: TextStyle(
+                fontSize: AppFontSize.sm,
+                color: AppColors.textDim,
+                height: 1.6,
+              ),
+            )
+          else
+            Column(
+              children: insights.take(5).map((w) {
+                final barColor = w.accuracyPercent < 40
+                    ? AppColors.ng
+                    : (w.accuracyPercent < 60
+                          ? AppColors.yellow
+                          : AppColors.ok);
+                return Container(
+                  margin: const EdgeInsets.only(bottom: 8),
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: AppColors.bgSoft,
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        width: 26,
+                        height: 26,
+                        decoration: BoxDecoration(
+                          color: w.rank == 1 ? AppColors.accent : Colors.white,
+                          shape: BoxShape.circle,
+                          border: Border.all(color: AppColors.border),
+                        ),
+                        alignment: Alignment.center,
+                        child: Text(
+                          '${w.rank}',
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w800,
+                            color: w.rank == 1
+                                ? Colors.white
+                                : AppColors.textDim,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    w.categoryName,
+                                    style: const TextStyle(
+                                      fontSize: AppFontSize.md,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
+                                ),
+                                Text(
+                                  '${w.accuracyPercent}%',
+                                  style: TextStyle(
+                                    fontSize: AppFontSize.md,
+                                    fontWeight: FontWeight.w800,
+                                    color: barColor,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              w.comment,
+                              style: const TextStyle(
+                                fontSize: AppFontSize.sm,
+                                color: AppColors.textDim,
+                                height: 1.5,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              '推奨: 復習${w.recommendedCount}問',
+                              style: const TextStyle(
+                                fontSize: 10,
+                                color: AppColors.primary,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              }).toList(),
+            ),
+        ],
+      ),
+    );
+  }
+
+  /// フリープラン向けの「機能はあるけどロックされている」プレビューUI。
+  /// ぼかし風の見た目 + タップでペイウォールに誘導する。
+  Widget _lockedPreview({
+    required BuildContext context,
+    required String message,
+    required PaywallTrigger trigger,
+  }) {
+    return GestureDetector(
+      onTap: () => Navigator.of(context).push(
+        MaterialPageRoute(builder: (_) => PaywallScreen(trigger: trigger)),
+      ),
+      child: Container(
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: AppColors.bgSoft,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: AppColors.border, style: BorderStyle.solid),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 36,
+              height: 36,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                shape: BoxShape.circle,
+              ),
+              alignment: Alignment.center,
+              child: const Icon(
+                Icons.lock_outline,
+                size: 16,
+                color: AppColors.accent,
+              ),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                message,
+                style: const TextStyle(
+                  fontSize: AppFontSize.sm,
+                  color: AppColors.textDim,
+                  height: 1.6,
+                ),
+              ),
+            ),
+            const Icon(Icons.chevron_right, color: AppColors.primary),
           ],
         ),
       ),

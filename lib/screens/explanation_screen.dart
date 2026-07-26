@@ -3,7 +3,9 @@ import 'package:provider/provider.dart';
 import '../theme/tokens.dart';
 import '../state/app_state.dart';
 import '../models/question.dart';
+import '../data/reference_tables.dart';
 import '../widgets/coach_bubble.dart';
+import '../widgets/reference_table_card.dart';
 import 'question_screen.dart';
 
 class ExplanationScreen extends StatefulWidget {
@@ -183,6 +185,45 @@ class _ExplanationScreenState extends State<ExplanationScreen>
                         color: AppColors.text,
                       ),
                     ),
+                    const SizedBox(height: 10),
+                    // 誤り報告(解説の正確性を担保する仕組み)
+                    Row(
+                      children: [
+                        const Icon(
+                          Icons.info_outline,
+                          size: 13,
+                          color: AppColors.textMute,
+                        ),
+                        const SizedBox(width: 4),
+                        const Expanded(
+                          child: Text(
+                            'AIコーチによる解説',
+                            style: TextStyle(
+                              fontSize: 10.5,
+                              color: AppColors.textMute,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                        GestureDetector(
+                          onTap: appState.isExplanationReported(q.id)
+                              ? null
+                              : () => _reportIssue(context, appState, q),
+                          child: Text(
+                            appState.isExplanationReported(q.id)
+                                ? '✅ 報告済み'
+                                : '⚠️ 解説に誤りを見つけた',
+                            style: TextStyle(
+                              fontSize: 10.5,
+                              fontWeight: FontWeight.w600,
+                              color: appState.isExplanationReported(q.id)
+                                  ? AppColors.ok
+                                  : AppColors.ng,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                     const SizedBox(height: 14),
                     Row(
                       children: [
@@ -195,9 +236,7 @@ class _ExplanationScreenState extends State<ExplanationScreen>
                         const SizedBox(width: 6),
                         Expanded(
                           child: _smallBtn(
-                            appState.isBookmarked(q.id)
-                                ? '📌 保存済み'
-                                : '📌 保存する',
+                            appState.isBookmarked(q.id) ? '📌 保存済み' : '📌 保存する',
                             active: appState.isBookmarked(q.id),
                             onTap: () {
                               appState.toggleBookmark(q.id);
@@ -220,6 +259,9 @@ class _ExplanationScreenState extends State<ExplanationScreen>
                 ),
               ),
               const SizedBox(height: 14),
+
+              // 法令の数値比較表など、関連する図解データがあれば表示する
+              ..._buildReferenceTables(q),
 
               Container(
                 padding: const EdgeInsets.symmetric(
@@ -296,6 +338,19 @@ class _ExplanationScreenState extends State<ExplanationScreen>
         ),
       ),
     );
+  }
+
+  List<Widget> _buildReferenceTables(Question q) {
+    final combined =
+        '${q.text} ${q.aiExplanation} ${q.officialExplanation} ${q.choices.join(' ')}';
+    final tables = findReferenceTables(combined);
+    if (tables.isEmpty) return const [];
+    return [
+      for (final t in tables) ...[
+        ReferenceTableCard(table: t),
+        const SizedBox(height: 14),
+      ],
+    ];
   }
 
   Widget _smallBtn(String label, {VoidCallback? onTap, bool active = false}) {
@@ -390,6 +445,73 @@ class _ExplanationScreenState extends State<ExplanationScreen>
                         height: 1.9,
                         color: AppColors.text,
                       ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  void _reportIssue(BuildContext context, AppState appState, Question q) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (ctx) {
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(20, 20, 20, 28),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  '⚠️ 解説に誤りを報告する',
+                  style: TextStyle(
+                    fontSize: AppFontSize.xl,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                const SizedBox(height: 10),
+                const Text(
+                  '報告してくれると、運営チームが内容を確認して解説をすぐに修正するよ。ありがとう!',
+                  style: TextStyle(
+                    fontSize: AppFontSize.md,
+                    color: AppColors.textDim,
+                    height: 1.7,
+                  ),
+                ),
+                const SizedBox(height: 20),
+                SizedBox(
+                  width: double.infinity,
+                  height: 48,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      appState.reportExplanationIssue(q.id);
+                      Navigator.of(ctx).pop();
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          duration: Duration(seconds: 2),
+                          content: Text('報告を受け付けたよ。確認して修正するね'),
+                        ),
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.primary,
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(AppRadius.pill),
+                      ),
+                    ),
+                    child: const Text(
+                      'この解説を報告する',
+                      style: TextStyle(fontWeight: FontWeight.w700),
                     ),
                   ),
                 ),

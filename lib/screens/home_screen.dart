@@ -3,8 +3,12 @@ import 'package:provider/provider.dart';
 import '../theme/tokens.dart';
 import '../state/app_state.dart';
 import '../widgets/coach_bubble.dart';
+import '../widgets/pass_probability_card.dart';
+import '../widgets/ad_banner_placeholder.dart';
+import '../widgets/intensive_pack_promo_card.dart';
 import 'question_screen.dart';
 import 'mock_exam_screen.dart';
+import 'paywall_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -14,9 +18,11 @@ class HomeScreen extends StatelessWidget {
     final appState = context.watch<AppState>();
     final profile = appState.profile;
     final daysLeft = profile.daysUntilExam;
+    final plan = appState.dailyPlan;
     final goalTotal = appState.dailyGoal;
     final goalDone = appState.todayAnswered.clamp(0, goalTotal);
     final goalPct = goalTotal == 0 ? 0.0 : goalDone / goalTotal;
+    final passProbability = appState.passProbability;
 
     return SafeArea(
       child: SingleChildScrollView(
@@ -73,7 +79,10 @@ class HomeScreen extends StatelessWidget {
                 ),
               ],
             ),
-            const SizedBox(height: 18),
+            const SizedBox(height: 14),
+            const IntensivePackPromoCard(),
+            const AdBannerPlaceholder(),
+            const SizedBox(height: 4),
 
             // AIコーチのメッセージ
             Container(
@@ -86,9 +95,13 @@ class HomeScreen extends StatelessWidget {
               child: CoachBubble(
                 mood: CoachMood.motivate,
                 message:
-                    '昨日は${appState.profile.totalAnswered > 0 ? '' : 'まだ'}お疲れさまだよ。\n今日は「関係法令(有害)」から一緒に始めてみようね。',
+                    '昨日は${appState.profile.totalAnswered > 0 ? '' : 'まだ'}お疲れさまだよ。\n今日は「${plan.categoryName}」から\n一緒に始めてみようね。',
               ),
             ),
+            const SizedBox(height: 14),
+
+            // 合格可能性
+            PassProbabilityCard(result: passProbability),
             const SizedBox(height: 14),
 
             // 今日のゴール
@@ -112,9 +125,11 @@ class HomeScreen extends StatelessWidget {
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text(
-                            '今日のゴール',
-                            style: TextStyle(
+                          Text(
+                            daysLeft != null
+                                ? '試験まで$daysLeft日 · 今日のタスク'
+                                : '今日のタスク',
+                            style: const TextStyle(
                               color: Colors.white,
                               fontSize: AppFontSize.base,
                               height: 1,
@@ -166,6 +181,14 @@ class HomeScreen extends StatelessWidget {
                       ),
                     ],
                   ),
+                  const SizedBox(height: 4),
+                  Text(
+                    '📌 ${plan.categoryName}を中心に${plan.targetCount}問',
+                    style: TextStyle(
+                      color: Colors.white.withValues(alpha: 0.85),
+                      fontSize: AppFontSize.sm,
+                    ),
+                  ),
                   const SizedBox(height: 16),
                   ClipRRect(
                     borderRadius: BorderRadius.circular(AppRadius.pill),
@@ -182,7 +205,10 @@ class HomeScreen extends StatelessWidget {
                     height: 46,
                     child: ElevatedButton(
                       onPressed: () {
-                        context.read<AppState>().startSession();
+                        context.read<AppState>().startSession(
+                          categoryKey: plan.categoryKey,
+                          count: plan.targetCount,
+                        );
                         Navigator.of(context).push(
                           MaterialPageRoute(
                             builder: (_) => const QuestionScreen(),
@@ -202,7 +228,7 @@ class HomeScreen extends StatelessWidget {
                           Icon(Icons.play_arrow, size: 18),
                           SizedBox(width: 6),
                           Text(
-                            '続きから学習する',
+                            '今日のタスクを始める',
                             style: TextStyle(fontWeight: FontWeight.w700),
                           ),
                         ],
@@ -339,15 +365,16 @@ class HomeScreen extends StatelessWidget {
             const SizedBox(height: 10),
             _menuTile(
               context,
-              '📖',
-              '苦手復習',
-              '関係法令(有害) · 10問',
-              const Color(0xFFFFEEE4),
+              appState.isPremium ? '🧠' : '📖',
+              appState.isPremium ? '苦手復習(AI優先)' : '苦手復習(シンプル版)',
+              appState.isPremium
+                  ? '${appState.weakReviewCategoryName ?? "AI分析中"} · AIが優先順に出題'
+                  : '${appState.weakReviewCategoryName ?? "関係法令"} · 10問',
+              appState.isPremium
+                  ? AppColors.primaryFaint
+                  : const Color(0xFFFFEEE4),
               onTap: () {
-                context.read<AppState>().startSession(
-                  categoryKey: 'law_harm',
-                  count: 10,
-                );
+                context.read<AppState>().startWeakReviewSession(count: 10);
                 Navigator.of(context).push(
                   MaterialPageRoute(builder: (_) => const QuestionScreen()),
                 );
@@ -360,7 +387,10 @@ class HomeScreen extends StatelessWidget {
               '5分でサッと3問',
               const Color(0xFFFFF7DC),
               onTap: () {
-                context.read<AppState>().startSession(count: 3);
+                context.read<AppState>().startSession(
+                  count: 3,
+                  isGapStudy: true,
+                );
                 Navigator.of(context).push(
                   MaterialPageRoute(builder: (_) => const QuestionScreen()),
                 );
@@ -370,9 +400,19 @@ class HomeScreen extends StatelessWidget {
               context,
               '📝',
               '模擬試験',
-              '44問 / 本番形式',
+              appState.canUseMockExam ? '44問 / 本番形式' : '🔒 プレミアム限定',
               AppColors.primaryFaint,
+              locked: !appState.canUseMockExam,
               onTap: () {
+                if (!appState.canUseMockExam) {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) =>
+                          const PaywallScreen(trigger: PaywallTrigger.mockExam),
+                    ),
+                  );
+                  return;
+                }
                 Navigator.of(context).push(
                   MaterialPageRoute(builder: (_) => const MockExamScreen()),
                 );
@@ -391,6 +431,7 @@ class HomeScreen extends StatelessWidget {
     String sub,
     Color bg, {
     VoidCallback? onTap,
+    bool locked = false,
   }) {
     return GestureDetector(
       onTap: onTap,
@@ -429,15 +470,20 @@ class HomeScreen extends StatelessWidget {
                   const SizedBox(height: 2),
                   Text(
                     sub,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: AppFontSize.sm,
-                      color: AppColors.textDim,
+                      color: locked ? AppColors.accent : AppColors.textDim,
+                      fontWeight: locked ? FontWeight.w600 : FontWeight.normal,
                     ),
                   ),
                 ],
               ),
             ),
-            const Icon(Icons.chevron_right, color: AppColors.textMute),
+            Icon(
+              locked ? Icons.lock_outline : Icons.chevron_right,
+              color: locked ? AppColors.accent : AppColors.textMute,
+              size: locked ? 18 : 24,
+            ),
           ],
         ),
       ),

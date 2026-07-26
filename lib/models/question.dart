@@ -47,8 +47,12 @@ class Question {
           : QuestionFormat.choice5,
       number: json['number'] as String? ?? '',
       text: json['text'] as String? ?? '',
-      items: (json['items'] as List?)?.map((e) => e.toString()).toList() ?? const [],
-      choices: (json['choices'] as List?)?.map((e) => e.toString()).toList() ?? const [],
+      items:
+          (json['items'] as List?)?.map((e) => e.toString()).toList() ??
+          const [],
+      choices:
+          (json['choices'] as List?)?.map((e) => e.toString()).toList() ??
+          const [],
       correctIndex: json['correctIndex'] as int? ?? 0,
       aiExplanation: json['aiExplanation'] as String? ?? '',
       officialExplanation: json['officialExplanation'] as String? ?? '',

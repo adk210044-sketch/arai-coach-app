@@ -1,12 +1,40 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../theme/tokens.dart';
+import '../state/app_state.dart';
 import 'mock_exam_session_screen.dart';
+import 'paywall_screen.dart';
 
 class MockExamScreen extends StatelessWidget {
   const MockExamScreen({super.key});
 
+  void _startOrPaywall(
+    BuildContext context, {
+    required int questionCount,
+    required int durationSec,
+  }) {
+    final appState = context.read<AppState>();
+    if (!appState.canUseMockExam) {
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (_) => const PaywallScreen(trigger: PaywallTrigger.mockExam),
+        ),
+      );
+      return;
+    }
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => MockExamSessionScreen(
+          questionCount: questionCount,
+          durationSec: durationSec,
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    final isPremium = context.watch<AppState>().canUseMockExam;
     return Scaffold(
       backgroundColor: AppColors.bgSoft,
       appBar: AppBar(
@@ -63,9 +91,9 @@ class MockExamScreen extends StatelessWidget {
                         color: Colors.white.withValues(alpha: 0.2),
                         borderRadius: BorderRadius.circular(AppRadius.pill),
                       ),
-                      child: const Text(
-                        'おすすめ ⭐',
-                        style: TextStyle(
+                      child: Text(
+                        isPremium ? 'おすすめ ⭐' : '👑 プレミアム限定',
+                        style: const TextStyle(
                           color: Colors.white,
                           fontSize: 10,
                           fontWeight: FontWeight.w700,
@@ -104,16 +132,11 @@ class MockExamScreen extends StatelessWidget {
                       width: double.infinity,
                       height: 46,
                       child: ElevatedButton(
-                        onPressed: () {
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (_) => const MockExamSessionScreen(
-                                questionCount: 10,
-                                durationSec: 600,
-                              ),
-                            ),
-                          );
-                        },
+                        onPressed: () => _startOrPaywall(
+                          context,
+                          questionCount: 10,
+                          durationSec: 600,
+                        ),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.white,
                           foregroundColor: AppColors.primary,
@@ -121,9 +144,9 @@ class MockExamScreen extends StatelessWidget {
                             borderRadius: BorderRadius.circular(AppRadius.pill),
                           ),
                         ),
-                        child: const Text(
-                          '受験を始める',
-                          style: TextStyle(fontWeight: FontWeight.w700),
+                        child: Text(
+                          isPremium ? '受験を始める' : '🔒 プレミアムで受験する',
+                          style: const TextStyle(fontWeight: FontWeight.w700),
                         ),
                       ),
                     ),
@@ -167,16 +190,11 @@ class MockExamScreen extends StatelessWidget {
                       ),
                     ),
                     TextButton(
-                      onPressed: () {
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (_) => const MockExamSessionScreen(
-                              questionCount: 5,
-                              durationSec: 300,
-                            ),
-                          ),
-                        );
-                      },
+                      onPressed: () => _startOrPaywall(
+                        context,
+                        questionCount: 5,
+                        durationSec: 300,
+                      ),
                       style: TextButton.styleFrom(
                         backgroundColor: AppColors.primaryFaint,
                         foregroundColor: AppColors.primary,
@@ -188,9 +206,9 @@ class MockExamScreen extends StatelessWidget {
                           vertical: 8,
                         ),
                       ),
-                      child: const Text(
-                        '開始',
-                        style: TextStyle(fontWeight: FontWeight.w700),
+                      child: Text(
+                        isPremium ? '開始' : '🔒 開始',
+                        style: const TextStyle(fontWeight: FontWeight.w700),
                       ),
                     ),
                   ],

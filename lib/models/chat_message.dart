@@ -2,7 +2,7 @@ enum ChatRole { ai, user }
 
 /// AIの返信に付随する実アクション。
 /// coach_screen側でこれを見てボタン表示・実処理(演習開始など)に紐付ける。
-enum ChatAction { none, startQuiz3, openWeakReview }
+enum ChatAction { none, startQuiz3, openWeakReview, openPaywall }
 
 class ChatMessage {
   final ChatRole role;

@@ -3,6 +3,8 @@ import 'package:provider/provider.dart';
 import '../theme/tokens.dart';
 import '../state/app_state.dart';
 import '../data/sample_data.dart';
+import '../widgets/badge_detail_dialog.dart';
+import 'all_badges_screen.dart';
 
 class CalendarScreen extends StatefulWidget {
   const CalendarScreen({super.key});
@@ -367,12 +369,30 @@ class _CalendarScreenState extends State<CalendarScreen> {
             ),
             const SizedBox(height: 16),
 
-            const Text(
-              '獲得バッジ',
-              style: TextStyle(
-                fontSize: AppFontSize.lg,
-                fontWeight: FontWeight.w700,
-              ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text(
+                  '獲得バッジ',
+                  style: TextStyle(
+                    fontSize: AppFontSize.lg,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                GestureDetector(
+                  onTap: () => Navigator.of(context).push(
+                    MaterialPageRoute(builder: (_) => const AllBadgesScreen()),
+                  ),
+                  child: Text(
+                    '${appState.unlockedBadgeCount} / ${appState.totalBadgeCount} 個 →',
+                    style: const TextStyle(
+                      fontSize: AppFontSize.sm,
+                      color: AppColors.primary,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ],
             ),
             const SizedBox(height: 8),
             Container(
@@ -391,34 +411,42 @@ class _CalendarScreenState extends State<CalendarScreen> {
                   mainAxisSpacing: 8,
                   childAspectRatio: 0.95,
                 ),
-                itemCount: kBadges.length,
+                itemCount: appState.badges.length > 6
+                    ? 6
+                    : appState.badges.length,
                 itemBuilder: (context, i) {
-                  final b = kBadges[i];
-                  return Container(
-                    decoration: BoxDecoration(
-                      color: b.unlocked
-                          ? AppColors.primaryFaint
-                          : AppColors.bgSoft,
-                      borderRadius: BorderRadius.circular(14),
+                  final b = appState.badges[i];
+                  return GestureDetector(
+                    onTap: () => showDialog(
+                      context: context,
+                      builder: (_) => BadgeDetailDialog(badge: b),
                     ),
-                    alignment: Alignment.center,
-                    padding: const EdgeInsets.symmetric(horizontal: 4),
-                    child: Opacity(
-                      opacity: b.unlocked ? 1 : 0.4,
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(b.icon, style: const TextStyle(fontSize: 26)),
-                          const SizedBox(height: 4),
-                          Text(
-                            b.name,
-                            textAlign: TextAlign.center,
-                            style: const TextStyle(
-                              fontSize: 10,
-                              fontWeight: FontWeight.w600,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: b.unlocked
+                            ? AppColors.primaryFaint
+                            : AppColors.bgSoft,
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                      alignment: Alignment.center,
+                      padding: const EdgeInsets.symmetric(horizontal: 4),
+                      child: Opacity(
+                        opacity: b.unlocked ? 1 : 0.4,
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(b.icon, style: const TextStyle(fontSize: 26)),
+                            const SizedBox(height: 4),
+                            Text(
+                              b.name,
+                              textAlign: TextAlign.center,
+                              style: const TextStyle(
+                                fontSize: 10,
+                                fontWeight: FontWeight.w600,
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ),
                   );

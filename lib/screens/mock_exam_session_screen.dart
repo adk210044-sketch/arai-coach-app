@@ -68,6 +68,7 @@ class _MockExamSessionScreenState extends State<MockExamSessionScreen> {
     for (int i = 0; i < _questions.length; i++) {
       if (_answers[i] == _questions[i].correctIndex) score++;
     }
+    context.read<AppState>().markMockExamCompleted();
     Navigator.of(context).pushReplacement(
       MaterialPageRoute(
         builder: (_) => MockExamResultScreen(

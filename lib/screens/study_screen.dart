@@ -2,16 +2,20 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../theme/tokens.dart';
 import '../state/app_state.dart';
+import '../widgets/ad_banner_placeholder.dart';
 import 'question_screen.dart';
 import 'mock_exam_screen.dart';
 import 'calendar_screen.dart';
+import 'paywall_screen.dart';
 
 class StudyScreen extends StatelessWidget {
   const StudyScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final categories = context.watch<AppState>().categoryStats;
+    final appState = context.watch<AppState>();
+    final categories = appState.categoryStats;
+    final isPremium = appState.canUseMockExam;
     return SafeArea(
       child: SingleChildScrollView(
         padding: const EdgeInsets.fromLTRB(18, 18, 18, 100),
@@ -49,14 +53,17 @@ class StudyScreen extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 4),
-            const Text(
-              'カテゴリを選んで演習を始めよう',
-              style: TextStyle(
+            Text(
+              isPremium
+                  ? 'カテゴリを選んで演習を始めよう'
+                  : 'カテゴリを選んで演習を始めよう(フリープランは過去問50問まで)',
+              style: const TextStyle(
                 fontSize: AppFontSize.base,
                 color: AppColors.textDim,
               ),
             ),
-            const SizedBox(height: 18),
+            const SizedBox(height: 14),
+            const AdBannerPlaceholder(),
 
             Container(
               padding: const EdgeInsets.all(16),
@@ -214,9 +221,20 @@ class StudyScreen extends StatelessWidget {
             }),
             const SizedBox(height: 10),
             GestureDetector(
-              onTap: () => Navigator.of(
-                context,
-              ).push(MaterialPageRoute(builder: (_) => const MockExamScreen())),
+              onTap: () {
+                if (!isPremium) {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) =>
+                          const PaywallScreen(trigger: PaywallTrigger.mockExam),
+                    ),
+                  );
+                  return;
+                }
+                Navigator.of(context).push(
+                  MaterialPageRoute(builder: (_) => const MockExamScreen()),
+                );
+              },
               child: Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
@@ -228,29 +246,37 @@ class StudyScreen extends StatelessWidget {
                   children: [
                     const Text('📝', style: TextStyle(fontSize: 26)),
                     const SizedBox(width: 12),
-                    const Expanded(
+                    Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
+                          const Text(
                             '模擬試験',
                             style: TextStyle(
                               fontSize: AppFontSize.md,
                               fontWeight: FontWeight.w700,
                             ),
                           ),
-                          SizedBox(height: 2),
+                          const SizedBox(height: 2),
                           Text(
-                            '本番形式で実力チェック',
+                            isPremium ? '本番形式で実力チェック' : '🔒 プレミアム限定の機能だよ',
                             style: TextStyle(
                               fontSize: AppFontSize.sm,
-                              color: AppColors.textDim,
+                              color: isPremium
+                                  ? AppColors.textDim
+                                  : AppColors.accent,
+                              fontWeight: isPremium
+                                  ? FontWeight.normal
+                                  : FontWeight.w600,
                             ),
                           ),
                         ],
                       ),
                     ),
-                    const Icon(Icons.chevron_right, color: AppColors.textMute),
+                    Icon(
+                      isPremium ? Icons.chevron_right : Icons.lock_outline,
+                      color: isPremium ? AppColors.textMute : AppColors.accent,
+                    ),
                   ],
                 ),
               ),
