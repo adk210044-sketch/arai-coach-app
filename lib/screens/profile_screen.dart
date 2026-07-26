@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../theme/tokens.dart';
 import '../state/app_state.dart';
-import '../models/user_profile.dart';
+import '../models/user_profile.dart'
+    show ExamType, TextSizeOption, TextSizeOptionX, DarkModeOption, DarkModeOptionX;
 import '../models/plan.dart';
 import '../services/notification_service.dart';
 import '../widgets/badge_detail_dialog.dart';
@@ -46,7 +47,7 @@ class ProfileScreen extends StatelessWidget {
         const Text('🎯', style: TextStyle(fontSize: 20)),
         '学習ゴール',
         '1日 ${profile.dailyGoalQuestions}問',
-        null,
+        () => _openDailyGoalSettings(context, appState),
       ),
       (
         const Text('🔔', style: TextStyle(fontSize: 20)),
@@ -66,7 +67,7 @@ class ProfileScreen extends StatelessWidget {
         profile.examDate != null
             ? '${profile.examDate!.month}/${profile.examDate!.day}'
             : '未設定',
-        null,
+        () => _openExamDatePicker(context, appState, profile.examDate),
       ),
       (
         const Text('🎓', style: TextStyle(fontSize: 20)),
@@ -74,7 +75,12 @@ class ProfileScreen extends StatelessWidget {
         profile.examTypeLabel,
         () => _confirmExamTypeChange(context, appState, profile.examType),
       ),
-      (const Text('🌙', style: TextStyle(fontSize: 20)), 'ダークモード', '自動', null),
+      (
+        const Text('🌙', style: TextStyle(fontSize: 20)),
+        'ダークモード',
+        profile.darkModeOption.label,
+        () => _openDarkModeSettings(context, appState),
+      ),
     ];
 
     return SafeArea(
@@ -745,6 +751,242 @@ class ProfileScreen extends StatelessWidget {
                                   ? AppColors.primary
                                   : AppColors.text,
                             ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Text(
+                              option.label,
+                              style: TextStyle(
+                                fontSize: AppFontSize.md,
+                                fontWeight: FontWeight.w600,
+                                color: selected
+                                    ? AppColors.primary
+                                    : AppColors.text,
+                              ),
+                            ),
+                          ),
+                          Icon(
+                            selected
+                                ? Icons.radio_button_checked
+                                : Icons.radio_button_unchecked,
+                            color: selected
+                                ? AppColors.primary
+                                : AppColors.textMute,
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                }),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  // 学習ゴール(1日の目標問題数)設定。5〜50問の範囲で選べる。
+  void _openDailyGoalSettings(BuildContext context, AppState appState) {
+    final options = [10, 15, 20, 30, 40, 50];
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (ctx) {
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(20, 20, 20, 28),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  '🎯 学習ゴール',
+                  style: TextStyle(
+                    fontSize: AppFontSize.xl,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                const Text(
+                  '1日に取り組む問題数の目標を選んでね。',
+                  style: TextStyle(
+                    fontSize: AppFontSize.sm,
+                    color: AppColors.textDim,
+                    height: 1.6,
+                  ),
+                ),
+                const SizedBox(height: 18),
+                ...options.map((count) {
+                  final selected = appState.profile.dailyGoalQuestions == count;
+                  return GestureDetector(
+                    onTap: () {
+                      appState.setDailyGoalQuestions(count);
+                      Navigator.of(ctx).pop();
+                    },
+                    child: Container(
+                      margin: const EdgeInsets.only(bottom: 10),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 14,
+                      ),
+                      decoration: BoxDecoration(
+                        color: selected
+                            ? AppColors.primaryFaint
+                            : AppColors.bgSoft,
+                        border: Border.all(
+                          color: selected
+                              ? AppColors.primary
+                              : AppColors.border,
+                          width: selected ? 2 : 1,
+                        ),
+                        borderRadius: BorderRadius.circular(AppRadius.md),
+                      ),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              '1日 $count問',
+                              style: TextStyle(
+                                fontSize: AppFontSize.md,
+                                fontWeight: FontWeight.w600,
+                                color: selected
+                                    ? AppColors.primary
+                                    : AppColors.text,
+                              ),
+                            ),
+                          ),
+                          Icon(
+                            selected
+                                ? Icons.radio_button_checked
+                                : Icons.radio_button_unchecked,
+                            color: selected
+                                ? AppColors.primary
+                                : AppColors.textMute,
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                }),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  // 試験日設定。日付ピッカーで選択し、直接プロフィールに反映する。
+  void _openExamDatePicker(
+    BuildContext context,
+    AppState appState,
+    DateTime? current,
+  ) async {
+    final now = DateTime.now();
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: current ?? now.add(const Duration(days: 60)),
+      firstDate: now,
+      lastDate: DateTime(now.year + 3),
+      helpText: '試験日を選んでね',
+      cancelText: 'キャンセル',
+      confirmText: '決定',
+      builder: (ctx, child) {
+        return Theme(
+          data: Theme.of(ctx).copyWith(
+            colorScheme: Theme.of(ctx).colorScheme.copyWith(
+              primary: AppColors.primary,
+            ),
+          ),
+          child: child!,
+        );
+      },
+    );
+    if (picked != null) {
+      appState.setExamDate(picked);
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('試験日を${picked.month}/${picked.day}に設定したよ'),
+          ),
+        );
+      }
+    }
+  }
+
+  // ダークモード設定(自動/オン/オフの3段階)。
+  void _openDarkModeSettings(BuildContext context, AppState appState) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (ctx) {
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(20, 20, 20, 28),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  '🌙 ダークモード',
+                  style: TextStyle(
+                    fontSize: AppFontSize.xl,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                const Text(
+                  '自動にすると端末の設定に合わせて切り替わるよ。',
+                  style: TextStyle(
+                    fontSize: AppFontSize.sm,
+                    color: AppColors.textDim,
+                    height: 1.6,
+                  ),
+                ),
+                const SizedBox(height: 18),
+                ...DarkModeOption.values.map((option) {
+                  final selected = appState.profile.darkModeOption == option;
+                  return GestureDetector(
+                    onTap: () {
+                      appState.setDarkModeOption(option);
+                      Navigator.of(ctx).pop();
+                    },
+                    child: Container(
+                      margin: const EdgeInsets.only(bottom: 10),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 14,
+                      ),
+                      decoration: BoxDecoration(
+                        color: selected
+                            ? AppColors.primaryFaint
+                            : AppColors.bgSoft,
+                        border: Border.all(
+                          color: selected
+                              ? AppColors.primary
+                              : AppColors.border,
+                          width: selected ? 2 : 1,
+                        ),
+                        borderRadius: BorderRadius.circular(AppRadius.md),
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(
+                            option == DarkModeOption.auto
+                                ? Icons.brightness_auto
+                                : option == DarkModeOption.on
+                                    ? Icons.dark_mode
+                                    : Icons.light_mode,
+                            color: selected
+                                ? AppColors.primary
+                                : AppColors.textMute,
                           ),
                           const SizedBox(width: 12),
                           Expanded(

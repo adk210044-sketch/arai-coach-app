@@ -6,6 +6,8 @@ import '../models/question.dart';
 import '../data/reference_tables.dart';
 import '../widgets/coach_bubble.dart';
 import '../widgets/reference_table_card.dart';
+import '../widgets/choice_item.dart';
+import '../widgets/app_chip.dart';
 import 'question_screen.dart';
 
 class ExplanationScreen extends StatefulWidget {
@@ -225,6 +227,14 @@ class _ExplanationScreenState extends State<ExplanationScreen>
                       ],
                     ),
                     const SizedBox(height: 14),
+                    SizedBox(
+                      width: double.infinity,
+                      child: _smallBtn(
+                        '📄 問題文を見直す',
+                        onTap: () => _showQuestionReview(context, appState, q),
+                      ),
+                    ),
+                    const SizedBox(height: 8),
                     Row(
                       children: [
                         Expanded(
@@ -397,6 +407,153 @@ class _ExplanationScreenState extends State<ExplanationScreen>
           ),
         ),
       ),
+    );
+  }
+
+  /// 「問題文を見直す」ボトムシート。解答直後の画面は解説中心で
+  /// 問題文が流れて見えなくなっているため、いつでも元の問題文・選択肢
+  /// (自分の回答・正解がどれだったか付き)を見返せるようにする。
+  void _showQuestionReview(
+    BuildContext context,
+    AppState appState,
+    Question q,
+  ) {
+    final myAnswer = appState.selectedAnswer;
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.white,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (ctx) {
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                maxHeight: MediaQuery.of(context).size.height * 0.85,
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      const Text(
+                        '📄 問題を見直す',
+                        style: TextStyle(
+                          fontSize: AppFontSize.xl,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                      const Spacer(),
+                      IconButton(
+                        onPressed: () => Navigator.of(ctx).pop(),
+                        icon: const Icon(Icons.close),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 4),
+                  Expanded(
+                    child: SingleChildScrollView(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              AppChip(
+                                label: q.format == QuestionFormat.ox
+                                    ? '◯×問題'
+                                    : '五肢択一',
+                                bg: AppColors.primarySoft,
+                                fg: AppColors.primary,
+                              ),
+                              const SizedBox(width: 6),
+                              AppChip(
+                                label: q.categoryName,
+                                bg: const Color(0xFFFEF3C7),
+                                fg: const Color(0xFFA16207),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 12),
+                          Text(
+                            '${q.number} · ${q.year}',
+                            style: const TextStyle(
+                              fontSize: AppFontSize.xs,
+                              color: AppColors.textDim,
+                              letterSpacing: 1,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            q.text,
+                            style: const TextStyle(
+                              fontSize: AppFontSize.xl,
+                              height: 1.85,
+                              fontWeight: FontWeight.w500,
+                              color: AppColors.text,
+                            ),
+                          ),
+                          if (q.items.isNotEmpty) ...[
+                            const SizedBox(height: 12),
+                            ...q.items.map(
+                              (it) => Padding(
+                                padding: const EdgeInsets.only(bottom: 6),
+                                child: Text(
+                                  it,
+                                  style: const TextStyle(
+                                    fontSize: AppFontSize.md,
+                                    height: 1.6,
+                                    color: AppColors.textDim,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                          const SizedBox(height: 16),
+                          ...List.generate(q.choices.length, (i) {
+                            ChoiceState state = ChoiceState.normal;
+                            if (i == q.correctIndex) {
+                              state = ChoiceState.correct;
+                            } else if (i == myAnswer) {
+                              state = ChoiceState.incorrect;
+                            }
+                            return ChoiceItem(label: q.choices[i], state: state);
+                          }),
+                          const SizedBox(height: 4),
+                          Row(
+                            children: [
+                              const Icon(
+                                Icons.info_outline,
+                                size: 13,
+                                color: AppColors.textMute,
+                              ),
+                              const SizedBox(width: 4),
+                              Expanded(
+                                child: Text(
+                                  myAnswer == null
+                                      ? '緑枠が正解だよ'
+                                      : '緑枠が正解、赤枠が自分の回答だよ',
+                                  style: const TextStyle(
+                                    fontSize: 10.5,
+                                    color: AppColors.textMute,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 

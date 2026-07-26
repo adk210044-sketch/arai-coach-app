@@ -447,6 +447,27 @@ class AppState extends ChangeNotifier {
     notifyListeners();
   }
 
+  // ─── ダークモード(自動/オン/オフ) ──────────────────────
+  void setDarkModeOption(DarkModeOption option) {
+    profile = profile.copyWith(darkModeOption: option);
+    _persistProfile();
+    notifyListeners();
+  }
+
+  // ─── 学習ゴール(1日の目標問題数) ──────────────────────
+  void setDailyGoalQuestions(int count) {
+    profile = profile.copyWith(dailyGoalQuestions: count);
+    _persistProfile();
+    notifyListeners();
+  }
+
+  // ─── 試験日 ──────────────────────
+  void setExamDate(DateTime date) {
+    profile = profile.copyWith(examDate: date);
+    _persistProfile();
+    notifyListeners();
+  }
+
   // ─── オンボーディング内1問デモ ──────────────────────
   void markOnboardingDemoDone() {
     profile = profile.copyWith(onboardingDemoDone: true);
@@ -585,6 +606,33 @@ class AppState extends ChangeNotifier {
       _unlockBadge('first_bookmark');
     }
     LocalStore.saveBookmarks(bookmarkedIds.toList());
+    notifyListeners();
+  }
+
+  /// 保存(ブックマーク)した問題を実際の [Question] オブジェクトとして返す。
+  /// 現在選択中の受験区分(第一種/第二種)に関わらず、保存した問題は
+  /// すべて表示する(区分を後で変更しても保存リストが消えないようにする)。
+  List<Question> get bookmarkedQuestions {
+    final repo = QuestionRepository.instance;
+    final byId = {for (final q in repo.all) q.id: q};
+    final result = <Question>[];
+    for (final id in bookmarkedIds) {
+      final q = byId[id];
+      if (q != null) result.add(q);
+    }
+    return result;
+  }
+
+  /// 保存した問題一覧から1問だけを演習キューにセットし、
+  /// 問題画面(QuestionScreen)でその場で解けるようにする。
+  void startSingleQuestionSession(Question question) {
+    questionQueue = [question];
+    currentIndex = 0;
+    selectedAnswer = null;
+    answered = false;
+    sessionCorrectCount = 0;
+    sessionAnsweredCount = 0;
+    questionStartedAt = DateTime.now();
     notifyListeners();
   }
 

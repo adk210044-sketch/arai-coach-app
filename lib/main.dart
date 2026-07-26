@@ -35,6 +35,12 @@ class HygieneCoachApp extends StatelessWidget {
             title: 'Hygiene Coach',
             debugShowCheckedModeBanner: false,
             theme: AppTheme.light,
+            darkTheme: AppTheme.dark,
+            themeMode: context
+                .watch<AppState>()
+                .profile
+                .darkModeOption
+                .themeMode,
             builder: (context, child) {
               return MediaQuery(
                 data: MediaQuery.of(

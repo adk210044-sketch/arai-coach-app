@@ -9,6 +9,7 @@ import '../widgets/intensive_pack_promo_card.dart';
 import 'question_screen.dart';
 import 'mock_exam_screen.dart';
 import 'paywall_screen.dart';
+import 'bookmarked_questions_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -353,6 +354,8 @@ class HomeScreen extends StatelessWidget {
                 ),
               ],
             ),
+            const SizedBox(height: 10),
+            _bookmarkButton(context, appState),
             const SizedBox(height: 20),
 
             const Text(
@@ -417,6 +420,67 @@ class HomeScreen extends StatelessWidget {
                   MaterialPageRoute(builder: (_) => const MockExamScreen()),
                 );
               },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _bookmarkButton(BuildContext context, AppState appState) {
+    final count = appState.bookmarkedIds.length;
+    return GestureDetector(
+      onTap: () {
+        Navigator.of(context).push(
+          MaterialPageRoute(builder: (_) => const BookmarkedQuestionsScreen()),
+        );
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(AppRadius.md),
+          boxShadow: AppShadow.card,
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 44,
+              height: 44,
+              decoration: BoxDecoration(
+                color: AppColors.primarySoft,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              alignment: Alignment.center,
+              child: const Text('📌', style: TextStyle(fontSize: 22)),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    '保存した問題 ($count件)',
+                    style: const TextStyle(
+                      fontSize: AppFontSize.lg,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  const Text(
+                    '見返したい問題をあとでまとめて復習できるよ',
+                    style: TextStyle(
+                      fontSize: AppFontSize.sm,
+                      color: AppColors.textDim,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const Icon(
+              Icons.chevron_right,
+              color: AppColors.textMute,
+              size: 24,
             ),
           ],
         ),
