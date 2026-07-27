@@ -1,7 +1,8 @@
 // badge_medal.dart — 実績バッジを「メダル」らしい質感で表示するウィジェット。
-// CSSグラデーションでは金属質感を再現できなかったため、AI生成した
-// 実写風メダル画像(assets/badges/)を土台に、その上へ絵文字アイコンを
-// 重ねる方式で実装している。
+// AI画像生成モデルで直接生成した金属メダル画像(assets/badges/)を、
+// バッジごとに専用の1枚として表示する方式。
+// (以前はティア共通の土台画像に絵文字アイコンを重ねる方式だったが、
+//  月桂冠+線画アイコンを一体で刻印したメダル画像そのものを使う方式に変更した)
 // 金銀銅ではなく、本アプリのトンマナ(スタサプ的ブルー)に合わせて
 // ライトブルー/ビビッドブルー/シルバーの3ティアでランクを表現する。
 import 'package:flutter/material.dart';
@@ -9,53 +10,86 @@ import '../theme/tokens.dart';
 import '../models/badge.dart';
 
 class BadgeMedal extends StatelessWidget {
-  final String icon;
-  final BadgeTier tier;
+  /// バッジID(badge_engine.dart の BadgeCondition.id と一致)。
+  /// このIDから、専用の刻印済みメダル画像を1枚選ぶ。
+  final String badgeId;
   final bool unlocked;
   final double size;
 
   const BadgeMedal({
     super.key,
-    required this.icon,
-    required this.tier,
+    required this.badgeId,
     required this.unlocked,
     this.size = 56,
   });
 
-  // ティアごとの土台メダル画像パス。
+  /// バッジID → メダル画像ファイル名(拡張子なし)のマッピング。
+  /// 全20種のバッジ条件を、色(tier)とアイコンの組み合わせで14枚の画像に割り当てる。
+  /// (系統の近いバッジ同士は画像を共用している: 例) first_gap_study と
+  ///  first_coach_chat はどちらも「会話」を表す light_chat を共用)
+  static const Map<String, String> _assetByBadgeId = {
+    // 挑戦バッジ
+    'first_answer': 'light_seedling',
+    'first_gap_study': 'light_chat',
+    'first_weak_review': 'light_brain',
+    'first_mock_exam': 'light_memo',
+    'first_coach_chat': 'light_chat',
+    'first_bookmark': 'light_bookmark',
+    // 継続バッジ
+    'streak_3': 'silver_flame',
+    'streak_5': 'silver_flame',
+    'streak_10': 'silver_flame',
+    'streak_20': 'light_lightning',
+    'streak_30': 'light_lightning',
+    'streak_40': 'light_star',
+    'streak_60': 'vivid_star',
+    'streak_90': 'vivid_crown',
+    // 合格力バッジ
+    'pass_rate_40': 'silver_target',
+    'pass_rate_50': 'silver_target',
+    'pass_rate_60': 'light_chart',
+    'pass_rate_70': 'light_chart',
+    'pass_rate_80': 'vivid_trophy',
+    // AI連携バッジ
+    'gemini_linked': 'vivid_tanuki',
+  };
+
   String get _medalAsset {
-    if (!unlocked) return 'assets/badges/medal_locked.png';
-    switch (tier) {
-      case BadgeTier.light:
-        return 'assets/badges/medal_light.png';
-      case BadgeTier.vivid:
-        return 'assets/badges/medal_vivid.png';
-      case BadgeTier.silver:
-        return 'assets/badges/medal_silver.png';
-    }
+    final name = _assetByBadgeId[badgeId] ?? 'light_seedling';
+    return 'assets/badges/$name.png';
   }
+
+  // 未獲得時のグレースケール変換用カラーマトリクス(輝度ベース)。
+  // 専用のロック画像を用意する代わりに、各バッジ本来の絵柄をそのまま
+  // グレー化+半透明にすることで「まだ獲得していない」ことを表す。
+  static const List<double> _grayscaleMatrix = <double>[
+    0.2126, 0.7152, 0.0722, 0, 0,
+    0.2126, 0.7152, 0.0722, 0, 0,
+    0.2126, 0.7152, 0.0722, 0, 0,
+    0, 0, 0, 1, 0,
+  ];
 
   @override
   Widget build(BuildContext context) {
+    final medalImage = Image.asset(
+      _medalAsset,
+      width: size,
+      height: size,
+      fit: BoxFit.contain,
+    );
+
     return SizedBox(
       width: size,
       height: size,
-      child: Stack(
-        alignment: Alignment.center,
-        children: [
-          // 土台メダル画像(AI生成の金属質感画像)
-          Image.asset(
-            _medalAsset,
-            width: size,
-            height: size,
-            fit: BoxFit.contain,
-          ),
-          // 中央の刻印プレートに絵文字アイコンを重ねる
-          // (ロック済みメダルは画像自体に鍵アイコンが刻印済みのため不要)
-          if (unlocked)
-            Text(icon, style: TextStyle(fontSize: size * 0.30)),
-        ],
-      ),
+      child: unlocked
+          ? medalImage
+          : Opacity(
+              opacity: 0.5,
+              child: ColorFiltered(
+                colorFilter: const ColorFilter.matrix(_grayscaleMatrix),
+                child: medalImage,
+              ),
+            ),
     );
   }
 }

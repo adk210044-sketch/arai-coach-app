@@ -164,8 +164,7 @@ class _CategorySection extends StatelessWidget {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         BadgeMedal(
-                          icon: b.icon,
-                          tier: b.tier,
+                          badgeId: b.id,
                           unlocked: b.unlocked,
                           size: 46,
                         ),

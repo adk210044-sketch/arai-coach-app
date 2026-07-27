@@ -4,6 +4,7 @@ import '../theme/tokens.dart';
 import '../state/app_state.dart';
 import '../data/sample_data.dart';
 import '../widgets/badge_detail_dialog.dart';
+import '../widgets/badge_medal.dart';
 import 'all_badges_screen.dart';
 
 class CalendarScreen extends StatefulWidget {
@@ -430,23 +431,26 @@ class _CalendarScreenState extends State<CalendarScreen> {
                       ),
                       alignment: Alignment.center,
                       padding: const EdgeInsets.symmetric(horizontal: 4),
-                      child: Opacity(
-                        opacity: b.unlocked ? 1 : 0.4,
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(b.icon, style: const TextStyle(fontSize: 26)),
-                            const SizedBox(height: 4),
-                            Text(
-                              b.name,
-                              textAlign: TextAlign.center,
-                              style: const TextStyle(
-                                fontSize: 10,
-                                fontWeight: FontWeight.w600,
-                              ),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          BadgeMedal(
+                            badgeId: b.id,
+                            unlocked: b.unlocked,
+                            size: 40,
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            b.name,
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(
+                              fontSize: 10,
+                              fontWeight: FontWeight.w600,
                             ),
-                          ],
-                        ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
                       ),
                     ),
                   );

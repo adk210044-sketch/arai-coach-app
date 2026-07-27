@@ -2,9 +2,12 @@
 // カテゴリ別(初操作/継続学習/合格率/AI連携)に分類し、獲得済みかどうかを保持する。
 enum BadgeCategory { firstAction, streak, passRate, aiIntegration }
 
-/// バッジの見た目のランク(メダルの色)。難易度・レア度に応じて
-/// light(淡いブルー・入門) → vivid(濃いブルー・中級) → silver(シルバー・上級)
-/// の順で格上げされる。
+/// バッジの見た目のランク(メダルの色)。
+/// 継続バッジ・合格力バッジなど「段階的に格上げされる」系列では、
+/// silver(下位) → light(淡いブルー・中位) → vivid(濃いブルー・上位/最高評価)
+/// の順でランクが上がる(濃いブルーが最も良い色)。
+/// 挑戦バッジ・AI連携バッジなど「優先度のない」単発の達成バッジについては
+/// このランク順に縛られず、どの色を割り当ててもよい。
 enum BadgeTier { light, vivid, silver }
 
 extension BadgeCategoryX on BadgeCategory {

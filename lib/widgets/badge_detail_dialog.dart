@@ -44,8 +44,7 @@ class BadgeDetailDialog extends StatelessWidget {
               const SizedBox(height: 14),
             ],
             BadgeMedal(
-              icon: badge.icon,
-              tier: badge.tier,
+              badgeId: badge.id,
               unlocked: badge.unlocked,
               size: 92,
             ),
