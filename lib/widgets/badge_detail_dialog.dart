@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import '../theme/tokens.dart';
 import '../models/badge.dart';
+import 'badge_medal.dart';
 
 class BadgeDetailDialog extends StatelessWidget {
   final AppBadge badge;
@@ -42,35 +43,41 @@ class BadgeDetailDialog extends StatelessWidget {
               ),
               const SizedBox(height: 14),
             ],
-            Container(
-              width: 84,
-              height: 84,
-              decoration: BoxDecoration(
-                color: AppColors.primaryFaint,
-                shape: BoxShape.circle,
-                border: Border.all(
-                  color: AppColors.primary.withValues(alpha: 0.25),
-                  width: 3,
-                ),
-              ),
-              alignment: Alignment.center,
-              child: Text(badge.icon, style: const TextStyle(fontSize: 40)),
+            BadgeMedal(
+              icon: badge.icon,
+              tier: badge.tier,
+              unlocked: badge.unlocked,
+              size: 92,
             ),
-            const SizedBox(height: 16),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
-              decoration: BoxDecoration(
-                color: AppColors.bgSoft,
-                borderRadius: BorderRadius.circular(AppRadius.pill),
-              ),
-              child: Text(
-                '${badge.category.emoji} ${badge.category.label}',
-                style: const TextStyle(
-                  fontSize: AppFontSize.sm,
-                  color: AppColors.textDim,
-                  fontWeight: FontWeight.w600,
+            const SizedBox(height: 14),
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 3,
+                  ),
+                  decoration: BoxDecoration(
+                    color: AppColors.bgSoft,
+                    borderRadius: BorderRadius.circular(AppRadius.pill),
+                  ),
+                  child: Text(
+                    '${badge.category.emoji} ${badge.category.label}',
+                    style: const TextStyle(
+                      fontSize: AppFontSize.sm,
+                      color: AppColors.textDim,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
                 ),
-              ),
+                const SizedBox(width: 6),
+                BadgeRibbonTag(
+                  text: _tierLabel(badge.tier),
+                  tier: badge.tier,
+                  unlocked: badge.unlocked,
+                ),
+              ],
             ),
             const SizedBox(height: 10),
             Text(
@@ -144,5 +151,16 @@ class BadgeDetailDialog extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  String _tierLabel(BadgeTier tier) {
+    switch (tier) {
+      case BadgeTier.light:
+        return 'ライトブルー';
+      case BadgeTier.vivid:
+        return 'ビビッドブルー';
+      case BadgeTier.silver:
+        return 'シルバー';
+    }
   }
 }

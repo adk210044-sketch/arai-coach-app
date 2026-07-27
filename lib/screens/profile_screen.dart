@@ -7,6 +7,7 @@ import '../models/user_profile.dart'
 import '../models/plan.dart';
 import '../services/notification_service.dart';
 import '../widgets/badge_detail_dialog.dart';
+import '../widgets/badge_medal.dart';
 import '../widgets/coach_bubble.dart';
 import 'paywall_screen.dart';
 import 'coach_ai_settings_screen.dart';
@@ -276,7 +277,7 @@ class ProfileScreen extends StatelessWidget {
                           crossAxisCount: 3,
                           crossAxisSpacing: 8,
                           mainAxisSpacing: 8,
-                          childAspectRatio: 0.95,
+                          childAspectRatio: 0.8,
                         ),
                     itemCount: appState.badges.length > 6
                         ? 6
@@ -289,6 +290,7 @@ class ProfileScreen extends StatelessWidget {
                           builder: (_) => BadgeDetailDialog(badge: b),
                         ),
                         child: Container(
+                          padding: const EdgeInsets.symmetric(vertical: 6),
                           decoration: BoxDecoration(
                             color: b.unlocked
                                 ? AppColors.primaryFaint
@@ -296,26 +298,30 @@ class ProfileScreen extends StatelessWidget {
                             borderRadius: BorderRadius.circular(14),
                           ),
                           alignment: Alignment.center,
-                          child: Opacity(
-                            opacity: b.unlocked ? 1 : 0.4,
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Text(
-                                  b.icon,
-                                  style: const TextStyle(fontSize: 26),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              BadgeMedal(
+                                icon: b.icon,
+                                tier: b.tier,
+                                unlocked: b.unlocked,
+                                size: 44,
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                b.name,
+                                style: TextStyle(
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w600,
+                                  color: b.unlocked
+                                      ? AppColors.text
+                                      : AppColors.textMute,
                                 ),
-                                const SizedBox(height: 4),
-                                Text(
-                                  b.name,
-                                  style: const TextStyle(
-                                    fontSize: 10,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                  textAlign: TextAlign.center,
-                                ),
-                              ],
-                            ),
+                                textAlign: TextAlign.center,
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ],
                           ),
                         ),
                       );

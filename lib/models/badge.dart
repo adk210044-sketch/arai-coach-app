@@ -2,6 +2,11 @@
 // カテゴリ別(初操作/継続学習/合格率/AI連携)に分類し、獲得済みかどうかを保持する。
 enum BadgeCategory { firstAction, streak, passRate, aiIntegration }
 
+/// バッジの見た目のランク(メダルの色)。難易度・レア度に応じて
+/// light(淡いブルー・入門) → vivid(濃いブルー・中級) → silver(シルバー・上級)
+/// の順で格上げされる。
+enum BadgeTier { light, vivid, silver }
+
 extension BadgeCategoryX on BadgeCategory {
   String get label {
     switch (this) {
@@ -37,6 +42,7 @@ class AppBadge {
   final String description;
   final BadgeCategory category;
   final bool unlocked;
+  final BadgeTier tier;
 
   const AppBadge({
     required this.id,
@@ -45,6 +51,7 @@ class AppBadge {
     required this.description,
     required this.category,
     required this.unlocked,
+    this.tier = BadgeTier.light,
   });
 
   AppBadge unlockedCopy() => AppBadge(
@@ -54,5 +61,6 @@ class AppBadge {
     description: description,
     category: category,
     unlocked: true,
+    tier: tier,
   );
 }

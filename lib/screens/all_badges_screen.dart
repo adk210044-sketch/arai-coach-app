@@ -7,6 +7,7 @@ import '../theme/tokens.dart';
 import '../state/app_state.dart';
 import '../models/badge.dart';
 import '../widgets/badge_detail_dialog.dart';
+import '../widgets/badge_medal.dart';
 import '../widgets/coach_bubble.dart';
 
 class AllBadgesScreen extends StatelessWidget {
@@ -137,18 +138,21 @@ class _CategorySection extends StatelessWidget {
                 crossAxisCount: 3,
                 crossAxisSpacing: 8,
                 mainAxisSpacing: 8,
-                childAspectRatio: 0.9,
+                childAspectRatio: 0.78,
               ),
               itemCount: badges.length,
               itemBuilder: (context, i) {
-                final b = badges[i];
+                  final b = badges[i];
                 return GestureDetector(
                   onTap: () => showDialog(
                     context: context,
                     builder: (_) => BadgeDetailDialog(badge: b),
                   ),
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 4),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 4,
+                      vertical: 6,
+                    ),
                     decoration: BoxDecoration(
                       color: b.unlocked
                           ? AppColors.primaryFaint
@@ -156,23 +160,30 @@ class _CategorySection extends StatelessWidget {
                       borderRadius: BorderRadius.circular(14),
                     ),
                     alignment: Alignment.center,
-                    child: Opacity(
-                      opacity: b.unlocked ? 1 : 0.4,
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(b.icon, style: const TextStyle(fontSize: 24)),
-                          const SizedBox(height: 4),
-                          Text(
-                            b.name,
-                            textAlign: TextAlign.center,
-                            style: const TextStyle(
-                              fontSize: 9,
-                              fontWeight: FontWeight.w600,
-                            ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        BadgeMedal(
+                          icon: b.icon,
+                          tier: b.tier,
+                          unlocked: b.unlocked,
+                          size: 46,
+                        ),
+                        const SizedBox(height: 5),
+                        Text(
+                          b.name,
+                          textAlign: TextAlign.center,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontSize: 9,
+                            fontWeight: FontWeight.w600,
+                            color: b.unlocked
+                                ? AppColors.text
+                                : AppColors.textMute,
                           ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
                   ),
                 );

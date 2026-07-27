@@ -66,6 +66,7 @@ class AppState extends ChangeNotifier {
           description: c.description,
           category: c.category,
           unlocked: _unlockedBadgeIds.contains(c.id),
+          tier: c.tier,
         ),
       )
       .toList();
@@ -106,6 +107,7 @@ class AppState extends ChangeNotifier {
         description: c.description,
         category: c.category,
         unlocked: true,
+        tier: c.tier,
       ),
     );
     notifyListeners();

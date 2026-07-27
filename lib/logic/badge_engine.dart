@@ -11,6 +11,7 @@ class BadgeCondition {
   final String name;
   final String description;
   final BadgeCategory category;
+  final BadgeTier tier;
 
   const BadgeCondition({
     required this.id,
@@ -18,6 +19,7 @@ class BadgeCondition {
     required this.name,
     required this.description,
     required this.category,
+    this.tier = BadgeTier.light,
   });
 }
 
@@ -39,6 +41,7 @@ class BadgeEngine {
       name: 'はじめの一問',
       description: '演習問題に初めて挑戦したよ',
       category: BadgeCategory.firstAction,
+      tier: BadgeTier.light,
     ),
     const BadgeCondition(
       id: 'first_gap_study',
@@ -46,6 +49,7 @@ class BadgeEngine {
       name: 'スキマ学習デビュー',
       description: 'スキマ学習を初めて実施したよ',
       category: BadgeCategory.firstAction,
+      tier: BadgeTier.light,
     ),
     const BadgeCondition(
       id: 'first_weak_review',
@@ -53,6 +57,7 @@ class BadgeEngine {
       name: '苦手復習デビュー',
       description: '苦手復習を初めて実施したよ',
       category: BadgeCategory.firstAction,
+      tier: BadgeTier.light,
     ),
     const BadgeCondition(
       id: 'first_mock_exam',
@@ -60,6 +65,7 @@ class BadgeEngine {
       name: '模擬試験デビュー',
       description: '模擬試験を初めて実施したよ',
       category: BadgeCategory.firstAction,
+      tier: BadgeTier.light,
     ),
     const BadgeCondition(
       id: 'first_coach_chat',
@@ -67,6 +73,7 @@ class BadgeEngine {
       name: 'あらいコーチに初相談',
       description: 'あらいコーチに初めて相談したよ',
       category: BadgeCategory.firstAction,
+      tier: BadgeTier.light,
     ),
     const BadgeCondition(
       id: 'first_bookmark',
@@ -74,6 +81,7 @@ class BadgeEngine {
       name: '保存デビュー',
       description: '問題を初めて保存(ブックマーク)したよ',
       category: BadgeCategory.firstAction,
+      tier: BadgeTier.light,
     ),
 
     // ─── 継続学習バッジ(連続ログイン・学習日数) ──────────────────────
@@ -83,6 +91,7 @@ class BadgeEngine {
       name: '3日連続',
       description: '3日連続で学習したよ',
       category: BadgeCategory.streak,
+      tier: BadgeTier.light,
     ),
     BadgeCondition(
       id: 'streak_5',
@@ -90,6 +99,7 @@ class BadgeEngine {
       name: '5日連続',
       description: '5日連続で学習したよ',
       category: BadgeCategory.streak,
+      tier: BadgeTier.light,
     ),
     BadgeCondition(
       id: 'streak_10',
@@ -97,6 +107,7 @@ class BadgeEngine {
       name: '10日連続',
       description: '10日連続で学習したよ',
       category: BadgeCategory.streak,
+      tier: BadgeTier.light,
     ),
     BadgeCondition(
       id: 'streak_20',
@@ -104,6 +115,7 @@ class BadgeEngine {
       name: '20日連続',
       description: '20日連続で学習したよ。リズムができてきたね',
       category: BadgeCategory.streak,
+      tier: BadgeTier.vivid,
     ),
     BadgeCondition(
       id: 'streak_30',
@@ -111,6 +123,7 @@ class BadgeEngine {
       name: '30日連続',
       description: '30日連続で学習したよ。もう習慣だね',
       category: BadgeCategory.streak,
+      tier: BadgeTier.vivid,
     ),
     BadgeCondition(
       id: 'streak_40',
@@ -118,6 +131,7 @@ class BadgeEngine {
       name: '40日連続',
       description: '40日連続で学習したよ。着実に力がついてるよ',
       category: BadgeCategory.streak,
+      tier: BadgeTier.vivid,
     ),
     BadgeCondition(
       id: 'streak_60',
@@ -125,6 +139,7 @@ class BadgeEngine {
       name: '60日連続',
       description: '60日連続で学習したよ。すごい継続力だね',
       category: BadgeCategory.streak,
+      tier: BadgeTier.silver,
     ),
     BadgeCondition(
       id: 'streak_90',
@@ -132,6 +147,7 @@ class BadgeEngine {
       name: '90日連続',
       description: '90日連続で学習したよ。3か月やり切ったのは本当にすごいよ',
       category: BadgeCategory.streak,
+      tier: BadgeTier.silver,
     ),
 
     // ─── 合格力バッジ(合格可能性診断の到達値) ──────────────────────
@@ -141,6 +157,7 @@ class BadgeEngine {
       name: '合格可能性40%',
       description: '合格可能性診断が40%に達したよ',
       category: BadgeCategory.passRate,
+      tier: BadgeTier.light,
     ),
     BadgeCondition(
       id: 'pass_rate_50',
@@ -148,6 +165,7 @@ class BadgeEngine {
       name: '合格可能性50%',
       description: '合格可能性診断が50%に達したよ',
       category: BadgeCategory.passRate,
+      tier: BadgeTier.light,
     ),
     BadgeCondition(
       id: 'pass_rate_60',
@@ -155,6 +173,7 @@ class BadgeEngine {
       name: '合格可能性60%',
       description: '合格可能性診断が60%(合格圏)に達したよ',
       category: BadgeCategory.passRate,
+      tier: BadgeTier.vivid,
     ),
     BadgeCondition(
       id: 'pass_rate_70',
@@ -162,6 +181,7 @@ class BadgeEngine {
       name: '合格可能性70%',
       description: '合格可能性診断が70%に達したよ',
       category: BadgeCategory.passRate,
+      tier: BadgeTier.vivid,
     ),
     BadgeCondition(
       id: 'pass_rate_80',
@@ -169,6 +189,7 @@ class BadgeEngine {
       name: '合格可能性80%(安全圏)',
       description: '合格可能性診断が80%(安全圏)に達したよ',
       category: BadgeCategory.passRate,
+      tier: BadgeTier.silver,
     ),
 
     // ─── AI連携バッジ ──────────────────────
@@ -178,6 +199,7 @@ class BadgeEngine {
       name: 'あらいコーチAI連携',
       description: 'Gemini APIキーを登録して、あらいコーチと自由に会話できるようになったよ',
       category: BadgeCategory.aiIntegration,
+      tier: BadgeTier.vivid,
     ),
   ];
 
