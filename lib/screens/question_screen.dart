@@ -140,7 +140,7 @@ class QuestionScreen extends StatelessWidget {
                           state = ChoiceState.selected;
                         }
                         return ChoiceItem(
-                          label: q.choices[i],
+                          label: q.displayChoices[i],
                           state: state,
                           onTap: appState.answered
                               ? null

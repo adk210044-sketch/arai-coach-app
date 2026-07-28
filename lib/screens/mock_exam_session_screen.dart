@@ -192,7 +192,7 @@ class _MockExamSessionScreenState extends State<MockExamSessionScreen> {
                     ...List.generate(q.choices.length, (i) {
                       final selected = _answers[_currentIndex] == i;
                       return ChoiceItem(
-                        label: q.choices[i],
+                        label: q.displayChoices[i],
                         state: selected
                             ? ChoiceState.selected
                             : ChoiceState.normal,

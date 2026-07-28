@@ -256,7 +256,7 @@ class _MockExamReviewScreenState extends State<MockExamReviewScreen> {
             } else {
               state = ChoiceState.normal;
             }
-            return ChoiceItem(label: q.choices[ci], state: state);
+            return ChoiceItem(label: q.displayChoices[ci], state: state);
           }),
           if (userAnswer == null)
             Container(
