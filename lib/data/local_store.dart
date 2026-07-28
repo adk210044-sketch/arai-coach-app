@@ -111,4 +111,15 @@ class LocalStore {
   static Future<void> saveUnlockedBadgeIds(Set<String> ids) async {
     await _progressBox?.put('unlockedBadgeIds', ids.toList());
   }
+
+  // ─── 模擬試験の実施回数(回数バッジ判定用) ──────────────────────
+  static int loadMockExamCount() {
+    final raw = _progressBox?.get('mockExamCount');
+    if (raw == null) return 0;
+    return raw as int;
+  }
+
+  static Future<void> saveMockExamCount(int count) async {
+    await _progressBox?.put('mockExamCount', count);
+  }
 }

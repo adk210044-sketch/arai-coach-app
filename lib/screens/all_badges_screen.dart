@@ -138,7 +138,7 @@ class _CategorySection extends StatelessWidget {
                 crossAxisCount: 3,
                 crossAxisSpacing: 8,
                 mainAxisSpacing: 8,
-                childAspectRatio: 0.78,
+                childAspectRatio: 0.64,
               ),
               itemCount: badges.length,
               itemBuilder: (context, i) {
@@ -166,7 +166,7 @@ class _CategorySection extends StatelessWidget {
                         BadgeMedal(
                           badgeId: b.id,
                           unlocked: b.unlocked,
-                          size: 46,
+                          size: 80,
                         ),
                         const SizedBox(height: 5),
                         Text(
@@ -182,6 +182,18 @@ class _CategorySection extends StatelessWidget {
                                 : AppColors.textMute,
                           ),
                         ),
+                        if (!b.unlocked)
+                          const Padding(
+                            padding: EdgeInsets.only(top: 2),
+                            child: Text(
+                              '未達成',
+                              style: TextStyle(
+                                fontSize: 9,
+                                fontWeight: FontWeight.w700,
+                                color: AppColors.textMute,
+                              ),
+                            ),
+                          ),
                       ],
                     ),
                   ),

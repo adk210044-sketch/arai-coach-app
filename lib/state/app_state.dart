@@ -137,9 +137,17 @@ class AppState extends ChangeNotifier {
     _unlockBadge('gemini_linked');
   }
 
+  // 模擬試験の実施回数(回数バッジ判定用)。
+  int _mockExamCount = LocalStore.loadMockExamCount();
+  int get mockExamCount => _mockExamCount;
+
   /// 模擬試験が終了した時点で呼ぶ(mock_exam_session_screen.dartから)。
+  /// 実施回数をカウントアップし、デビュー・回数マイルストーンのバッジを判定する。
   void markMockExamCompleted() {
     _unlockBadge('first_mock_exam');
+    _mockExamCount++;
+    LocalStore.saveMockExamCount(_mockExamCount);
+    _unlockBadges(BadgeEngine.mockExamBadgeIdsForCount(_mockExamCount));
     checkPassRateBadges();
   }
 

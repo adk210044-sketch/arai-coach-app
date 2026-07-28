@@ -277,7 +277,7 @@ class ProfileScreen extends StatelessWidget {
                           crossAxisCount: 3,
                           crossAxisSpacing: 8,
                           mainAxisSpacing: 8,
-                          childAspectRatio: 0.8,
+                          childAspectRatio: 0.64,
                         ),
                     itemCount: appState.badges.length > 6
                         ? 6
@@ -304,7 +304,7 @@ class ProfileScreen extends StatelessWidget {
                               BadgeMedal(
                                 badgeId: b.id,
                                 unlocked: b.unlocked,
-                                size: 44,
+                                size: 80,
                               ),
                               const SizedBox(height: 4),
                               Text(
@@ -320,6 +320,18 @@ class ProfileScreen extends StatelessWidget {
                                 maxLines: 2,
                                 overflow: TextOverflow.ellipsis,
                               ),
+                              if (!b.unlocked)
+                                const Padding(
+                                  padding: EdgeInsets.only(top: 2),
+                                  child: Text(
+                                    '未達成',
+                                    style: TextStyle(
+                                      fontSize: 9,
+                                      fontWeight: FontWeight.w700,
+                                      color: AppColors.textMute,
+                                    ),
+                                  ),
+                                ),
                             ],
                           ),
                         ),

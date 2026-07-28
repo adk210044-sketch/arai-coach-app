@@ -32,9 +32,15 @@ class BadgeMedal extends StatelessWidget {
     'first_answer': 'light_seedling',
     'first_gap_study': 'light_chat',
     'first_weak_review': 'light_brain',
-    'first_mock_exam': 'light_memo',
+    'first_mock_exam': 'silver_target',
     'first_coach_chat': 'light_chat',
     'first_bookmark': 'light_bookmark',
+    // 模擬試験 回数バッジ(メモ帳アイコン+回数の数字を刻印した専用画像)
+    'mock_exam_3': 'mock_exam_3',
+    'mock_exam_5': 'mock_exam_5',
+    'mock_exam_10': 'mock_exam_10',
+    'mock_exam_15': 'mock_exam_15',
+    'mock_exam_20': 'mock_exam_20',
     // 継続バッジ
     'streak_3': 'silver_flame',
     'streak_5': 'silver_flame',
@@ -59,37 +65,21 @@ class BadgeMedal extends StatelessWidget {
     return 'assets/badges/$name.png';
   }
 
-  // 未獲得時のグレースケール変換用カラーマトリクス(輝度ベース)。
-  // 専用のロック画像を用意する代わりに、各バッジ本来の絵柄をそのまま
-  // グレー化+半透明にすることで「まだ獲得していない」ことを表す。
-  static const List<double> _grayscaleMatrix = <double>[
-    0.2126, 0.7152, 0.0722, 0, 0,
-    0.2126, 0.7152, 0.0722, 0, 0,
-    0.2126, 0.7152, 0.0722, 0, 0,
-    0, 0, 0, 1, 0,
-  ];
+  // 未獲得時は専用のロック画像(assets/badges/lock.png)を表示する。
+  // (各バッジ本来の絵柄をグレー化する方式は廃止し、専用ロック画像に統一した)
+  static const String _lockAsset = 'assets/badges/lock.png';
 
   @override
   Widget build(BuildContext context) {
-    final medalImage = Image.asset(
-      _medalAsset,
-      width: size,
-      height: size,
-      fit: BoxFit.contain,
-    );
-
     return SizedBox(
       width: size,
       height: size,
-      child: unlocked
-          ? medalImage
-          : Opacity(
-              opacity: 0.5,
-              child: ColorFiltered(
-                colorFilter: const ColorFilter.matrix(_grayscaleMatrix),
-                child: medalImage,
-              ),
-            ),
+      child: Image.asset(
+        unlocked ? _medalAsset : _lockAsset,
+        width: size,
+        height: size,
+        fit: BoxFit.contain,
+      ),
     );
   }
 }

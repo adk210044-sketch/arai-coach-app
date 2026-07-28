@@ -32,6 +32,9 @@ class BadgeEngine {
   /// 合格率バッジのしきい値(%)。
   static const List<int> passRateMilestones = [40, 50, 60, 70, 80];
 
+  /// 模擬試験の回数バッジのしきい値(回)。
+  static const List<int> mockExamMilestones = [3, 5, 10, 15, 20];
+
   /// 全バッジ定義(表示順)。
   static final List<BadgeCondition> all = [
     // ─── 挑戦バッジ(各機能の初操作) ──────────────────────
@@ -65,7 +68,47 @@ class BadgeEngine {
       name: '模擬試験デビュー',
       description: '模擬試験を初めて実施したよ',
       category: BadgeCategory.firstAction,
+      tier: BadgeTier.silver,
+    ),
+    BadgeCondition(
+      id: 'mock_exam_3',
+      icon: '📝',
+      name: '模擬試験3回目',
+      description: '模擬試験を3回実施したよ',
+      category: BadgeCategory.firstAction,
+      tier: BadgeTier.silver,
+    ),
+    BadgeCondition(
+      id: 'mock_exam_5',
+      icon: '📝',
+      name: '模擬試験5回目',
+      description: '模擬試験を5回実施したよ',
+      category: BadgeCategory.firstAction,
       tier: BadgeTier.light,
+    ),
+    BadgeCondition(
+      id: 'mock_exam_10',
+      icon: '📝',
+      name: '模擬試験10回目',
+      description: '模擬試験を10回実施したよ',
+      category: BadgeCategory.firstAction,
+      tier: BadgeTier.light,
+    ),
+    BadgeCondition(
+      id: 'mock_exam_15',
+      icon: '📝',
+      name: '模擬試験15回目',
+      description: '模擬試験を15回実施したよ',
+      category: BadgeCategory.firstAction,
+      tier: BadgeTier.vivid,
+    ),
+    BadgeCondition(
+      id: 'mock_exam_20',
+      icon: '📝',
+      name: '模擬試験20回目',
+      description: '模擬試験を20回実施したよ',
+      category: BadgeCategory.firstAction,
+      tier: BadgeTier.vivid,
     ),
     const BadgeCondition(
       id: 'first_coach_chat',
@@ -219,6 +262,14 @@ class BadgeEngine {
     return passRateMilestones
         .where((m) => percent >= m)
         .map((m) => 'pass_rate_$m')
+        .toList();
+  }
+
+  /// 模擬試験の実施回数から、新たに達成した回数バッジIDを返す。
+  static List<String> mockExamBadgeIdsForCount(int count) {
+    return mockExamMilestones
+        .where((m) => count >= m)
+        .map((m) => 'mock_exam_$m')
         .toList();
   }
 }

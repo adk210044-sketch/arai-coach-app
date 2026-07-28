@@ -410,7 +410,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                   crossAxisCount: 3,
                   crossAxisSpacing: 8,
                   mainAxisSpacing: 8,
-                  childAspectRatio: 0.95,
+                  childAspectRatio: 0.64,
                 ),
                 itemCount: appState.badges.length > 6
                     ? 6
@@ -437,7 +437,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                           BadgeMedal(
                             badgeId: b.id,
                             unlocked: b.unlocked,
-                            size: 40,
+                            size: 80,
                           ),
                           const SizedBox(height: 4),
                           Text(
@@ -450,6 +450,18 @@ class _CalendarScreenState extends State<CalendarScreen> {
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           ),
+                          if (!b.unlocked)
+                            const Padding(
+                              padding: EdgeInsets.only(top: 2),
+                              child: Text(
+                                '未達成',
+                                style: TextStyle(
+                                  fontSize: 9,
+                                  fontWeight: FontWeight.w700,
+                                  color: AppColors.textMute,
+                                ),
+                              ),
+                            ),
                         ],
                       ),
                     ),
