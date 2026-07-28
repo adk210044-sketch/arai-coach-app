@@ -1,18 +1,24 @@
 import 'package:flutter/material.dart';
 import '../theme/tokens.dart';
+import '../models/question.dart';
 import '../widgets/app_button.dart';
 import '../widgets/coach_bubble.dart';
+import 'mock_exam_review_screen.dart';
 
 class MockExamResultScreen extends StatelessWidget {
   final int score;
   final int total;
   final int passingScore;
+  final List<Question> questions;
+  final List<int?> userAnswers;
 
   const MockExamResultScreen({
     super.key,
     required this.score,
     required this.total,
     required this.passingScore,
+    required this.questions,
+    required this.userAnswers,
   });
 
   @override
@@ -27,7 +33,7 @@ class MockExamResultScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: AppColors.bgSoft,
       body: SafeArea(
-        child: Padding(
+        child: SingleChildScrollView(
           padding: const EdgeInsets.fromLTRB(24, 40, 24, 24),
           child: Column(
             children: [
@@ -103,7 +109,22 @@ class MockExamResultScreen extends StatelessWidget {
                   ],
                 ),
               ),
-              const Spacer(),
+              const SizedBox(height: 24),
+              AppButton(
+                label: '📝 解答を確認する',
+                variant: AppButtonVariant.secondary,
+                onPressed: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => MockExamReviewScreen(
+                        questions: questions,
+                        userAnswers: userAnswers,
+                      ),
+                    ),
+                  );
+                },
+              ),
+              const SizedBox(height: 12),
               AppButton(
                 label: 'ホームに戻る',
                 onPressed: () =>

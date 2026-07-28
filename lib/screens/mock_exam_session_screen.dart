@@ -75,6 +75,8 @@ class _MockExamSessionScreenState extends State<MockExamSessionScreen> {
           score: score,
           total: _questions.length,
           passingScore: (_questions.length * 0.7).ceil(),
+          questions: _questions,
+          userAnswers: _answers,
         ),
       ),
     );

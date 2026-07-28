@@ -134,8 +134,8 @@ class MockExamScreen extends StatelessWidget {
                       child: ElevatedButton(
                         onPressed: () => _startOrPaywall(
                           context,
-                          questionCount: 10,
-                          durationSec: 600,
+                          questionCount: 44,
+                          durationSec: 180 * 60,
                         ),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.white,
@@ -192,8 +192,8 @@ class MockExamScreen extends StatelessWidget {
                     TextButton(
                       onPressed: () => _startOrPaywall(
                         context,
-                        questionCount: 5,
-                        durationSec: 300,
+                        questionCount: 10,
+                        durationSec: 15 * 60,
                       ),
                       style: TextButton.styleFrom(
                         backgroundColor: AppColors.primaryFaint,
