@@ -357,7 +357,7 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
             const SizedBox(height: 16),
 
             const Text(
-              '苦手テーマ ヒートマップ',
+              '苦手テーマヒートマップ',
               style: TextStyle(
                 fontSize: AppFontSize.lg,
                 fontWeight: FontWeight.w700,

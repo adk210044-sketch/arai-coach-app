@@ -112,7 +112,7 @@ List<ChatMessage> buildInitialChatMessages() => [
 
 const List<String> kQuickReplies = ['3問だけ出す', 'よく出る問題は?', '平均合格率は?', '暗記のコツ'];
 
-/// 苦手テーマ ヒートマップ (Analysisで使用)
+/// 苦手テーマヒートマップ (Analysisで使用)
 const List<MapEntry<String, double>> kWeakTopics = [
   MapEntry('特化物', 0.9),
   MapEntry('有機溶剤', 0.8),
@@ -279,7 +279,7 @@ final List<Question> kQuestionPool = [
     subCategory: '粉じん障害',
     format: QuestionFormat.ox,
     number: '問12',
-    text: 'じん肺は、粉じんを吸入することによって肺に生じる線維増殖性変化を主体とする疾病であり、progressiveに進行することがある。',
+    text: 'じん肺は、粉じんを吸入することによって肺に生じる線維増殖性変化を主体とする疾病であり、吸入を中止した後も進行することがある。',
     choices: ['正しい', '誤り'],
     correctIndex: 0,
     aiExplanation:

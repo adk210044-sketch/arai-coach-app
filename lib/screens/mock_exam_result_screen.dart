@@ -84,7 +84,7 @@ class MockExamResultScreen extends StatelessWidget {
                           style: TextStyle(color: AppColors.textDim),
                         ),
                         Text(
-                          '$passingScore問 以上',
+                          '$passingScore問以上',
                           style: const TextStyle(fontWeight: FontWeight.w700),
                         ),
                       ],
