@@ -1,5 +1,8 @@
+import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'firebase_options.dart';
 import 'theme/app_theme.dart';
 import 'state/app_state.dart';
 import 'models/user_profile.dart';
@@ -14,6 +17,17 @@ Future<void> main() async {
   await LocalStore.init();
   await QuestionRepository.instance.load();
   await NotificationService.init();
+  try {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+  } catch (e) {
+    // Firebaseが初期化できなくてもアプリ自体は起動できるようにする
+    // (オフライン利用時やFirebase設定不備時のフォールバック)
+    if (kDebugMode) {
+      debugPrint('Firebase initialization failed: $e');
+    }
+  }
   runApp(const HygieneCoachApp());
 }
 

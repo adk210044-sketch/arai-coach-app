@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "489856876839",
+    "project_id": "eiseikanri",
+    "storage_bucket": "eiseikanri.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:489856876839:android:dcc7b656a467b92b462902",
+        "android_client_info": {
+          "package_name": "com.hygienecoach.coach"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBtXA9VyqJlSjyvRLWE06OPIfssUoklif8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

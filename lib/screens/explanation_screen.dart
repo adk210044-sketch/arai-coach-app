@@ -4,6 +4,7 @@ import '../theme/tokens.dart';
 import '../state/app_state.dart';
 import '../models/question.dart';
 import '../data/reference_tables.dart';
+import '../services/feedback_service.dart';
 import '../widgets/coach_bubble.dart';
 import '../widgets/reference_table_card.dart';
 import '../widgets/choice_item.dart';
@@ -658,6 +659,11 @@ class _ExplanationScreenState extends State<ExplanationScreen>
                           content: Text('報告を受け付けたよ。確認して修正するね'),
                         ),
                       );
+                      // Firestoreへの送信は非同期・失敗しても無視(オフライン耐性のため)
+                      FeedbackService.sendFeedback(
+                        question: q,
+                        type: FeedbackType.errorReport,
+                      );
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.primary,
@@ -682,15 +688,21 @@ class _ExplanationScreenState extends State<ExplanationScreen>
 
   void _handleFeedback(BuildContext context, Question q, String label) {
     String message;
+    FeedbackType type;
     if (label.contains('わかりやすい')) {
       message = '嬉しいな、フィードバックありがとう!';
+      type = FeedbackType.helpful;
     } else if (label.contains('難しい')) {
       message = '教えてくれてありがとう。「もっと詳しく」で公式解説も見てみてね';
+      type = FeedbackType.difficult;
     } else {
       message = 'なるほど、別の説明パターンを検討するよ。フィードバックを記録したよ';
+      type = FeedbackType.needAltExplanation;
     }
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(duration: const Duration(seconds: 2), content: Text(message)),
     );
+    // Firestoreへの送信は非同期・失敗しても無視(オフライン耐性のため)
+    FeedbackService.sendFeedback(question: q, type: type);
   }
 }

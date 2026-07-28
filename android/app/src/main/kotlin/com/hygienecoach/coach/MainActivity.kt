@@ -1,4 +1,4 @@
-package com.hygienecoach.hygiene_coach
+package com.hygienecoach.coach
 
 import io.flutter.embedding.android.FlutterActivity
 
