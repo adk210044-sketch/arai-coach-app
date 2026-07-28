@@ -371,38 +371,89 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
                 borderRadius: BorderRadius.circular(AppRadius.md),
                 boxShadow: AppShadow.card,
               ),
-              child: GridView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 6,
-                  crossAxisSpacing: 5,
-                  mainAxisSpacing: 5,
-                  childAspectRatio: 1,
-                ),
-                itemCount: kWeakTopics.length,
-                itemBuilder: (context, i) {
-                  final entry = kWeakTopics[i];
-                  final w = entry.value;
-                  return Container(
-                    decoration: BoxDecoration(
-                      color: AppColors.ng.withValues(alpha: 0.1 + w * 0.75),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    alignment: Alignment.center,
-                    padding: const EdgeInsets.all(2),
-                    child: Text(
-                      entry.key,
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 9,
-                        fontWeight: FontWeight.w600,
-                        color: w > 0.5 ? Colors.white : const Color(0xFF7F1D1D),
-                        height: 1.1,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // 凡例: 色が薄い=得意(正答率が高い) / 色が濃い=苦手(正答率が低い)
+                  Row(
+                    children: [
+                      const Text(
+                        '得意',
+                        style: TextStyle(
+                          fontSize: 10,
+                          color: AppColors.textDim,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
-                    ),
-                  );
-                },
+                      const SizedBox(width: 6),
+                      Expanded(
+                        child: Container(
+                          height: 10,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(AppRadius.pill),
+                            gradient: LinearGradient(
+                              colors: [
+                                AppColors.ng.withValues(alpha: 0.1),
+                                AppColors.ng.withValues(alpha: 0.85),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 6),
+                      const Text(
+                        '苦手',
+                        style: TextStyle(
+                          fontSize: 10,
+                          color: AppColors.textDim,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 2),
+                  const Text(
+                    '色が濃いテーマほど正答率が低く、優先して復習が必要です',
+                    style: TextStyle(fontSize: 10, color: AppColors.textMute),
+                  ),
+                  const SizedBox(height: 10),
+                  GridView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 6,
+                          crossAxisSpacing: 5,
+                          mainAxisSpacing: 5,
+                          childAspectRatio: 1,
+                        ),
+                    itemCount: kWeakTopics.length,
+                    itemBuilder: (context, i) {
+                      final entry = kWeakTopics[i];
+                      final w = entry.value;
+                      return Container(
+                        decoration: BoxDecoration(
+                          color: AppColors.ng.withValues(alpha: 0.1 + w * 0.75),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        alignment: Alignment.center,
+                        padding: const EdgeInsets.all(2),
+                        child: Text(
+                          entry.key,
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 9,
+                            fontWeight: FontWeight.w600,
+                            color: w > 0.5
+                                ? Colors.white
+                                : const Color(0xFF7F1D1D),
+                            height: 1.1,
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ],
               ),
             ),
           ],
