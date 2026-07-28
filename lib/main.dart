@@ -21,11 +21,15 @@ Future<void> main() async {
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
     );
-  } catch (e) {
+    if (kDebugMode) {
+      debugPrint('✅ Firebase initialized successfully');
+    }
+  } catch (e, st) {
     // Firebaseが初期化できなくてもアプリ自体は起動できるようにする
     // (オフライン利用時やFirebase設定不備時のフォールバック)
     if (kDebugMode) {
-      debugPrint('Firebase initialization failed: $e');
+      debugPrint('❌ Firebase initialization failed: $e');
+      debugPrint(st.toString());
     }
   }
   runApp(const HygieneCoachApp());

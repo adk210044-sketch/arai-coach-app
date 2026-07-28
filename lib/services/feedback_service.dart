@@ -46,14 +46,19 @@ class FeedbackService {
     required FeedbackType type,
   }) async {
     try {
-      await FirebaseFirestore.instance.collection(_collection).add({
-        'questionId': question.id,
-        'type': type.value,
-        'examTypeKey': question.examTypeKey,
-        'categoryKey': question.categoryKey,
-        'categoryName': question.categoryName,
-        'createdAt': FieldValue.serverTimestamp(),
-      });
+      final ref = await FirebaseFirestore.instance
+          .collection(_collection)
+          .add({
+            'questionId': question.id,
+            'type': type.value,
+            'examTypeKey': question.examTypeKey,
+            'categoryKey': question.categoryKey,
+            'categoryName': question.categoryName,
+            'createdAt': FieldValue.serverTimestamp(),
+          });
+      if (kDebugMode) {
+        debugPrint('Feedback sent successfully: docId=${ref.id}');
+      }
       return true;
     } catch (e) {
       if (kDebugMode) {
