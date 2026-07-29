@@ -539,6 +539,38 @@ class AppState extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// 「今日のタスク」専用のセッション開始。
+  /// [distribution] はカテゴリキー → 出題数のマップ(DailyPlanResult.categoryDistribution)。
+  /// 全カテゴリから指定数ずつランダムに問題を抽出し、最後に全体をシャッフルして出題順をばらけさせる。
+  void startDailyTaskSession(Map<String, int> distribution) {
+    final basePool = questionPool;
+    final byCategory = <String, List<Question>>{};
+    for (final q in basePool) {
+      (byCategory[q.categoryKey] ??= []).add(q);
+    }
+
+    final selected = <Question>[];
+    distribution.forEach((categoryKey, count) {
+      if (count <= 0) return;
+      final candidates = List<Question>.from(byCategory[categoryKey] ?? [])
+        ..shuffle(Random());
+      selected.addAll(candidates.take(count));
+    });
+
+    selected.shuffle(Random());
+    questionQueue = selected;
+    if (questionQueue.isEmpty) {
+      questionQueue = List<Question>.from(basePool)..shuffle();
+    }
+    currentIndex = 0;
+    selectedAnswer = null;
+    answered = false;
+    sessionCorrectCount = 0;
+    sessionAnsweredCount = 0;
+    questionStartedAt = DateTime.now();
+    notifyListeners();
+  }
+
   Question get currentQuestion => questionQueue[currentIndex];
 
   bool get hasNextQuestion => currentIndex < questionQueue.length - 1;

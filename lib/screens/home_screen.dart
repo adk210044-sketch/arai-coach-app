@@ -96,7 +96,7 @@ class HomeScreen extends StatelessWidget {
               child: CoachBubble(
                 mood: CoachMood.motivate,
                 message:
-                    '昨日は${appState.profile.totalAnswered > 0 ? '' : 'まだ'}お疲れさまだよ。\n今日は「${plan.categoryName}」から\n一緒に始めてみようね。',
+                    '昨日は${appState.profile.totalAnswered > 0 ? '' : 'まだ'}お疲れさまだよ。\n今日は「${plan.categoryName}」を重点的に\n一緒に取り組んでみようね。',
               ),
             ),
             const SizedBox(height: 14),
@@ -184,7 +184,7 @@ class HomeScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    '📌 ${plan.categoryName}を中心に${plan.targetCount}問',
+                    '📌 全分野から${plan.targetCount}問(${plan.categoryName}を重点強化)',
                     style: TextStyle(
                       color: Colors.white.withValues(alpha: 0.85),
                       fontSize: AppFontSize.sm,
@@ -206,9 +206,8 @@ class HomeScreen extends StatelessWidget {
                     height: 46,
                     child: ElevatedButton(
                       onPressed: () {
-                        context.read<AppState>().startSession(
-                          categoryKey: plan.categoryKey,
-                          count: plan.targetCount,
+                        context.read<AppState>().startDailyTaskSession(
+                          plan.categoryDistribution,
                         );
                         Navigator.of(context).push(
                           MaterialPageRoute(

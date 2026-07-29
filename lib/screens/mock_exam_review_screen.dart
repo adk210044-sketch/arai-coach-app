@@ -3,6 +3,7 @@ import '../theme/tokens.dart';
 import '../models/question.dart';
 import '../widgets/choice_item.dart';
 import '../widgets/app_chip.dart';
+import '../theme/category_colors.dart';
 
 /// 模擬試験終了後、問題ごとの正解/不正解と解説を確認できるレビュー画面。
 /// mock_exam_result_screen.dart の「解答を確認する」から遷移する。
@@ -218,7 +219,11 @@ class _MockExamReviewScreenState extends State<MockExamReviewScreen> {
                 ),
               ),
               const Spacer(),
-              AppChip(label: q.categoryName),
+              AppChip(
+                label: q.categoryName,
+                bg: CategoryColors.of(q.categoryKey).bg,
+                fg: CategoryColors.of(q.categoryKey).fg,
+              ),
             ],
           ),
           const SizedBox(height: 10),

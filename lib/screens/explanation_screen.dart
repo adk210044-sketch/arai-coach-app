@@ -9,6 +9,7 @@ import '../widgets/coach_bubble.dart';
 import '../widgets/reference_table_card.dart';
 import '../widgets/choice_item.dart';
 import '../widgets/app_chip.dart';
+import '../theme/category_colors.dart';
 import 'question_screen.dart';
 
 class ExplanationScreen extends StatefulWidget {
@@ -467,14 +468,14 @@ class _ExplanationScreenState extends State<ExplanationScreen>
                                 label: q.format == QuestionFormat.ox
                                     ? '◯×問題'
                                     : '五肢択一',
-                                bg: AppColors.primarySoft,
-                                fg: AppColors.primary,
+                                bg: AppColors.neutralSoft,
+                                fg: AppColors.neutralFg,
                               ),
                               const SizedBox(width: 6),
                               AppChip(
                                 label: q.categoryName,
-                                bg: const Color(0xFFFEF3C7),
-                                fg: const Color(0xFFA16207),
+                                bg: CategoryColors.of(q.categoryKey).bg,
+                                fg: CategoryColors.of(q.categoryKey).fg,
                               ),
                             ],
                           ),

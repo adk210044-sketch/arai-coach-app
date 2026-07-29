@@ -8,6 +8,7 @@ import '../theme/tokens.dart';
 import '../state/app_state.dart';
 import '../models/question.dart';
 import '../widgets/app_chip.dart';
+import '../theme/category_colors.dart';
 import 'question_screen.dart';
 
 class BookmarkedQuestionsScreen extends StatelessWidget {
@@ -105,12 +106,14 @@ class BookmarkedQuestionsScreen extends StatelessWidget {
               children: [
                 AppChip(
                   label: q.categoryName,
-                  bg: const Color(0xFFFEF3C7),
-                  fg: const Color(0xFFA16207),
+                  bg: CategoryColors.of(q.categoryKey).bg,
+                  fg: CategoryColors.of(q.categoryKey).fg,
                 ),
                 const SizedBox(width: 6),
                 AppChip(
                   label: q.format == QuestionFormat.ox ? '◯×問題' : '五肢択一',
+                  bg: AppColors.neutralSoft,
+                  fg: AppColors.neutralFg,
                 ),
                 const Spacer(),
                 GestureDetector(

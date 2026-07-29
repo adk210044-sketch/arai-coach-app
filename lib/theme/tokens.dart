@@ -30,6 +30,11 @@ class AppColors {
   static const Color border = Color(0xFFE2E8F0);
   static const Color borderSoft = Color(0xFFEEF2F7);
 
+  // 出題形式チップ(「五肢択一」「◯×問題」)用のニュートラルなグレー。
+  // カテゴリチップと視覚的に区別するため、あえて彩度を持たせない。
+  static const Color neutralSoft = Color(0xFFEDEFF3);
+  static const Color neutralFg = Color(0xFF475569);
+
   // Heatmap / streak color scale
   static const Color heat0 = bgSoft;
   static const Color heat1 = Color(0xFFDBEAFE);

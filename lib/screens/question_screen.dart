@@ -5,6 +5,7 @@ import '../state/app_state.dart';
 import '../models/question.dart';
 import '../widgets/app_chip.dart';
 import '../widgets/choice_item.dart';
+import '../theme/category_colors.dart';
 import 'explanation_screen.dart';
 
 class QuestionScreen extends StatelessWidget {
@@ -63,14 +64,14 @@ class QuestionScreen extends StatelessWidget {
                 children: [
                   AppChip(
                     label: q.format == QuestionFormat.ox ? '◯×問題' : '五肢択一',
-                    bg: AppColors.primarySoft,
-                    fg: AppColors.primary,
+                    bg: AppColors.neutralSoft,
+                    fg: AppColors.neutralFg,
                   ),
                   const SizedBox(width: 6),
                   AppChip(
                     label: q.categoryName,
-                    bg: const Color(0xFFFEF3C7),
-                    fg: const Color(0xFFA16207),
+                    bg: CategoryColors.of(q.categoryKey).bg,
+                    fg: CategoryColors.of(q.categoryKey).fg,
                   ),
                 ],
               ),
