@@ -51,7 +51,7 @@ class MockExamResultScreen extends StatelessWidget {
               ),
               const SizedBox(height: 20),
               Text(
-                passed ? '合格ライン達成!' : 'もう少し頑張ろう',
+                passed ? '合格ライン達成!' : 'まだまだ伸びしろだね!',
                 style: const TextStyle(
                   fontSize: AppFontSize.xxxxl,
                   fontWeight: FontWeight.w700,
