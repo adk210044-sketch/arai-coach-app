@@ -122,4 +122,27 @@ class LocalStore {
   static Future<void> saveMockExamCount(int count) async {
     await _progressBox?.put('mockExamCount', count);
   }
+
+  // ─── 模擬試験の一時保存(中断・再開) ──────────────────────
+  // 「180分を中断なく続けるのは難しい」という声への対応。
+  // 回答するたびに自動保存し、いつでも同じ状態から再開できるようにする。
+  static const String mockExamProgressKey = 'mockExamProgress';
+
+  static Map<String, dynamic>? loadMockExamProgress() {
+    final raw = _progressBox?.get(mockExamProgressKey);
+    if (raw == null) return null;
+    try {
+      return Map<String, dynamic>.from(raw as Map);
+    } catch (_) {
+      return null;
+    }
+  }
+
+  static Future<void> saveMockExamProgress(Map<String, dynamic> data) async {
+    await _progressBox?.put(mockExamProgressKey, data);
+  }
+
+  static Future<void> clearMockExamProgress() async {
+    await _progressBox?.delete(mockExamProgressKey);
+  }
 }

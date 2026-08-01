@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import '../theme/tokens.dart';
 import '../state/app_state.dart';
 import '../models/question.dart';
+import '../data/question_repository.dart';
 import '../widgets/choice_item.dart';
 import 'mock_exam_result_screen.dart';
 
@@ -12,10 +13,14 @@ class MockExamSessionScreen extends StatefulWidget {
   final int questionCount;
   final int durationSec;
 
+  /// 一時保存データから再開する場合に渡す(nullなら新規開始)。
+  final Map<String, dynamic>? resumeData;
+
   const MockExamSessionScreen({
     super.key,
     required this.questionCount,
     required this.durationSec,
+    this.resumeData,
   });
 
   @override
@@ -28,15 +33,40 @@ class _MockExamSessionScreenState extends State<MockExamSessionScreen> {
   int _currentIndex = 0;
   late int _remainingSec;
   Timer? _timer;
+  Timer? _autoSaveDebounce;
+  bool _isSaving = false;
 
   @override
   void initState() {
     super.initState();
-    final basePool = context.read<AppState>().questionPool;
-    final pool = List<Question>.from(basePool)..shuffle(Random());
-    _questions = pool.take(widget.questionCount).toList();
-    _answers = List<int?>.filled(_questions.length, null);
-    _remainingSec = widget.durationSec;
+    final resume = widget.resumeData;
+    if (resume != null) {
+      // 一時保存データから復元(保存時と同じ問題順・回答状況・残り時間)
+      final repo = QuestionRepository.instance;
+      final ids = List<String>.from(resume['questionIds'] as List);
+      final byId = {for (final q in repo.all) q.id: q};
+      _questions = ids
+          .map((id) => byId[id])
+          .whereType<Question>()
+          .toList();
+      final savedAnswers = (resume['answers'] as List)
+          .map((e) => e as int?)
+          .toList();
+      // 復元後の問題数が保存時と食い違う(データ更新等)場合に備えて長さを揃える
+      _answers = List<int?>.generate(
+        _questions.length,
+        (i) => i < savedAnswers.length ? savedAnswers[i] : null,
+      );
+      final savedIndex = resume['currentIndex'] as int? ?? 0;
+      _currentIndex = savedIndex < _questions.length ? savedIndex : 0;
+      _remainingSec = (resume['remainingSec'] as int?) ?? widget.durationSec;
+      if (_questions.isEmpty) {
+        // 復元に失敗した場合は新規開始にフォールバック
+        _startFresh();
+      }
+    } else {
+      _startFresh();
+    }
     _timer = Timer.periodic(const Duration(seconds: 1), (t) {
       setState(() {
         _remainingSec--;
@@ -48,10 +78,56 @@ class _MockExamSessionScreenState extends State<MockExamSessionScreen> {
     });
   }
 
+  void _startFresh() {
+    final basePool = context.read<AppState>().questionPool;
+    final pool = List<Question>.from(basePool)..shuffle(Random());
+    _questions = pool.take(widget.questionCount).toList();
+    _answers = List<int?>.filled(_questions.length, null);
+    _currentIndex = 0;
+    _remainingSec = widget.durationSec;
+  }
+
   @override
   void dispose() {
     _timer?.cancel();
+    _autoSaveDebounce?.cancel();
     super.dispose();
+  }
+
+  /// 進行状況を保存する。[showFeedback]がtrueならSnackBarで完了を知らせる。
+  Future<void> _saveProgress({bool showFeedback = false}) async {
+    final appState = context.read<AppState>();
+    await appState.saveMockExamProgress(
+      questionIds: _questions.map((q) => q.id).toList(),
+      answers: _answers,
+      currentIndex: _currentIndex,
+      remainingSec: _remainingSec,
+      questionCount: widget.questionCount,
+      durationSec: widget.durationSec,
+    );
+    if (!mounted) return;
+    if (showFeedback) {
+      setState(() => _isSaving = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('一時保存しました。ホーム画面からいつでも再開できます。'),
+          duration: Duration(seconds: 2),
+        ),
+      );
+    }
+  }
+
+  /// 回答を選択した際、少し間を置いてから自動保存する(タップごとの負荷を抑えるためデバウンス)。
+  void _scheduleAutoSave() {
+    _autoSaveDebounce?.cancel();
+    _autoSaveDebounce = Timer(const Duration(milliseconds: 400), () {
+      _saveProgress();
+    });
+  }
+
+  Future<void> _manualSave() async {
+    setState(() => _isSaving = true);
+    await _saveProgress(showFeedback: true);
   }
 
   String get _timeLabel {
@@ -68,7 +144,10 @@ class _MockExamSessionScreenState extends State<MockExamSessionScreen> {
     for (int i = 0; i < _questions.length; i++) {
       if (_answers[i] == _questions[i].correctIndex) score++;
     }
-    context.read<AppState>().markMockExamCompleted();
+    final appState = context.read<AppState>();
+    appState.markMockExamCompleted();
+    // 提出が完了したので一時保存データは不要になるため削除する
+    appState.clearMockExamProgress();
     Navigator.of(context).pushReplacement(
       MaterialPageRoute(
         builder: (_) => MockExamResultScreen(
@@ -136,6 +215,55 @@ class _MockExamSessionScreenState extends State<MockExamSessionScreen> {
               ),
             ),
 
+            // 一時保存バー(常時表示・タップで即保存)
+            Material(
+              color: AppColors.primaryFaint,
+              child: InkWell(
+                onTap: _isSaving ? null : _manualSave,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 18,
+                    vertical: 10,
+                  ),
+                  child: Row(
+                    children: [
+                      _isSaving
+                          ? const SizedBox(
+                              width: 16,
+                              height: 16,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: AppColors.primary,
+                              ),
+                            )
+                          : const Icon(
+                              Icons.save_outlined,
+                              size: 18,
+                              color: AppColors.primary,
+                            ),
+                      const SizedBox(width: 8),
+                      const Text(
+                        '一時保存する',
+                        style: TextStyle(
+                          color: AppColors.primary,
+                          fontWeight: FontWeight.w700,
+                          fontSize: AppFontSize.sm,
+                        ),
+                      ),
+                      const Spacer(),
+                      Text(
+                        '${_currentIndex + 1}/${_questions.length}問 · いつでも再開可',
+                        style: const TextStyle(
+                          fontSize: 11,
+                          color: AppColors.textDim,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+
             Expanded(
               child: SingleChildScrollView(
                 padding: const EdgeInsets.fromLTRB(18, 14, 18, 14),
@@ -196,8 +324,10 @@ class _MockExamSessionScreenState extends State<MockExamSessionScreen> {
                         state: selected
                             ? ChoiceState.selected
                             : ChoiceState.normal,
-                        onTap: () =>
-                            setState(() => _answers[_currentIndex] = i),
+                        onTap: () {
+                          setState(() => _answers[_currentIndex] = i);
+                          _scheduleAutoSave();
+                        },
                       );
                     }),
                   ],
@@ -222,7 +352,10 @@ class _MockExamSessionScreenState extends State<MockExamSessionScreen> {
                     final answered = _answers[i] != null;
                     final active = i == _currentIndex;
                     return GestureDetector(
-                      onTap: () => setState(() => _currentIndex = i),
+                      onTap: () {
+                        setState(() => _currentIndex = i);
+                        _scheduleAutoSave();
+                      },
                       child: Container(
                         width: 38,
                         margin: const EdgeInsets.symmetric(horizontal: 4),
@@ -267,18 +400,26 @@ class _MockExamSessionScreenState extends State<MockExamSessionScreen> {
       context: context,
       builder: (ctx) => AlertDialog(
         title: const Text('模試を中断しますか?'),
-        content: const Text('進行状況は保存され、後で再開できます。'),
+        content: const Text(
+          '「保存して中断する」を選ぶと、今の回答状況と残り時間がそのまま保存され、ホーム画面からいつでも同じ状態から再開できます。',
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
             child: const Text('キャンセル'),
           ),
           TextButton(
-            onPressed: () {
+            onPressed: () async {
+              await _saveProgress();
+              if (!ctx.mounted) return;
               Navigator.pop(ctx);
+              if (!mounted) return;
               Navigator.pop(context);
             },
-            child: const Text('中断する', style: TextStyle(color: AppColors.ng)),
+            child: const Text(
+              '保存して中断する',
+              style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.w700),
+            ),
           ),
         ],
       ),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../theme/tokens.dart';
 import '../state/app_state.dart';
+import '../models/user_profile.dart';
 import 'mock_exam_session_screen.dart';
 import 'paywall_screen.dart';
 
@@ -22,6 +23,48 @@ class MockExamScreen extends StatelessWidget {
       );
       return;
     }
+    if (appState.hasSavedMockExam) {
+      showDialog(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: const Text('進行中の模試があります'),
+          content: const Text(
+            '新しく始めると、保存されている進行状況は削除されます。よろしいですか?',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: const Text('キャンセル'),
+            ),
+            TextButton(
+              onPressed: () async {
+                Navigator.pop(ctx);
+                await appState.clearMockExamProgress();
+                if (!ctx.mounted) return;
+                _pushSession(
+                  context,
+                  questionCount: questionCount,
+                  durationSec: durationSec,
+                );
+              },
+              child: const Text(
+                '新しく始める',
+                style: TextStyle(color: AppColors.ng, fontWeight: FontWeight.w700),
+              ),
+            ),
+          ],
+        ),
+      );
+      return;
+    }
+    _pushSession(context, questionCount: questionCount, durationSec: durationSec);
+  }
+
+  void _pushSession(
+    BuildContext context, {
+    required int questionCount,
+    required int durationSec,
+  }) {
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (_) => MockExamSessionScreen(
@@ -32,9 +75,32 @@ class MockExamScreen extends StatelessWidget {
     );
   }
 
+  void _resume(BuildContext context, Map<String, dynamic> data) {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => MockExamSessionScreen(
+          questionCount: data['questionCount'] as int,
+          durationSec: data['durationSec'] as int,
+          resumeData: data,
+        ),
+      ),
+    );
+  }
+
+  String _fmtSec(int sec) {
+    final m = (sec ~/ 60).toString().padLeft(2, '0');
+    final s = (sec % 60).toString().padLeft(2, '0');
+    return '$m:$s';
+  }
+
   @override
   Widget build(BuildContext context) {
-    final isPremium = context.watch<AppState>().canUseMockExam;
+    final appState = context.watch<AppState>();
+    final isPremium = appState.canUseMockExam;
+    final isType2 = appState.profile.examType == ExamType.type2;
+    // 本番と同じ出題数: 第一種44問 / 第二種30問(いずれも試験時間3時間)
+    final fullQuestionCount = isType2 ? 30 : 44;
+    final savedProgress = appState.savedMockExamProgress;
     return Scaffold(
       backgroundColor: AppColors.bgSoft,
       appBar: AppBar(
@@ -62,6 +128,82 @@ class MockExamScreen extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 18),
+
+              // 進行中の模試がある場合、再開カードを表示(180分を中断せず続けるのは
+              // 難しいという声への対応。回答ごとに自動保存された状態から再開できる)
+              if (savedProgress != null) ...[
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: AppColors.primaryFaint,
+                    borderRadius: BorderRadius.circular(18),
+                    border: Border.all(
+                      color: AppColors.primary.withValues(alpha: 0.35),
+                    ),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          const Icon(
+                            Icons.play_circle_fill,
+                            color: AppColors.primary,
+                            size: 26,
+                          ),
+                          const SizedBox(width: 8),
+                          const Expanded(
+                            child: Text(
+                              '進行中の模試があります',
+                              style: TextStyle(
+                                fontWeight: FontWeight.w700,
+                                fontSize: AppFontSize.md,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 6),
+                      Text(
+                        '${(savedProgress['currentIndex'] as int? ?? 0) + 1}/'
+                        '${savedProgress['questionCount']}問目まで回答済み'
+                        ' · 残り${_fmtSec(savedProgress['remainingSec'] as int? ?? 0)}',
+                        style: const TextStyle(
+                          fontSize: AppFontSize.sm,
+                          color: AppColors.textDim,
+                        ),
+                      ),
+                      const SizedBox(height: 14),
+                      SizedBox(
+                        width: double.infinity,
+                        height: 44,
+                        child: ElevatedButton(
+                          onPressed: () => _resume(context, savedProgress),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.primary,
+                            foregroundColor: Colors.white,
+                            minimumSize: const Size.fromHeight(44),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(
+                                AppRadius.pill,
+                              ),
+                            ),
+                          ),
+                          child: const Text(
+                            '再開する',
+                            style: TextStyle(
+                              fontWeight: FontWeight.w700,
+                              fontSize: AppFontSize.base,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 14),
+              ],
 
               // Hero
               Container(
@@ -111,7 +253,7 @@ class MockExamScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      '44問 · 3時間 · 本番と同構成',
+                      '$fullQuestionCount問 · 3時間 · 本番と同構成',
                       style: TextStyle(
                         fontSize: AppFontSize.base,
                         color: Colors.white.withValues(alpha: 0.85),
@@ -120,7 +262,7 @@ class MockExamScreen extends StatelessWidget {
                     const SizedBox(height: 16),
                     Row(
                       children: [
-                        _statBox('44問', '出題数'),
+                        _statBox('$fullQuestionCount問', '出題数'),
                         const SizedBox(width: 8),
                         _statBox('180分', '時間'),
                         const SizedBox(width: 8),
@@ -134,7 +276,7 @@ class MockExamScreen extends StatelessWidget {
                       child: ElevatedButton(
                         onPressed: () => _startOrPaywall(
                           context,
-                          questionCount: 44,
+                          questionCount: fullQuestionCount,
                           durationSec: 180 * 60,
                         ),
                         style: ElevatedButton.styleFrom(

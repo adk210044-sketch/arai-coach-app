@@ -154,6 +154,44 @@ class AppState extends ChangeNotifier {
   String get examTypeKey =>
       profile.examType == ExamType.type2 ? 'type2' : 'type1';
 
+  // ─── 模擬試験の一時保存(中断・再開) ──────────────────────
+  // 現在の受験区分(examTypeKey)に対応する保存済み進行状況(なければnull)。
+  Map<String, dynamic>? get savedMockExamProgress {
+    final data = LocalStore.loadMockExamProgress();
+    if (data == null) return null;
+    if (data['examTypeKey'] != examTypeKey) return null;
+    return data;
+  }
+
+  bool get hasSavedMockExam => savedMockExamProgress != null;
+
+  /// 模擬試験の進行状況を保存する(回答ごと・明示的な一時保存ボタン両方から呼ばれる)。
+  Future<void> saveMockExamProgress({
+    required List<String> questionIds,
+    required List<int?> answers,
+    required int currentIndex,
+    required int remainingSec,
+    required int questionCount,
+    required int durationSec,
+  }) async {
+    await LocalStore.saveMockExamProgress({
+      'examTypeKey': examTypeKey,
+      'questionIds': questionIds,
+      'answers': answers,
+      'currentIndex': currentIndex,
+      'remainingSec': remainingSec,
+      'questionCount': questionCount,
+      'durationSec': durationSec,
+      'savedAt': DateTime.now().toIso8601String(),
+    });
+  }
+
+  /// 模擬試験を提出(完了)または新規に開始する際、古い一時保存データを削除する。
+  Future<void> clearMockExamProgress() async {
+    await LocalStore.clearMockExamProgress();
+    notifyListeners();
+  }
+
   // ─── 料金プラン(価格モデル) ──────────────────────
   bool get isPremium => profile.isPremium;
 
