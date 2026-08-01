@@ -16,6 +16,7 @@ import '../logic/weak_point_insight.dart';
 import '../logic/badge_engine.dart';
 import '../services/gemini_service.dart';
 import '../services/notification_service.dart';
+import '../services/purchase_service.dart';
 
 class AppState extends ChangeNotifier {
   UserProfile profile = LocalStore.loadProfile();
@@ -292,8 +293,11 @@ class AppState extends ChangeNotifier {
     LocalStore.saveChatUsage(today, nextCount);
   }
 
-  /// プラン変更(モック決済)。実際のストア課金は組み込んでおらず、
-  /// UI上でプランを選んだ時点でローカル状態を切り替えるだけの実装。
+  /// プラン変更(モック決済)。
+  /// ストア課金(Google Play Billing)が利用できない環境(Web版プレビュー等)向けの
+  /// フォールバック実装。UI上でプランを選んだ時点でローカル状態を切り替えるだけ。
+  /// 実機Android版では [startStorePurchase] を優先し、購入完了イベント経由で
+  /// [_handlePurchaseCompleted] からプランが反映される。
   void selectPlan(PlanTier tier, {bool startTrial = false}) {
     DateTime? expiresAt;
     final now = DateTime.now();
@@ -302,7 +306,9 @@ class AppState extends ChangeNotifier {
         expiresAt = null;
         break;
       case PlanTier.premium:
-        expiresAt = DateTime(now.year, now.month + 1, now.day);
+        expiresAt = startTrial
+            ? now.add(const Duration(days: 7))
+            : DateTime(now.year, now.month + 1, now.day);
         break;
       case PlanTier.intensivePack:
         expiresAt = startTrial
@@ -322,6 +328,8 @@ class AppState extends ChangeNotifier {
   }
 
   /// フリープランに戻す(プラン解約)。
+  /// 実際のサブスク解約はGoogle Play側(アプリ内からはPlayストアの定期購入管理画面へ
+  /// 誘導する形)で行う必要があるが、アプリ内の表示上はローカル状態をフリーに戻す。
   void cancelPlan() {
     profile = profile.copyWith(
       planTier: PlanTier.free,
@@ -330,6 +338,93 @@ class AppState extends ChangeNotifier {
     );
     _persistProfile();
     notifyListeners();
+  }
+
+  // ─── ストア課金(Google Play Billing) ──────────────────────
+  final PurchaseService _purchaseService = PurchaseService.instance;
+  bool _purchaseInitStarted = false;
+
+  /// ストア課金(in_app_purchase)がこの環境で利用可能かどうか。
+  /// Web版プレビューでは常にfalse(呼び出し元は[selectPlan]にフォールバックすること)。
+  bool get purchaseServiceAvailable => _purchaseService.isAvailable;
+
+  /// 購入処理が進行中(Google Play購入UIの応答待ち等)かどうか。
+  bool purchaseInProgress = false;
+
+  /// 購入完了時にユーザーへ1回だけ表示すべき成功メッセージ。
+  /// 表示後は呼び出し元が[clearPurchaseMessages]で消費すること。
+  String? purchaseSuccessMessage;
+
+  /// 購入エラー時にユーザーへ1回だけ表示すべきエラーメッセージ。
+  String? purchaseErrorMessage;
+
+  /// ペイウォール画面表示時に呼ぶ。何度呼んでも初期化は1回だけ実行される。
+  Future<void> ensurePurchaseServiceInitialized() async {
+    if (_purchaseInitStarted) return;
+    _purchaseInitStarted = true;
+    _purchaseService.onPurchaseCompleted = _handlePurchaseCompleted;
+    _purchaseService.onPurchaseError = (message) {
+      purchaseErrorMessage = message;
+      purchaseInProgress = false;
+      notifyListeners();
+    };
+    _purchaseService.onPendingChanged = (pending) {
+      purchaseInProgress = pending;
+      notifyListeners();
+    };
+    await _purchaseService.init();
+    notifyListeners();
+  }
+
+  /// 指定プランのストア購入(Google Play Billing)を開始する。
+  /// [withTrial]がtrueの場合、Google Play側に無料トライアルオファーが
+  /// 設定されていればそれを使用し、無ければ通常課金に自動フォールバックする。
+  /// ストアが利用できない環境ではfalseを返すので、呼び出し元は[selectPlan]で
+  /// モック挙動にフォールバックすること。
+  Future<bool> startStorePurchase(PlanTier tier, {bool withTrial = false}) async {
+    final product = tier.purchasableProduct;
+    if (product == null || !_purchaseService.isAvailable) return false;
+    await _purchaseService.buy(product, withTrial: withTrial);
+    return true;
+  }
+
+  /// 購入履歴の復元(機種変更・再インストール時など)。
+  Future<void> restoreStorePurchases() async {
+    await _purchaseService.restorePurchases();
+  }
+
+  /// ストア購入完了(新規購入/更新/復元)イベントを受けてプロフィールを更新する。
+  /// 注: 現時点ではクライアント側のみで完結する簡易実装(サーバーサイドでの
+  /// レシート検証は行っていない)。
+  void _handlePurchaseCompleted(PurchaseResultEvent event) {
+    purchaseInProgress = false;
+    final tier = event.product.planTier;
+    final now = DateTime.now();
+    final DateTime expiresAt = event.isTrial
+        ? now.add(const Duration(days: 7))
+        : (tier == PlanTier.premium
+              ? DateTime(now.year, now.month + 1, now.day)
+              : DateTime(now.year, now.month + 3, now.day));
+    profile = profile.copyWith(
+      planTier: tier,
+      planExpiresAt: expiresAt,
+      trialUsed: event.isTrial ? true : profile.trialUsed,
+      planIsTrial: event.isTrial,
+    );
+    _persistProfile();
+    final info = kPlanCatalog[tier]!;
+    purchaseSuccessMessage = event.isRestore
+        ? '購入内容を復元したよ。${info.label}が利用できるようになったよ。'
+        : (event.isTrial
+              ? '${info.trialDays}日間の無料トライアルを開始したよ!'
+              : '${info.label}に加入したよ。ありがとう!');
+    notifyListeners();
+  }
+
+  /// 購入成功/エラーメッセージを表示し終えたら呼ぶ(再表示ループ防止)。
+  void clearPurchaseMessages() {
+    purchaseSuccessMessage = null;
+    purchaseErrorMessage = null;
   }
 
   /// 回答ログ(questionId -> isCorrect)から、現在の受験区分のカテゴリ別正答率統計を算出する。

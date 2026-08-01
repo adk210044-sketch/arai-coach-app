@@ -1,6 +1,9 @@
 // plan.dart — 料金プラン(価格モデル)の定義
 // 競合分析(#1〜#8ベンチマーク)を踏まえた価格設定。
-// フリー(¥0・広告モデル・過去問50問) / 月額プレミアム(¥1,200) / 3か月集中パック(¥2,600・7日間無料トライアル)
+// フリー(¥0・広告モデル・過去問50問) / 月額プレミアム(¥1,200・サブスク) /
+// 3か月集中パック(¥2,600・3か月ごとのサブスク)
+// 両有料プランともGoogle Play側で「7日間無料トライアル」オファーを設定し、
+// 「無料トライアルを始める」の入口から選んだ方のプランへトライアル付きで加入できる。
 
 import 'package:flutter/material.dart';
 
@@ -76,7 +79,10 @@ const Map<PlanTier, PlanInfo> kPlanCatalog = {
       '📝 模擬試験(フル・ミニ)が使える',
       '💡 AI解説をすべて閲覧できる',
       '🚫 広告なし',
+      '毎月自動更新(いつでも解約OK)',
     ],
+    hasFreeTrial: true,
+    trialDays: 7,
   ),
   PlanTier.intensivePack: PlanInfo(
     tier: PlanTier.intensivePack,
@@ -92,7 +98,7 @@ const Map<PlanTier, PlanInfo> kPlanCatalog = {
       '📝 模擬試験(フル・ミニ)が使える',
       '💡 AI解説をすべて閲覧できる',
       '🚫 広告なし',
-      '買い切り(自動更新なし)',
+      '3か月ごとに自動更新(いつでも解約OK)',
     ],
     hasFreeTrial: true,
     trialDays: 7,

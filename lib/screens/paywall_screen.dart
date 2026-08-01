@@ -1,6 +1,7 @@
 // paywall_screen.dart — 料金プラン選択・ペイウォールUI
-// 注: 現時点では実際のストア課金(Google Play Billing等)は組み込んでおらず、
-// プラン選択はローカル状態(モック)を切り替えるのみ。実装はUI/ロジックの検証用。
+// Android実機ではGoogle Play Billing(in_app_purchase)経由での実購入を行う。
+// Web版プレビュー等、ストア課金が利用できない環境ではローカル状態を切り替える
+// モック実装に自動フォールバックする(AppState.startStorePurchaseがfalseを返す場合)。
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../theme/tokens.dart';
@@ -25,6 +26,15 @@ class PaywallScreen extends StatefulWidget {
 class _PaywallScreenState extends State<PaywallScreen> {
   PlanTier _selected = PlanTier.intensivePack;
 
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      context.read<AppState>().ensurePurchaseServiceInitialized();
+    });
+  }
+
   String get _coachMessage {
     switch (widget.trigger) {
       case PaywallTrigger.mockExam:
@@ -42,6 +52,26 @@ class _PaywallScreenState extends State<PaywallScreen> {
   Widget build(BuildContext context) {
     final appState = context.watch<AppState>();
     final profile = appState.profile;
+
+    // 購入結果メッセージ(成功/エラー)を1回だけSnackBarで表示する。
+    if (appState.purchaseSuccessMessage != null ||
+        appState.purchaseErrorMessage != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        final success = appState.purchaseSuccessMessage;
+        final error = appState.purchaseErrorMessage;
+        appState.clearPurchaseMessages();
+        if (success != null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(success)),
+          );
+        } else if (error != null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(error), backgroundColor: AppColors.ng),
+          );
+        }
+      });
+    }
 
     return Scaffold(
       backgroundColor: AppColors.bgSoft,
@@ -66,6 +96,9 @@ class _PaywallScreenState extends State<PaywallScreen> {
               // 現在のプラン状態
               _currentPlanBanner(profile),
               const SizedBox(height: 16),
+
+              // 無料トライアルの入口(未利用・フリープランのユーザーのみ表示)
+              _freeTrialSection(context, appState, profile),
 
               // あらいコーチのメッセージ
               Container(
@@ -121,17 +154,20 @@ class _PaywallScreenState extends State<PaywallScreen> {
 
               const SizedBox(height: 14),
               Center(
-                child: Text(
-                  '実際の決済は準備中だよ。今はプラン選択のUI確認だけできるよ。',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 10.5,
-                    color: AppColors.textMute,
-                    height: 1.6,
+                child: TextButton(
+                  onPressed: () async {
+                    await appState.restoreStorePurchases();
+                  },
+                  child: const Text(
+                    '購入を復元する',
+                    style: TextStyle(
+                      color: AppColors.textDim,
+                      fontSize: AppFontSize.sm,
+                    ),
                   ),
                 ),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 4),
 
               if (profile.isPremium)
                 Center(
@@ -533,72 +569,219 @@ class _PaywallScreenState extends State<PaywallScreen> {
     );
   }
 
-  Widget _ctaButton(
+  /// 一番上のパナー: 未利用・フリープランのユーザーに向けて、
+  /// 7日間の無料トライアルを入口として提供する。
+  /// タプすると・・・CTAWidgetが、トライアル終了後に切り替えるプラン(月額
+  /// または3か月)を選ばせるボトムシートを開く。
+  Widget _freeTrialSection(
     BuildContext context,
     AppState appState,
     UserProfile profile,
   ) {
-    final info = kPlanCatalog[_selected]!;
-    final alreadyOnThis =
-        profile.planTier == _selected &&
-        (profile.isPremium || _selected == PlanTier.free);
-    final showTrialCta =
-        _selected == PlanTier.intensivePack &&
-        !profile.trialUsed &&
-        !alreadyOnThis;
+    if (profile.isPremium || profile.trialUsed) return const SizedBox.shrink();
 
-    String label;
-    if (alreadyOnThis) {
-      label = '現在利用中のプランだよ';
-    } else if (_selected == PlanTier.free) {
-      label = 'フリープランに切り替える';
-    } else if (showTrialCta) {
-      label = '${info.trialDays}日間無料で試す';
-    } else {
-      label = '${info.label}(${info.priceLabel}${info.periodLabel})に申し込む';
-    }
-
-    return SizedBox(
+    return Container(
       width: double.infinity,
-      height: 54,
-      child: ElevatedButton(
-        onPressed: alreadyOnThis
-            ? null
-            : () => _confirmSelect(context, appState, showTrialCta),
-        style: ElevatedButton.styleFrom(
-          backgroundColor: AppColors.primary,
-          disabledBackgroundColor: AppColors.border,
-          foregroundColor: Colors.white,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(AppRadius.pill),
-          ),
+      margin: const EdgeInsets.only(bottom: 16),
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          colors: [AppColors.accent, AppColors.primary],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
         ),
-        child: Text(
-          label,
-          style: const TextStyle(
-            fontSize: AppFontSize.xl,
-            fontWeight: FontWeight.w700,
+        borderRadius: BorderRadius.circular(AppRadius.lg),
+        boxShadow: AppShadow.cardHover,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: const [
+              Icon(Icons.card_giftcard, color: Colors.white),
+              SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  'まずは7日間無料で試してみる',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: AppFontSize.lg,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+              ),
+            ],
           ),
+          const SizedBox(height: 6),
+          const Text(
+            'トライアル終了後に使いたいプラン(月額 or 3か月)を選ぶだけ。\n期間中はいつでも解約できるよ。',
+            style: TextStyle(
+              color: Colors.white,
+              height: 1.5,
+              fontSize: AppFontSize.sm,
+            ),
+          ),
+          const SizedBox(height: 14),
+          SizedBox(
+            width: double.infinity,
+            height: 50,
+            child: ElevatedButton(
+              onPressed: () => _showTrialPlanPicker(context, appState),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.white,
+                foregroundColor: AppColors.primary,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(AppRadius.pill),
+                ),
+              ),
+              child: const Text(
+                '7日間無料トライアルを始める',
+                style: TextStyle(
+                  fontWeight: FontWeight.w800,
+                  fontSize: AppFontSize.base,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// トライアル終了後に切り替わるプラン(月額 or 3か月)を選ばせるボトムシート。
+  void _showTrialPlanPicker(BuildContext context, AppState appState) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (sheetCtx) {
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(20, 22, 20, 24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'トライアル終了後のプランを選んでね',
+                  style: TextStyle(
+                    fontSize: AppFontSize.lg,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                const Text(
+                  '7日間は無料。期間終了後、選んだプランで自動的に始まるよ。',
+                  style: TextStyle(
+                    fontSize: AppFontSize.sm,
+                    color: AppColors.textDim,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                _trialOptionTile(sheetCtx, appState, PlanTier.premium),
+                const SizedBox(height: 10),
+                _trialOptionTile(sheetCtx, appState, PlanTier.intensivePack),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _trialOptionTile(
+    BuildContext sheetContext,
+    AppState appState,
+    PlanTier tier,
+  ) {
+    final info = kPlanCatalog[tier]!;
+    return InkWell(
+      borderRadius: BorderRadius.circular(AppRadius.lg),
+      onTap: () {
+        Navigator.of(sheetContext).pop();
+        _confirmStartTrial(context, appState, tier);
+      },
+      child: Container(
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          border: Border.all(color: AppColors.border),
+          borderRadius: BorderRadius.circular(AppRadius.lg),
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Text(
+                        info.label,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.w700,
+                          fontSize: AppFontSize.base,
+                        ),
+                      ),
+                      if (info.badge != null) ...[
+                        const SizedBox(width: 6),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 2,
+                          ),
+                          decoration: BoxDecoration(
+                            color: AppColors.accent.withValues(alpha: 0.15),
+                            borderRadius: BorderRadius.circular(
+                              AppRadius.pill,
+                            ),
+                          ),
+                          child: Text(
+                            info.badge!,
+                            style: const TextStyle(
+                              fontSize: 10,
+                              color: AppColors.accent,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    'トライアル終了後 ${info.priceLabel}${info.periodLabel}',
+                    style: const TextStyle(
+                      fontSize: AppFontSize.sm,
+                      color: AppColors.textDim,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const Icon(Icons.chevron_right, color: AppColors.textMute),
+          ],
         ),
       ),
     );
   }
 
-  void _confirmSelect(
+  void _confirmStartTrial(
     BuildContext context,
     AppState appState,
-    bool startTrial,
+    PlanTier tier,
   ) {
-    final info = kPlanCatalog[_selected]!;
+    final info = kPlanCatalog[tier]!;
     showDialog(
       context: context,
       builder: (ctx) {
         return AlertDialog(
-          title: Text(startTrial ? '無料トライアルを始めるよ' : '${info.label}に申し込むよ'),
+          title: const Text('無料トライアルを始めるよ'),
           content: Text(
-            startTrial
-                ? '${info.trialDays}日間は無料で全機能を使えるよ。期間が終わると自動で有料プランに切り替わる想定だけど、今はモック実装なので実際の課金は発生しないよ。'
-                : '${info.priceLabel}${info.periodLabel}のプランに切り替えるよ(現在は決済処理のモック実装のため、実際の課金は発生しないよ)。',
+            '7日間は無料で全機能を使えるよ。期間が終わると自動的に${info.label}'
+            '(${info.priceLabel}${info.periodLabel})に切り替わって課金が始まるから、\n'
+            '不要な場合は期間内にPlayストアの定期購入管理画面から解約してね。',
             style: const TextStyle(color: AppColors.textDim, height: 1.6),
           ),
           actions: [
@@ -610,19 +793,175 @@ class _PaywallScreenState extends State<PaywallScreen> {
               ),
             ),
             TextButton(
-              onPressed: () {
-                appState.selectPlan(_selected, startTrial: startTrial);
+              onPressed: () async {
                 Navigator.of(ctx).pop();
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(
-                      startTrial
-                          ? '無料トライアルを開始したよ!存分に使ってみてね'
-                          : '${info.label}に切り替えたよ。ありがとう!',
-                    ),
-                  ),
+                final started = await appState.startStorePurchase(
+                  tier,
+                  withTrial: true,
                 );
-                Navigator.of(context).pop();
+                if (!started) {
+                  appState.selectPlan(tier, startTrial: true);
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text(
+                          '無料トライアルを開始したよ!(プレビュー環境のため決済はモックだよ)',
+                        ),
+                      ),
+                    );
+                  }
+                }
+              },
+              child: const Text(
+                'トライアルを始める',
+                style: TextStyle(
+                  color: AppColors.primary,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _ctaButton(
+    BuildContext context,
+    AppState appState,
+    UserProfile profile,
+  ) {
+    final info = kPlanCatalog[_selected]!;
+    final alreadyOnThis =
+        profile.planTier == _selected &&
+        (profile.isPremium || _selected == PlanTier.free);
+
+    String label;
+    if (alreadyOnThis) {
+      label = '現在利用中のプランだよ';
+    } else if (_selected == PlanTier.free) {
+      label = 'フリープランに切り替える';
+    } else {
+      label = '${info.label}(${info.priceLabel}${info.periodLabel})に申し込む';
+    }
+
+    return SizedBox(
+      width: double.infinity,
+      height: 54,
+      child: ElevatedButton(
+        onPressed: (alreadyOnThis || appState.purchaseInProgress)
+            ? null
+            : () => _confirmSelect(context, appState),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: AppColors.primary,
+          disabledBackgroundColor: AppColors.border,
+          foregroundColor: Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(AppRadius.pill),
+          ),
+        ),
+        child: appState.purchaseInProgress
+            ? const SizedBox(
+                width: 22,
+                height: 22,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2.4,
+                  color: Colors.white,
+                ),
+              )
+            : Text(
+                label,
+                style: const TextStyle(
+                  fontSize: AppFontSize.xl,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+      ),
+    );
+  }
+
+  void _confirmSelect(BuildContext context, AppState appState) {
+    final tier = _selected;
+    final info = kPlanCatalog[tier]!;
+
+    if (tier == PlanTier.free) {
+      showDialog(
+        context: context,
+        builder: (ctx) {
+          return AlertDialog(
+            title: const Text('フリープランに切り替えますか?'),
+            content: const Text(
+              '有料プランを解約して、フリープラン(過去問50問まで)に戻るよ。学習の記録はそのまま残るから安心してね。',
+              style: TextStyle(color: AppColors.textDim, height: 1.6),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(ctx).pop(),
+                child: const Text(
+                  'キャンセル',
+                  style: TextStyle(color: AppColors.textDim),
+                ),
+              ),
+              TextButton(
+                onPressed: () {
+                  appState.cancelPlan();
+                  Navigator.of(ctx).pop();
+                  ScaffoldMessenger.of(
+                    context,
+                  ).showSnackBar(const SnackBar(content: Text('フリープランに切り替えたよ')));
+                },
+                child: const Text(
+                  '切り替える',
+                  style: TextStyle(
+                    color: AppColors.primary,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+            ],
+          );
+        },
+      );
+      return;
+    }
+
+    showDialog(
+      context: context,
+      builder: (ctx) {
+        return AlertDialog(
+          title: Text('${info.label}に申し込むよ'),
+          content: Text(
+            '${info.priceLabel}${info.periodLabel}で今すぐ申し込むよ。\n'
+            'トライアルを試したい場合は、キャンセルして上の「7日間無料トライアルを始める」から進めてね。',
+            style: const TextStyle(color: AppColors.textDim, height: 1.6),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(ctx).pop(),
+              child: const Text(
+                'キャンセル',
+                style: TextStyle(color: AppColors.textDim),
+              ),
+            ),
+            TextButton(
+              onPressed: () async {
+                Navigator.of(ctx).pop();
+                final started = await appState.startStorePurchase(
+                  tier,
+                  withTrial: false,
+                );
+                if (!started) {
+                  appState.selectPlan(tier, startTrial: false);
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(
+                          '${info.label}に切り替えたよ。ありがとう!(プレビュー環境のため決済はモックだよ)',
+                        ),
+                      ),
+                    );
+                  }
+                }
               },
               child: const Text(
                 '決定する',
