@@ -1,6 +1,7 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart' hide AppState;
 import 'package:provider/provider.dart';
 import 'firebase_options.dart';
 import 'theme/app_theme.dart';
@@ -15,8 +16,8 @@ import 'screens/main_tab_scaffold.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await LocalStore.init();
-  await QuestionRepository.instance.load();
-  await NotificationService.init();
+  // Firebase初期化は QuestionRepository.load() より前に行う
+  // (load内部で question_patches の取得に Firestore を使うため)。
   try {
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
@@ -30,6 +31,24 @@ Future<void> main() async {
     if (kDebugMode) {
       debugPrint('❌ Firebase initialization failed: $e');
       debugPrint(st.toString());
+    }
+  }
+  // 問題データ読み込み(同梱JSON→Firestoreパッチ適用の順で内部処理される)。
+  // Firebase初期化が失敗していても、Firestore呼び出しはタイムアウト+例外握り込みで
+  // 安全にスキップされ、同梱データのみで問題なく起動を継続する。
+  await QuestionRepository.instance.load();
+  await NotificationService.init();
+  // AdMob初期化(Web版はサポート対象外なのでスキップし、モックにフォールバック)。
+  if (!kIsWeb) {
+    try {
+      await MobileAds.instance.initialize();
+      if (kDebugMode) {
+        debugPrint('✅ MobileAds initialized successfully');
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        debugPrint('❌ MobileAds initialization failed: $e');
+      }
     }
   }
   runApp(const HygieneCoachApp());

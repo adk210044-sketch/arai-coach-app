@@ -34,6 +34,32 @@ class Question {
     this.officialExplanation = '',
   });
 
+  /// Firestore の question_patches から取得した修正内容を適用した新しい
+  /// Question を返す。パッチ側で指定されていないフィールドは元の値を維持する。
+  Question applyPatch(Map<String, dynamic> patch) {
+    return Question(
+      id: id,
+      examTypeKey: examTypeKey,
+      year: year,
+      categoryKey: categoryKey,
+      categoryName: categoryName,
+      subCategory: subCategory,
+      format: format,
+      number: number,
+      text: patch['text'] as String? ?? text,
+      items:
+          (patch['items'] as List?)?.map((e) => e.toString()).toList() ??
+          items,
+      choices:
+          (patch['choices'] as List?)?.map((e) => e.toString()).toList() ??
+          choices,
+      correctIndex: patch['correctIndex'] as int? ?? correctIndex,
+      aiExplanation: patch['aiExplanation'] as String? ?? aiExplanation,
+      officialExplanation:
+          patch['officialExplanation'] as String? ?? officialExplanation,
+    );
+  }
+
   factory Question.fromJson(Map<String, dynamic> json) {
     return Question(
       id: json['id'] as String,

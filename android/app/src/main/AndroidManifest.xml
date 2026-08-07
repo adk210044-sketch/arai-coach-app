@@ -8,6 +8,10 @@
         android:label="hygiene_coach"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
+        <!-- AdMob App ID -->
+        <meta-data
+            android:name="com.google.android.gms.ads.APPLICATION_ID"
+            android:value="ca-app-pub-1683177610891884~3599979988"/>
         <activity
             android:name=".MainActivity"
             android:exported="true"

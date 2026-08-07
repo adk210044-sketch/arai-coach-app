@@ -1,6 +1,15 @@
 // question_repository.dart — assets/data/exam_questions.json (814問) を読み込み、
 // Question モデルへ変換して保持するリポジトリ。
+//
+// 誤字修正・内容更新の仕組み(ハイブリッド方式):
+//   1. 問題データ本体は同梱JSON(オフラインでも常に動作)
+//   2. 起動時に Firestore の `question_patches` コレクションを軽量チェックし、
+//      該当する問題があればメモリ上で内容を上書きする
+//   3. Firestore に接続できない場合(オフライン/エラー)は同梱データのみで
+//      問題なく動作を継続する(タイムアウト付き・失敗を握り込む)
 import 'dart:convert';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import '../models/question.dart';
 import '../models/category.dart';
@@ -29,6 +38,50 @@ class QuestionRepository {
       _all = [];
     }
     _loaded = true;
+
+    // 同梱データのロード完了後、Firestore上の誤字修正パッチを適用する。
+    // ネットワークが無い/Firestoreに接続できない場合でも、同梱データのみで
+    // 問題なく学習を継続できるようにする(タイムアウト付き・例外を握り込む)。
+    await applyRemotePatches();
+  }
+
+  /// Firestore の `question_patches` コレクションから修正内容を取得し、
+  /// 該当する問題があればメモリ上のデータを上書きする。
+  /// オフライン時やエラー時は静かに失敗し、同梱データのまま継続する。
+  Future<void> applyRemotePatches() async {
+    try {
+      final snapshot = await FirebaseFirestore.instance
+          .collection('question_patches')
+          .get()
+          .timeout(const Duration(seconds: 5));
+
+      if (snapshot.docs.isEmpty) return;
+
+      final patchMap = <String, Map<String, dynamic>>{};
+      for (final doc in snapshot.docs) {
+        patchMap[doc.id] = doc.data();
+      }
+
+      if (patchMap.isEmpty) return;
+
+      _all = _all.map((q) {
+        final patch = patchMap[q.id];
+        if (patch == null) return q;
+        return q.applyPatch(patch);
+      }).toList();
+
+      if (kDebugMode) {
+        debugPrint(
+          '✅ Applied ${patchMap.length} question patch(es) from Firestore',
+        );
+      }
+    } catch (e) {
+      // オフライン/Firestore未接続/権限エラーなど、いずれの場合も
+      // 同梱データでの動作を止めない(ユーザー体験を優先)。
+      if (kDebugMode) {
+        debugPrint('ℹ️ Skipped remote question patches: $e');
+      }
+    }
   }
 
   /// 試験区分でフィルタした問題一覧
