@@ -71,7 +71,10 @@ class _CoachAiSettingsScreenState extends State<CoachAiSettingsScreen> {
       return;
     }
     // 入力中のキーで即テストできるよう、テスト前に保存しておく
+    // (この時点でGeminiService側の不正文字除去=サニタイズも通る)
     await GeminiService.saveApiKey(key);
+    final savedKey = await GeminiService.getApiKey() ?? '';
+    final keyInfo = GeminiService.maskForDisplay(savedKey);
     setState(() => _testing = true);
     String resultTitle;
     String resultDetail;
@@ -83,10 +86,11 @@ class _CoachAiSettingsScreenState extends State<CoachAiSettingsScreen> {
       );
       ok = true;
       resultTitle = '接続に成功したよ!';
-      resultDetail = reply;
+      resultDetail = '$reply\n\n---\n送信したキー: $keyInfo';
     } catch (e) {
       resultTitle = '接続に失敗したよ';
-      resultDetail = e.toString();
+      resultDetail = '$e\n\n---\n送信したキー: $keyInfo\n'
+          '(Google AI Studioで表示されているキーと、上の文字数・先頭6文字/末尾4文字が一致しているか確認してね)';
     }
     if (!mounted) return;
     setState(() => _testing = false);

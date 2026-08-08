@@ -25,19 +25,43 @@ class GeminiService {
 
   static String? _cachedKey;
 
+  /// モバイルでのコピペ時に紛れ込みやすい、見た目には分からない不正な文字を除去する。
+  /// ・前後の空白/改行(trim)
+  /// ・文字列内部に混入した改行・タブ
+  /// ・全角スペース
+  /// ・ゼロ幅スペース等の制御文字(コピー元アプリによって混入することがある)
+  static String _sanitizeKey(String raw) {
+    return raw
+        .trim()
+        .replaceAll(RegExp(r'[\r\n\t]'), '')
+        .replaceAll('\u3000', '') // 全角スペース
+        .replaceAll(RegExp(r'[\u200B-\u200D\uFEFF]'), '') // ゼロ幅系
+        .trim();
+  }
+
   /// 保存済みのAPIキーを取得(未設定ならnull)。
   static Future<String?> getApiKey() async {
     if (_cachedKey != null) return _cachedKey;
     final prefs = await SharedPreferences.getInstance();
     final key = prefs.getString(_prefsKey);
-    _cachedKey = (key != null && key.trim().isNotEmpty) ? key.trim() : null;
+    final cleaned = key != null ? _sanitizeKey(key) : '';
+    _cachedKey = cleaned.isNotEmpty ? cleaned : null;
     return _cachedKey;
   }
 
   static Future<void> saveApiKey(String key) async {
+    final cleaned = _sanitizeKey(key);
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(_prefsKey, key.trim());
-    _cachedKey = key.trim().isEmpty ? null : key.trim();
+    await prefs.setString(_prefsKey, cleaned);
+    _cachedKey = cleaned.isEmpty ? null : cleaned;
+  }
+
+  /// 診断用: 保存されているキーの長さと先頭/末尾の一部だけを安全に表示するための文字列を返す。
+  /// (キー全体を画面に晒さず、「本当に正しいキーが送信されているか」を確認できるようにする)
+  static String maskForDisplay(String key) {
+    if (key.isEmpty) return '(空)';
+    if (key.length <= 8) return '${key.length}文字: $key';
+    return '${key.length}文字: ${key.substring(0, 6)}...${key.substring(key.length - 4)}';
   }
 
   static Future<void> clearApiKey() async {
