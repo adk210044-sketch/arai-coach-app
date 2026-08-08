@@ -5,7 +5,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
-	<string>Hygiene Coach</string>
+	<string>あらいコーチ</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -13,7 +13,7 @@
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
-	<string>hygiene_coach</string>
+	<string>あらいコーチ</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
@@ -45,5 +45,22 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<!-- AdMob App ID(iOS用)。AdMob管理画面でiOSアプリを追加登録した際に発行されるIDに置き換えること。
+	     現状はAndroid用IDを仮置きしているため、実際の値に差し替えるまで広告が正しく配信されない可能性がある。 -->
+	<key>GADApplicationIdentifier</key>
+	<string>ca-app-pub-1683177610891884~3599979988</string>
+	<!-- AdMob(google_mobile_ads)がiOS14以降で広告の計測精度向上のために
+	     App Tracking Transparency(ATT)の許可ダイアログを表示する際に使われる説明文。
+	     この文言が無いとATT関連の審査でリジェクトされる可能性がある。 -->
+	<key>NSUserTrackingUsageDescription</key>
+	<string>このAppは、広告の表示品質を向上させるためにトラッキングデータを使用する場合があります。</string>
+	<!-- iOS 14以降、ローカルネットワークやサードパーティSDKの通信で
+	     App Transport Securityの例外が必要になるケースがあるため念のため許可しておく
+	     (Firebase/AdMobともにHTTPS通信のため通常は不要だが、SDK内部の挙動対策)。 -->
+	<key>NSAppTransportSecurity</key>
+	<dict>
+		<key>NSAllowsArbitraryLoadsInWebContent</key>
+		<true/>
+	</dict>
 </dict>
 </plist>
