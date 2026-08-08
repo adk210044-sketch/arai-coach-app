@@ -45,10 +45,9 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
-	<!-- AdMob App ID(iOS用)。AdMob管理画面でiOSアプリを追加登録した際に発行されるIDに置き換えること。
-	     現状はAndroid用IDを仮置きしているため、実際の値に差し替えるまで広告が正しく配信されない可能性がある。 -->
+	<!-- AdMob App ID(iOS用)。AdMob管理画面でiOSアプリを追加登録した際に発行された正式値。 -->
 	<key>GADApplicationIdentifier</key>
-	<string>ca-app-pub-1683177610891884~3599979988</string>
+	<string>ca-app-pub-1683177610891884~4250932276</string>
 	<!-- AdMob(google_mobile_ads)がiOS14以降で広告の計測精度向上のために
 	     App Tracking Transparency(ATT)の許可ダイアログを表示する際に使われる説明文。
 	     この文言が無いとATT関連の審査でリジェクトされる可能性がある。 -->
