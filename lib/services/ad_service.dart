@@ -6,9 +6,7 @@
 // 本番の広告ユニットID(Android バナー):
 //   ca-app-pub-1683177610891884/1430926302
 // 本番の広告ユニットID(iOS バナー):
-//   ※iOS未発行。AdMob管理画面で「iOSアプリ」を追加登録後、バナー広告ユニットを
-//   新規作成し、発行されたIDを _prodBannerUnitIdIos に設定すること。
-//   未設定の間はテストIDにフォールバックし、実際の広告配信は行われない。
+//   ca-app-pub-1683177610891884/4719891470
 import 'dart:io' show Platform;
 import 'package:flutter/foundation.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart' hide AppState;
@@ -21,9 +19,8 @@ class AdService {
       'ca-app-pub-1683177610891884/1430926302';
 
   /// AdMob管理画面で作成した本番バナー広告ユニットID(iOS)。
-  /// TODO: iOSアプリをAdMobに追加登録後、実際の広告ユニットIDに置き換える。
   static const String _prodBannerUnitIdIos =
-      'ca-app-pub-1683177610891884/YYYYYYYYYY';
+      'ca-app-pub-1683177610891884/4719891470';
 
   /// Google公式のテスト用バナー広告ユニットID(Android)。
   /// 実際の収益は発生しない、デバッグ/開発時専用のID。
@@ -37,21 +34,12 @@ class AdService {
   /// 現在の実行環境に応じたバナー広告ユニットIDを返す。
   /// デバッグビルドは常にGoogle公式テストIDを使用し、誤って本番IDで
   /// テスト用の無効クリックを発生させてAdMobアカウントが停止されるのを防ぐ。
-  /// また、iOS用の本番IDが未設定(仮のYから始まる値)の間は、
-  /// 誤ってリジェクトされるプレースホルダーIDを送らないようテストIDにフォールバックする。
   static String get bannerUnitId {
     final isIos = !kIsWeb && Platform.isIOS;
     if (kDebugMode) {
       return isIos ? _testBannerUnitIdIos : _testBannerUnitIdAndroid;
     }
-    if (isIos) {
-      // iOS本番IDが未設定(プレースホルダーのまま)ならテストIDにフォールバック
-      if (_prodBannerUnitIdIos.contains('YYYYYYYYYY')) {
-        return _testBannerUnitIdIos;
-      }
-      return _prodBannerUnitIdIos;
-    }
-    return _prodBannerUnitIdAndroid;
+    return isIos ? _prodBannerUnitIdIos : _prodBannerUnitIdAndroid;
   }
 
   /// バナー広告(アダプティブバナー)を1つ生成して返す。
