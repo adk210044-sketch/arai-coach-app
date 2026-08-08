@@ -929,7 +929,13 @@ class AppState extends ChangeNotifier {
         } else if (text.contains('苦手') || text.contains('復習')) {
           replyAction = ChatAction.openWeakReview;
         }
-      } catch (_) {
+      } catch (e) {
+        // Gemini呼び出し失敗時はルールベース応答にフォールバックする。
+        // 原因調査用に、デバッグビルドでのみエラー内容をログ出力する
+        // (「AI連携」画面の接続テストでも同様のエラーを確認できる)。
+        if (kDebugMode) {
+          debugPrint('Gemini sendMessage failed, falling back: $e');
+        }
         final reply = _mockCoachReply(text);
         replyText = reply.text;
         replyAction = reply.action;

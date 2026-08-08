@@ -20,6 +20,7 @@ class _CoachAiSettingsScreenState extends State<CoachAiSettingsScreen> {
   bool _loading = true;
   bool _saved = false;
   bool _obscure = true;
+  bool _testing = false;
 
   @override
   void initState() {
@@ -54,6 +55,57 @@ class _CoachAiSettingsScreenState extends State<CoachAiSettingsScreen> {
         content: Text(
           key.isEmpty ? 'APIキーを削除したよ' : 'APIキーを保存したよ!これで自由に相談できるようになったよ',
         ),
+      ),
+    );
+  }
+
+  /// 保存済みキーで実際にGemini APIへ疎通確認を行い、失敗時は具体的なエラー内容を表示する。
+  /// 「定型文しか返ってこない」不具合の原因(キー無効/権限不足/課金未設定/モデル名エラー等)を
+  /// ユーザー自身が特定できるようにするための診断機能。
+  Future<void> _testConnection() async {
+    final key = _controller.text.trim();
+    if (key.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('先にAPIキーを入力してね')),
+      );
+      return;
+    }
+    // 入力中のキーで即テストできるよう、テスト前に保存しておく
+    await GeminiService.saveApiKey(key);
+    setState(() => _testing = true);
+    String resultTitle;
+    String resultDetail;
+    bool ok = false;
+    try {
+      final reply = await GeminiService.sendMessage(
+        userText: 'こんにちは、調子はどう?',
+        contextInfo: '(接続テストです。特にデータはありません)',
+      );
+      ok = true;
+      resultTitle = '接続に成功したよ!';
+      resultDetail = reply;
+    } catch (e) {
+      resultTitle = '接続に失敗したよ';
+      resultDetail = e.toString();
+    }
+    if (!mounted) return;
+    setState(() => _testing = false);
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(ok ? '✅ $resultTitle' : '⚠️ $resultTitle'),
+        content: SingleChildScrollView(
+          child: SelectableText(
+            resultDetail,
+            style: const TextStyle(fontSize: AppFontSize.sm, height: 1.5),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: const Text('閉じる'),
+          ),
+        ],
       ),
     );
   }
@@ -251,6 +303,38 @@ class _CoachAiSettingsScreenState extends State<CoachAiSettingsScreen> {
                             fontWeight: FontWeight.w700,
                           ),
                         ),
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    SizedBox(
+                      width: double.infinity,
+                      height: 46,
+                      child: OutlinedButton.icon(
+                        onPressed: _testing ? null : _testConnection,
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: AppColors.primary,
+                          side: const BorderSide(color: AppColors.primary),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(AppRadius.pill),
+                          ),
+                        ),
+                        icon: _testing
+                            ? const SizedBox(
+                                width: 16,
+                                height: 16,
+                                child: CircularProgressIndicator(strokeWidth: 2),
+                              )
+                            : const Icon(Icons.wifi_tethering, size: 18),
+                        label: Text(_testing ? '確認中...' : '接続テストをする'),
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    const Text(
+                      '「いい質問だね〜」のような定型文しか返ってこない場合は、ここで接続テストをするとエラー内容(キーが無効/権限不足など)を確認できるよ。',
+                      style: TextStyle(
+                        fontSize: 11,
+                        color: AppColors.textMute,
+                        height: 1.5,
                       ),
                     ),
                     const SizedBox(height: 20),
