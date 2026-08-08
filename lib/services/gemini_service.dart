@@ -20,8 +20,16 @@ class GeminiService {
   // "latest"エイリアスを使用する(Google公式ドキュメント推奨方式)。
   // 参考: https://ai.google.dev/gemini-api/docs/models#model-version-name-patterns
   static const String _model = 'gemini-flash-latest';
-  static String _endpoint(String apiKey) =>
-      'https://generativelanguage.googleapis.com/v1beta/models/$_model:generateContent?key=$apiKey';
+
+  // 2026年9月以降、Google側で「Standard key」(AIzaSy...形式・URLの?key=で渡す方式)が
+  // 廃止され、新方式の「Auth key」(AQ....形式)に一本化される。
+  // Auth keyはURLクエリパラメータではなく、HTTPヘッダー `x-goog-api-key` で渡す必要がある
+  // (Google公式ドキュメントのRESTサンプルコードもこの方式)。
+  // 参考: https://ai.google.dev/gemini-api/docs/api-key
+  // なお `x-goog-api-key` ヘッダーは旧来のAIzaSy形式キーでも問題なく使えるため、
+  // URLクエリパラメータ方式は廃止しヘッダー方式に一本化する。
+  static String _endpoint() =>
+      'https://generativelanguage.googleapis.com/v1beta/models/$_model:generateContent';
 
   static String? _cachedKey;
 
@@ -142,8 +150,12 @@ $contextInfo
 
     final response = await http
         .post(
-          Uri.parse(_endpoint(apiKey)),
-          headers: {'Content-Type': 'application/json'},
+          Uri.parse(_endpoint()),
+          headers: {
+            'Content-Type': 'application/json',
+            // Auth key(AQ....形式)・Standard key(AIzaSy...形式)どちらもこのヘッダーで認証できる。
+            'x-goog-api-key': apiKey,
+          },
           body: body,
         )
         .timeout(const Duration(seconds: 20));
