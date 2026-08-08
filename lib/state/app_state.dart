@@ -269,15 +269,12 @@ class AppState extends ChangeNotifier {
   }
 
   /// あらいコーチ(AI相談)のフリープラン1日あたりの表示上の利用上限(「◯/3回」表記用)。
-  /// ホーム画面に最初から入っているサンプル会話1往復を、ユーザーが
-  /// 「すでに1回使った」と感じてしまい実質使える回数が減って見えるという声を踏まえ、
-  /// 実際に送信できる回数(freeChatDailyLimit)は表示上の上限より1回多く確保している。
   static const int freeChatDisplayLimit = 3;
 
   /// あらいコーチ(AI相談)のフリープラン1日あたりの実際の送信可能回数。
-  /// 表示ラベルは [freeChatDisplayLimit]("3回")のまま変えず、実質3回分は
-  /// 必ず送信できるよう、内部の上限だけ1回分多く(4回)設定している。
-  static const int freeChatDailyLimit = freeChatDisplayLimit + 1;
+  /// 表示ラベル([freeChatDisplayLimit]「3回」)と実際に送信できる回数を
+  /// 一致させ、ちょうど3回分だけ送信できるようにする。
+  static const int freeChatDailyLimit = freeChatDisplayLimit;
 
   /// 今日すでに使ったコーチ相談回数(フリープランのみ意味を持つ)。
   int get todayChatCount {
