@@ -15,9 +15,11 @@ class GeminiService {
   GeminiService._();
   static const String _prefsKey = 'gemini_api_key';
 
-  // 2026年6月にgemini-2.0-flashが廃止(Shut down)されたため、
-  // 現行の安定版であるgemini-2.5-flashを使用する。
-  static const String _model = 'gemini-2.5-flash';
+  // 特定バージョン名(例: gemini-2.0-flash)は将来Googleの廃止(EOL)により
+  // 404エラーになるリスクがあるため、常に最新の安定版を指す
+  // "latest"エイリアスを使用する(Google公式ドキュメント推奨方式)。
+  // 参考: https://ai.google.dev/gemini-api/docs/models#model-version-name-patterns
+  static const String _model = 'gemini-flash-latest';
   static String _endpoint(String apiKey) =>
       'https://generativelanguage.googleapis.com/v1beta/models/$_model:generateContent?key=$apiKey';
 
