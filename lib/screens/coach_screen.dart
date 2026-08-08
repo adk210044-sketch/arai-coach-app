@@ -201,7 +201,7 @@ class _CoachScreenState extends State<CoachScreen> {
                         borderRadius: BorderRadius.circular(AppRadius.pill),
                       ),
                       child: Text(
-                        '今日 ${remaining ?? 0}/${AppState.freeChatDailyLimit}回',
+                        '今日 ${remaining ?? 0}/${AppState.freeChatDisplayLimit}回',
                         style: const TextStyle(
                           fontSize: 10,
                           color: AppColors.primary,

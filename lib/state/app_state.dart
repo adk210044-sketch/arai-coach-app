@@ -268,8 +268,16 @@ class AppState extends ChangeNotifier {
     _unlockBadge('first_weak_review');
   }
 
-  /// あらいコーチ(AI相談)のフリープラン1日あたり利用上限。
-  static const int freeChatDailyLimit = 3;
+  /// あらいコーチ(AI相談)のフリープラン1日あたりの表示上の利用上限(「◯/3回」表記用)。
+  /// ホーム画面に最初から入っているサンプル会話1往復を、ユーザーが
+  /// 「すでに1回使った」と感じてしまい実質使える回数が減って見えるという声を踏まえ、
+  /// 実際に送信できる回数(freeChatDailyLimit)は表示上の上限より1回多く確保している。
+  static const int freeChatDisplayLimit = 3;
+
+  /// あらいコーチ(AI相談)のフリープラン1日あたりの実際の送信可能回数。
+  /// 表示ラベルは [freeChatDisplayLimit]("3回")のまま変えず、実質3回分は
+  /// 必ず送信できるよう、内部の上限だけ1回分多く(4回)設定している。
+  static const int freeChatDailyLimit = freeChatDisplayLimit + 1;
 
   /// 今日すでに使ったコーチ相談回数(フリープランのみ意味を持つ)。
   int get todayChatCount {
@@ -278,9 +286,10 @@ class AppState extends ChangeNotifier {
   }
 
   /// 今日、あらいコーチにあと何回相談できるか(プレミアムはnull=無制限)。
+  /// 表示は常に「◯/3回」に収まるよう [freeChatDisplayLimit] を基準に計算する。
   int? get remainingChatToday => isPremium
       ? null
-      : (freeChatDailyLimit - todayChatCount).clamp(0, freeChatDailyLimit);
+      : (freeChatDisplayLimit - todayChatCount).clamp(0, freeChatDisplayLimit);
 
   bool get canSendChatMessage =>
       isPremium || todayChatCount < freeChatDailyLimit;

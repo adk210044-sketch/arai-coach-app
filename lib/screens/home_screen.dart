@@ -95,8 +95,9 @@ class HomeScreen extends StatelessWidget {
               ),
               child: CoachBubble(
                 mood: CoachMood.motivate,
-                message:
-                    '昨日は${appState.profile.totalAnswered > 0 ? '' : 'まだ'}お疲れさまだよ。\n今日は「${plan.categoryName}」を重点的に\n一緒に取り組んでみようね。',
+                message: appState.profile.totalAnswered > 0
+                    ? '昨日もお疲れさまだよ。\n今日は「${plan.categoryName}」を重点的に一緒に取り組んでみようね。'
+                    : '初めまして、あらいコーチだよ!\n今日は「${plan.categoryName}」から一緒に取り組んでみようね。',
               ),
             ),
             const SizedBox(height: 14),

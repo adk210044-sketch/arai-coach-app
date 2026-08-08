@@ -100,7 +100,7 @@ final List<int> kHeatmap30 = [
 List<ChatMessage> buildInitialChatMessages() => [
   ChatMessage(
     role: ChatRole.ai,
-    text: 'こんばんは、康一さん。今日もお疲れさまだよ。\n何か気になった問題はあるかな?',
+    text: '初めまして、あらいコーチだよ!\n何か気になった問題はあるかな?',
   ),
   ChatMessage(role: ChatRole.user, text: '有害業務の作業主任者の選任基準、いつも混乱します'),
   ChatMessage(

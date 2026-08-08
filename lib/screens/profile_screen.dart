@@ -132,12 +132,32 @@ class ProfileScreen extends StatelessWidget {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
-                              '${profile.displayName}さん',
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: AppFontSize.xxl,
-                                fontWeight: FontWeight.w700,
+                            GestureDetector(
+                              onTap: () =>
+                                  _openDisplayNameSettings(context, appState),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Flexible(
+                                    child: Text(
+                                      '${profile.displayName}さん',
+                                      overflow: TextOverflow.ellipsis,
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontSize: AppFontSize.xxl,
+                                        fontWeight: FontWeight.w700,
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 6),
+                                  Icon(
+                                    Icons.edit,
+                                    size: 15,
+                                    color: Colors.white.withValues(
+                                      alpha: 0.85,
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
                             const SizedBox(height: 2),
@@ -508,6 +528,99 @@ class ProfileScreen extends StatelessWidget {
               ),
             ),
           ],
+        );
+      },
+    );
+  }
+
+  // 表示名の編集(デフォルトは「康一」だが自由に変更できる)。
+  void _openDisplayNameSettings(BuildContext context, AppState appState) {
+    final controller = TextEditingController(text: appState.profile.displayName);
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.white,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (ctx) {
+        return Padding(
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(ctx).viewInsets.bottom,
+          ),
+          child: SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(20, 20, 20, 28),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    '✏️ お名前の変更',
+                    style: TextStyle(
+                      fontSize: AppFontSize.xl,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  const Text(
+                    'あらいコーチが呼びかける時のお名前だよ。',
+                    style: TextStyle(
+                      fontSize: AppFontSize.sm,
+                      color: AppColors.textDim,
+                      height: 1.6,
+                    ),
+                  ),
+                  const SizedBox(height: 18),
+                  TextField(
+                    controller: controller,
+                    autofocus: true,
+                    maxLength: 10,
+                    decoration: InputDecoration(
+                      hintText: '名前を入力',
+                      filled: true,
+                      fillColor: AppColors.bgSoft,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(AppRadius.md),
+                        borderSide: BorderSide.none,
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 14,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.primary,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(AppRadius.md),
+                        ),
+                      ),
+                      onPressed: () {
+                        final newName = controller.text.trim();
+                        if (newName.isNotEmpty) {
+                          appState.updateProfile(
+                            (p) => p.copyWith(displayName: newName),
+                          );
+                        }
+                        Navigator.of(ctx).pop();
+                      },
+                      child: const Text(
+                        '保存する',
+                        style: TextStyle(fontWeight: FontWeight.w700),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
         );
       },
     );
