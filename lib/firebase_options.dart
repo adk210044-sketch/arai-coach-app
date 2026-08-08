@@ -49,16 +49,11 @@ class DefaultFirebaseOptions {
     storageBucket: 'eiseikanri.firebasestorage.app',
   );
 
-  // ⚠️ 暫定値: iOSアプリをまだFirebase Consoleに登録していないため、
-  // 正式な appId / apiKey / iosBundleId が発行されていない。
-  // Firebase Console → プロジェクト設定 → 「アプリを追加」→ iOS を選択し、
-  // Bundle ID に com.hygienecoach.coach を入力してiOSアプリを登録した後、
-  // ダウンロードされる GoogleService-Info.plist の値でこのブロックを置き換えること。
-  // それまではiOS版のFirestore/Analytics連携は正しく動作しない(初期化は
-  // main.dart側でtry/catchしているため、アプリ自体はクラッシュせず動作する)。
+  // Firebase ConsoleでiOSアプリ(Bundle ID: com.hygienecoach.coach)を
+  // 登録した際に発行された、GoogleService-Info.plistの内容に基づく正式値。
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyBtXA9VyqJlSjyvRLWE06OPIfssUoklif8',
-    appId: '1:489856876839:ios:0000000000000000462902',
+    apiKey: 'AIzaSyBM4SlMQD8EiQIJoubr5Lrlnvi76G36alg',
+    appId: '1:489856876839:ios:5172bda2317d5eee462902',
     messagingSenderId: '489856876839',
     projectId: 'eiseikanri',
     storageBucket: 'eiseikanri.firebasestorage.app',
