@@ -1,18 +1,33 @@
-// purchase_service.dart — Google Play Billing 連携サービス。
+// purchase_service.dart — Google Play Billing / Apple StoreKit 両対応の購入サービス。
 //
-// ▼ Google Play Console 側で事前に作成が必要な商品(サブスクリプション) ▼
+// ▼ 事前に作成が必要な商品(サブスクリプション) ▼
 //   商品ID: premium_monthly       (月額プレミアム / ¥1,200 / 1か月ごと)
 //   商品ID: intensive_pack_3month (3か月集中パック / ¥2,600 / 3か月ごと)
-// それぞれの商品(base plan)に「7日間無料トライアル」のオファーを設定すること。
-// オファーの有効化により、このサービスは価格0円のpricingPhaseを持つオファーを
-// 自動検出して「トライアル付き購入」を行う。オファーが見つからない場合は
-// 通常の(トライアルなし)base planへ自動フォールバックする。
+//
+//   [Android] Google Play Console で上記商品IDのサブスクリプションを作成し、
+//   それぞれのbase planに「7日間無料トライアル」のオファーを設定すること。
+//   オファーの有効化により、このサービスは価格0円のpricingPhaseを持つオファーを
+//   自動検出して「トライアル付き購入」を行う。オファーが見つからない場合は
+//   通常の(トライアルなし)base planへ自動フォールバックする。
+//
+//   [iOS] App Store Connect で同名の商品ID(premium_monthly /
+//   intensive_pack_3month)の自動更新サブスクリプションを作成し、それぞれに
+//   「Introductory Offer」として7日間無料の Free Trial を設定すること。
+//   iOS側にはAndroidの「オファートークン」に相当する選択概念が無く、
+//   StoreKitがユーザーの適格性(初回購入かどうか等)を自動判定してトライアルを
+//   適用する。そのためこのコードからトライアル適用を明示的に強制することはできない。
+//
+// ▼ プラットフォーム分岐について ▼
+//   Android: GooglePlayProductDetails / GooglePlayPurchaseParam を使用し、
+//            offerToken を明示的に指定してオファー(トライアル有無)を選択する。
+//   iOS    : 通常の ProductDetails / PurchaseParam を使用する。オファー選択は
+//            行わず、StoreKit側の自動判定に委ねる。
 //
 // ▼ このサービスの制約(現時点でのスコープ) ▼
-// - サーバーサイドでのレシート検証(Google Play Developer API連携)は行っていない。
-//   購入完了イベントをクライアント側でそのまま信頼してプラン反映する簡易実装。
-//   不正対策・厳密な有効期限管理が必要になった場合は、Cloud Functions等で
-//   purchaseToken を検証するバックエンドの追加を推奨する。
+// - サーバーサイドでのレシート検証(Google Play Developer API / App Store Server API)
+//   は行っていない。購入完了イベントをクライアント側でそのまま信頼してプラン反映する
+//   簡易実装。不正対策・厳密な有効期限管理が必要になった場合は、Cloud Functions等で
+//   購入トークン/レシートを検証するバックエンドの追加を推奨する。
 // - Web環境(kIsWeb)では in_app_purchase が利用できないため、常に
 //   isAvailable=false を返す。Web上のプレビューでは購入ボタンを押しても
 //   実際の決済フローは開始されない(呼び出し元でモックへフォールバックすること)。
@@ -204,13 +219,23 @@ class PurchaseService {
 
   /// 購入フローを開始する。
   /// [withTrial] が true の場合、無料トライアルオファーがあればそれを使用し、
-  /// 見つからない場合は自動的に通常課金にフォールバックする。
+  /// 見つからない場合は自動的に通常課金にフォールバックする(Androidのみ選択可能)。
+  /// iOSでは StoreKit がトライアル適用有無を自動判定するため、[withTrial] は
+  /// 「ユーザーがトライアル付きのつもりで購入操作をした」という記録用フラグとして
+  /// のみ扱う(実際に無料期間が付与されるかはApple側の適格性判定に依存する)。
   Future<void> buy(PurchasableProduct product, {bool withTrial = false}) async {
     if (!_available) {
       onPurchaseError?.call('この環境では購入機能を利用できないよ(Web版はプレビュー専用だよ)。');
       return;
     }
     final productId = product.productId;
+
+    if (defaultTargetPlatform == TargetPlatform.iOS) {
+      await _buyOnIOS(productId, withTrial: withTrial);
+      return;
+    }
+
+    // Android(Google Play Billing): オファートークンを明示的に選択する。
     final GooglePlayProductDetails? chosen = withTrial
         ? (_findOfferWithTrial(productId) ?? _findBaseOffer(productId))
         : _findBaseOffer(productId);
@@ -228,6 +253,33 @@ class PurchaseService {
       productDetails: chosen,
       offerToken: chosen.offerToken,
     );
+
+    try {
+      onPendingChanged?.call(true);
+      await _iap.buyNonConsumable(purchaseParam: param);
+    } catch (e) {
+      onPendingChanged?.call(false);
+      onPurchaseError?.call('購入処理を開始できなかったよ: $e');
+    }
+  }
+
+  /// iOS(App Store / StoreKit)向けの購入フロー。
+  /// StoreKitにはAndroidのオファートークンに相当する選択肢が無いため、
+  /// 商品ID一致の [ProductDetails] を1件取得してそのまま購入をリクエストする。
+  /// Introductory Offer(無料トライアル)の適用有無はApple側が自動判定する。
+  Future<void> _buyOnIOS(String productId, {required bool withTrial}) async {
+    final offers = _offersByProductId[productId];
+    final details = (offers != null && offers.isNotEmpty) ? offers.first : null;
+
+    if (details == null) {
+      onPurchaseError?.call('商品情報が見つからなかったよ。時間をおいて再度試してみてね。');
+      return;
+    }
+
+    // ベストエフォートの記録用フラグ(実際の適用有無はApple側の判定次第)。
+    _pendingTrialFlag[productId] = withTrial;
+
+    final param = PurchaseParam(productDetails: details);
 
     try {
       onPendingChanged?.call(true);
