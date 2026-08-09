@@ -71,6 +71,12 @@ flutter:
   # the material Icons class.
   uses-material-design: true
 
+  # Disable Swift Package Manager to avoid conflicts with Firebase
+  # CocoaPods-based packages (firebase_core, cloud_firestore, etc).
+  # See: https://github.com/firebase/flutterfire/issues/17082
+  config:
+    enable-swift-package-manager: false
+
   # To add assets to your application, add an assets section, like this:
   assets:
     - assets/icons/
