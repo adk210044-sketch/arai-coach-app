@@ -44,7 +44,7 @@ class _PaywallScreenState extends State<PaywallScreen> {
       case PaywallTrigger.explanation:
         return 'この先の解説はプレミアム限定だよ。\nAI解説を全部見られるようになると\n理解がぐっと深まるよ。';
       case PaywallTrigger.general:
-        return '僕が一緒に、合格までしっかりサポートするよ。\n自分に合ったプランを\n選んでみてね。';
+        return '僕が一緒に、合格までしっかりサポートするよ。\n自分に合ったプランを選んでみてね。';
     }
   }
 
