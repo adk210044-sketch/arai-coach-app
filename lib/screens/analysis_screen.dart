@@ -728,7 +728,7 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
           // ヘッダー行(週ラベル): 左に科目名の余白分だけ空けて右詰めで配置
           Row(
             children: [
-              const SizedBox(width: 92),
+              const SizedBox(width: 132),
               ...weekLabels.map(
                 (label) => Expanded(
                   child: Center(
@@ -757,7 +757,7 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
               child: Row(
                 children: [
                   SizedBox(
-                    width: 92,
+                    width: 132,
                     child: Text(
                       categoryName,
                       style: const TextStyle(
@@ -765,7 +765,7 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
                         fontWeight: FontWeight.w600,
                         height: 1.2,
                       ),
-                      maxLines: 2,
+                      maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
