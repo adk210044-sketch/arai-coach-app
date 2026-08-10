@@ -63,8 +63,14 @@ const Map<PlanTier, PlanInfo> kPlanCatalog = {
     tier: PlanTier.free,
     priceLabel: '¥0',
     periodLabel: '',
-    subtitle: '過去問50問からお試しできるよ',
-    features: ['過去問 50問まで利用可能', '一問一答機能', '苦手復習機能', 'スキマ学習機能', '広告が表示されるよ'],
+    subtitle: '同じ過去問50問を何度でも繰り返し演習できるよ',
+    features: [
+      '過去問 50問を繰り返し演習可能',
+      '一問一答機能',
+      '苦手復習機能',
+      'スキマ学習機能',
+      '広告が表示されるよ',
+    ],
   ),
   PlanTier.premium: PlanInfo(
     tier: PlanTier.premium,
@@ -145,7 +151,7 @@ const List<PlanFeatureRow> kPlanFeatureMatrix = [
       PlanTier.intensivePack: FeatureLevel.full,
     },
     valueLabel: {
-      PlanTier.free: '50問',
+      PlanTier.free: '同じ50問',
       PlanTier.premium: '全814問\n(R1以降)',
       PlanTier.intensivePack: '全814問\n(R1以降)',
     },
@@ -159,7 +165,7 @@ const List<PlanFeatureRow> kPlanFeatureMatrix = [
       PlanTier.intensivePack: FeatureLevel.full,
     },
     valueLabel: {
-      PlanTier.free: '50問限定',
+      PlanTier.free: '同じ50問',
       PlanTier.premium: '全問対応',
       PlanTier.intensivePack: '全問対応',
     },
@@ -187,7 +193,7 @@ const List<PlanFeatureRow> kPlanFeatureMatrix = [
       PlanTier.intensivePack: FeatureLevel.full,
     },
     valueLabel: {
-      PlanTier.free: '50問限定',
+      PlanTier.free: '同じ50問',
       PlanTier.premium: '全問対応',
       PlanTier.intensivePack: '全問対応',
     },
@@ -248,7 +254,7 @@ List<PlanFeatureRow> buildPlanFeatureMatrix({
         PlanTier.intensivePack: FeatureLevel.full,
       },
       valueLabel: {
-        PlanTier.free: '$freeQuestionLimit問',
+        PlanTier.free: '同じ$freeQuestionLimit問',
         PlanTier.premium: '全$totalQuestionCount問\n(R1以降)',
         PlanTier.intensivePack: '全$totalQuestionCount問\n(R1以降)',
       },
@@ -261,8 +267,8 @@ List<PlanFeatureRow> buildPlanFeatureMatrix({
         PlanTier.premium: FeatureLevel.full,
         PlanTier.intensivePack: FeatureLevel.full,
       },
-      valueLabel: const {
-        PlanTier.free: '50問限定',
+      valueLabel: {
+        PlanTier.free: '同じ$freeQuestionLimit問',
         PlanTier.premium: '全問対応',
         PlanTier.intensivePack: '全問対応',
       },
@@ -289,8 +295,8 @@ List<PlanFeatureRow> buildPlanFeatureMatrix({
         PlanTier.premium: FeatureLevel.full,
         PlanTier.intensivePack: FeatureLevel.full,
       },
-      valueLabel: const {
-        PlanTier.free: '50問限定',
+      valueLabel: {
+        PlanTier.free: '同じ$freeQuestionLimit問',
         PlanTier.premium: '全問対応',
         PlanTier.intensivePack: '全問対応',
       },

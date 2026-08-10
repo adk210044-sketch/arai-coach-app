@@ -11,6 +11,45 @@ import 'explanation_screen.dart';
 class QuestionScreen extends StatelessWidget {
   const QuestionScreen({super.key});
 
+  // 演習を中断してTOPに戻る前に、誤タップによる中断を防ぐための確認ダイアログ。
+  // ここで「中止する」を選んだ場合のみ、ルートスタックの先頭(TOP)まで一気に戻す。
+  void _confirmQuit(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (ctx) {
+        return AlertDialog(
+          title: const Text('演習を中止しますか?'),
+          content: const Text(
+            '今の演習を中止してTOPに戻るよ。ここまでの回答結果は保存されているから安心してね。',
+            style: TextStyle(color: AppColors.textDim, height: 1.6),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(ctx).pop(),
+              child: const Text(
+                'キャンセル',
+                style: TextStyle(color: AppColors.textDim),
+              ),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(ctx).pop();
+                Navigator.of(context).popUntil((r) => r.isFirst);
+              },
+              child: const Text(
+                '中止する',
+                style: TextStyle(
+                  color: AppColors.ng,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final appState = context.watch<AppState>();
@@ -32,9 +71,17 @@ class QuestionScreen extends StatelessWidget {
               Row(
                 children: [
                   IconButton(
-                    onPressed: () => Navigator.of(context).pop(),
+                    onPressed: () => _confirmQuit(context),
                     icon: const Icon(Icons.close, color: AppColors.textDim),
                   ),
+                  if (appState.currentIndex > 0)
+                    IconButton(
+                      onPressed: () => appState.previousQuestion(),
+                      icon: const Icon(
+                        Icons.arrow_back,
+                        color: AppColors.textDim,
+                      ),
+                    ),
                   Expanded(
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(AppRadius.pill),

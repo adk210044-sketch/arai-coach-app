@@ -183,7 +183,7 @@ class ProfileScreen extends StatelessWidget {
                               child: Text(
                                 profile.isPremium
                                     ? '👑 ${kPlanCatalog[profile.planTier]!.label}'
-                                    : 'Lv.8 · 熟練者',
+                                    : kPlanCatalog[PlanTier.free]!.label,
                                 style: const TextStyle(
                                   color: Colors.white,
                                   fontSize: 10,
@@ -449,19 +449,6 @@ class ProfileScreen extends StatelessWidget {
                     ),
                   );
                 }),
-              ),
-            ),
-            const SizedBox(height: 20),
-            Center(
-              child: TextButton(
-                onPressed: () {},
-                child: const Text(
-                  'ログアウト',
-                  style: TextStyle(
-                    color: AppColors.ng,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
               ),
             ),
           ],

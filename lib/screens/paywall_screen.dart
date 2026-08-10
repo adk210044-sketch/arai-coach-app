@@ -891,7 +891,7 @@ class _PaywallScreenState extends State<PaywallScreen> {
           return AlertDialog(
             title: const Text('フリープランに切り替えますか?'),
             content: const Text(
-              '有料プランを解約して、フリープラン(過去問50問まで)に戻るよ。学習の記録はそのまま残るから安心してね。',
+              '有料プランを解約して、フリープラン(同じ過去問50問を繰り返し利用)に戻るよ。学習の記録はそのまま残るから安心してね。',
               style: TextStyle(color: AppColors.textDim, height: 1.6),
             ),
             actions: [
@@ -1000,7 +1000,7 @@ class _PaywallScreenState extends State<PaywallScreen> {
         return AlertDialog(
           title: const Text('プランを解約しますか?'),
           content: const Text(
-            '解約すると、フリープラン(過去問50問まで)に戻るよ。学習の記録はそのまま残るから安心してね。',
+            '解約すると、フリープラン(同じ過去問50問を繰り返し利用)に戻るよ。学習の記録はそのまま残るから安心してね。',
             style: TextStyle(color: AppColors.textDim, height: 1.6),
           ),
           actions: [

@@ -827,6 +827,18 @@ class AppState extends ChangeNotifier {
     }
   }
 
+  /// 1問前の問題に戻る(誤操作でのスキップ・誤タップからのやり直し用)。
+  /// 選択状態・回答済み状態はリセットし、その問題を解き直せるようにする。
+  void previousQuestion() {
+    if (currentIndex > 0) {
+      currentIndex--;
+      selectedAnswer = null;
+      answered = false;
+      questionStartedAt = DateTime.now();
+      notifyListeners();
+    }
+  }
+
   void retryCurrentQuestion() {
     selectedAnswer = null;
     answered = false;

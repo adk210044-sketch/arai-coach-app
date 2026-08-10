@@ -33,41 +33,58 @@ class PassProbabilityCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final ringSize = compact ? 76.0 : 96.0;
     final ring = ProgressRing(
-      pct: result.percent.toDouble(),
+      // データ不足で「診断中」の間はリングを塗らず、未診断であることを
+      // 視覚的にも誤解なく伝える(固定値50%が円グラフとして描かれてしまうのを防ぐ)。
+      pct: result.hasEnoughData ? result.percent.toDouble() : 0,
       size: ringSize,
       stroke: compact ? 8 : 10,
       color: _ringColor,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          RichText(
-            text: TextSpan(
+      child: result.hasEnoughData
+          ? Column(
+              mainAxisSize: MainAxisSize.min,
               children: [
-                TextSpan(
-                  text: '${result.percent}',
-                  style: TextStyle(
-                    fontSize: compact ? 20 : 26,
-                    fontWeight: FontWeight.w700,
-                    color: _ringColor,
+                RichText(
+                  text: TextSpan(
+                    children: [
+                      TextSpan(
+                        text: '${result.percent}',
+                        style: TextStyle(
+                          fontSize: compact ? 20 : 26,
+                          fontWeight: FontWeight.w700,
+                          color: _ringColor,
+                        ),
+                      ),
+                      TextSpan(
+                        text: '%',
+                        style: TextStyle(
+                          fontSize: compact ? 10 : 13,
+                          color: _ringColor,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-                TextSpan(
-                  text: '%',
+              ],
+            )
+          : Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  Icons.hourglass_empty,
+                  size: compact ? 18 : 22,
+                  color: AppColors.textMute,
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  '診断中',
                   style: TextStyle(
-                    fontSize: compact ? 10 : 13,
-                    color: _ringColor,
+                    fontSize: compact ? 11 : 13,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.textMute,
                   ),
                 ),
               ],
             ),
-          ),
-          if (!result.hasEnoughData)
-            const Text(
-              '診断中',
-              style: TextStyle(fontSize: 8, color: AppColors.textMute),
-            ),
-        ],
-      ),
     );
 
     return Container(

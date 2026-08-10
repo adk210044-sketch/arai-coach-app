@@ -112,28 +112,6 @@ List<ChatMessage> buildInitialChatMessages() => [
 
 const List<String> kQuickReplies = ['3問だけ出す', 'よく出る問題は?', '平均合格率は?', '暗記のコツ'];
 
-/// 苦手テーマヒートマップ (Analysisで使用)
-const List<MapEntry<String, double>> kWeakTopics = [
-  MapEntry('特化物', 0.9),
-  MapEntry('有機溶剤', 0.8),
-  MapEntry('作業主任者', 0.7),
-  MapEntry('局排', 0.65),
-  MapEntry('粉じん', 0.5),
-  MapEntry('騒音', 0.3),
-  MapEntry('健診', 0.85),
-  MapEntry('安全教育', 0.4),
-  MapEntry('選任義務', 0.45),
-  MapEntry('ストレス', 0.2),
-  MapEntry('腰痛', 0.15),
-  MapEntry('受動喫煙', 0.1),
-  MapEntry('視床下部', 0.6),
-  MapEntry('呼吸中枢', 0.55),
-  MapEntry('血液循環', 0.35),
-  MapEntry('腎機能', 0.25),
-  MapEntry('神経系', 0.4),
-  MapEntry('免疫', 0.3),
-];
-
 /// 問題プール(サンプル20問)
 final List<Question> kQuestionPool = [
   const Question(

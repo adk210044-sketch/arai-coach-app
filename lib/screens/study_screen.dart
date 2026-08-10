@@ -56,7 +56,7 @@ class StudyScreen extends StatelessWidget {
             Text(
               isPremium
                   ? 'カテゴリを選んで演習を始めよう'
-                  : 'カテゴリを選んで演習を始めよう(フリープランは過去問50問まで)',
+                  : 'カテゴリを選んで演習を始めよう(フリープランは同じ過去問50問を繰り返し利用可能)',
               style: const TextStyle(
                 fontSize: AppFontSize.base,
                 color: AppColors.textDim,

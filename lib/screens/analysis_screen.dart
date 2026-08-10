@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../theme/tokens.dart';
-import '../data/sample_data.dart';
 import '../state/app_state.dart';
 import '../widgets/progress_ring.dart';
 import '../widgets/pass_probability_card.dart';
 import 'paywall_screen.dart';
+import 'question_screen.dart';
 
 class AnalysisScreen extends StatefulWidget {
   const AnalysisScreen({super.key});
@@ -357,7 +357,7 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
             const SizedBox(height: 16),
 
             const Text(
-              '苦手テーマヒートマップ',
+              '苦手科目ヒートマップ',
               style: TextStyle(
                 fontSize: AppFontSize.lg,
                 fontWeight: FontWeight.w700,
@@ -413,7 +413,7 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
                   ),
                   const SizedBox(height: 2),
                   const Text(
-                    '色が濃いテーマほど正答率が低く、優先して復習が必要です',
+                    '色が濃い科目ほど正答率が低く、優先して復習が必要です。タップするとその科目の演習に進めます。',
                     style: TextStyle(fontSize: 10, color: AppColors.textMute),
                   ),
                   const SizedBox(height: 10),
@@ -422,32 +422,75 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
                     physics: const NeverScrollableScrollPhysics(),
                     gridDelegate:
                         const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 6,
-                          crossAxisSpacing: 5,
-                          mainAxisSpacing: 5,
-                          childAspectRatio: 1,
+                          crossAxisCount: 2,
+                          crossAxisSpacing: 8,
+                          mainAxisSpacing: 8,
+                          childAspectRatio: 1.7,
                         ),
-                    itemCount: kWeakTopics.length,
+                    itemCount: kCategories.length,
                     itemBuilder: (context, i) {
-                      final entry = kWeakTopics[i];
-                      final w = entry.value;
-                      return Container(
-                        decoration: BoxDecoration(
-                          color: AppColors.ng.withValues(alpha: 0.1 + w * 0.75),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        alignment: Alignment.center,
-                        padding: const EdgeInsets.all(2),
-                        child: Text(
-                          entry.key,
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            fontSize: 9,
-                            fontWeight: FontWeight.w600,
-                            color: w > 0.5
-                                ? Colors.white
-                                : const Color(0xFF7F1D1D),
-                            height: 1.1,
+                      final cat = kCategories[i];
+                      // 回答数が少ない科目は正答率が不安定なため「診断中」表示にする
+                      // (事象④の合格可能性診断と同じしきい値の考え方に合わせている)。
+                      final hasEnoughData = cat.total >= 5;
+                      final w = hasEnoughData
+                          ? (1 - cat.accuracy).clamp(0.0, 1.0)
+                          : 0.0;
+                      return GestureDetector(
+                        onTap: () {
+                          context.read<AppState>().startSession(
+                            categoryKey: cat.key,
+                            count: 10,
+                          );
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (_) => const QuestionScreen(),
+                            ),
+                          );
+                        },
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: hasEnoughData
+                                ? AppColors.ng.withValues(alpha: 0.1 + w * 0.75)
+                                : AppColors.borderSoft,
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          alignment: Alignment.center,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 6,
+                            vertical: 4,
+                          ),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                cat.name,
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w600,
+                                  color: !hasEnoughData
+                                      ? AppColors.textDim
+                                      : (w > 0.5
+                                            ? Colors.white
+                                            : const Color(0xFF7F1D1D)),
+                                  height: 1.2,
+                                ),
+                              ),
+                              const SizedBox(height: 2),
+                              Text(
+                                hasEnoughData ? '${cat.accuracyPercent}%' : '診断中',
+                                style: TextStyle(
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w700,
+                                  color: !hasEnoughData
+                                      ? AppColors.textMute
+                                      : (w > 0.5
+                                            ? Colors.white
+                                            : const Color(0xFF7F1D1D)),
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                       );
