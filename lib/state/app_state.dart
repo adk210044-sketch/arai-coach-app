@@ -650,6 +650,69 @@ class AppState extends ChangeNotifier {
     }
   }
 
+  // ─── 通常演習の一時保存(中断・再開) ──────────────────────
+  // 演習中に×ボタンで中断した場合、次回同じ入り口(今日のタスク/カテゴリ別/
+  // ランダム等)から始めようとしたときに「続きから」を選べるようにする。
+  // 現在の受験区分(examTypeKey)に対応する保存済み進行状況(なければnull)。
+  Map<String, dynamic>? get savedQuizProgress {
+    final data = LocalStore.loadQuizSessionProgress();
+    if (data == null) return null;
+    if (data['examTypeKey'] != examTypeKey) return null;
+    return data;
+  }
+
+  bool get hasSavedQuizProgress => savedQuizProgress != null;
+
+  /// 現在の演習セッションの状態を保存する(×ボタンで中断する際に呼ぶ)。
+  Future<void> saveQuizProgress() async {
+    if (questionQueue.isEmpty) return;
+    await LocalStore.saveQuizSessionProgress({
+      'examTypeKey': examTypeKey,
+      'questionIds': questionQueue.map((q) => q.id).toList(),
+      'currentIndex': currentIndex,
+      'selectedAnswer': selectedAnswer,
+      'answered': answered,
+      'sessionCorrectCount': sessionCorrectCount,
+      'sessionAnsweredCount': sessionAnsweredCount,
+      'savedAt': DateTime.now().toIso8601String(),
+    });
+  }
+
+  /// 保存された演習セッションを復元する。復元に成功したらtrueを返す。
+  /// (問題データの更新等でIDが見つからない場合はfalseを返し、呼び出し側で
+  /// 新規セッション開始にフォールバックできるようにする)
+  bool resumeQuizProgress() {
+    final data = savedQuizProgress;
+    if (data == null) return false;
+    final ids = List<String>.from(data['questionIds'] as List? ?? []);
+    final repo = QuestionRepository.instance;
+    final byId = {for (final q in repo.all) q.id: q};
+    final restored = <Question>[];
+    for (final id in ids) {
+      final q = byId[id];
+      if (q != null) restored.add(q);
+    }
+    if (restored.isEmpty) return false;
+
+    questionQueue = restored;
+    currentIndex = (data['currentIndex'] as int? ?? 0).clamp(
+      0,
+      restored.length - 1,
+    );
+    selectedAnswer = data['selectedAnswer'] as int?;
+    answered = data['answered'] as bool? ?? false;
+    sessionCorrectCount = data['sessionCorrectCount'] as int? ?? 0;
+    sessionAnsweredCount = data['sessionAnsweredCount'] as int? ?? 0;
+    questionStartedAt = DateTime.now();
+    notifyListeners();
+    return true;
+  }
+
+  /// セッション完了(全問終了)または「最初から」選択時に、古い一時保存を削除する。
+  Future<void> clearQuizProgress() async {
+    await LocalStore.clearQuizSessionProgress();
+  }
+
   // ─── 演習フロー ──────────────────────
   /// [isGapStudy] は「スキマ学習」からの開始かどうか(初操作バッジ判定用)。
   void startSession({

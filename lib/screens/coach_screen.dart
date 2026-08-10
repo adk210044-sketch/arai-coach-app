@@ -6,7 +6,7 @@ import '../models/chat_message.dart';
 import '../data/sample_data.dart';
 import '../services/gemini_service.dart';
 import '../widgets/coach_bubble.dart';
-import 'question_screen.dart';
+import '../widgets/quiz_resume_dialog.dart';
 import 'study_screen.dart';
 import 'paywall_screen.dart';
 import 'coach_ai_settings_screen.dart';
@@ -69,10 +69,13 @@ class _CoachScreenState extends State<CoachScreen> {
             : appState.categoryStats.reduce(
                 (a, b) => a.accuracy <= b.accuracy ? a : b,
               );
-        appState.startSession(categoryKey: weakest?.key, count: 3);
-        Navigator.of(
+        startQuizSession(
           context,
-        ).push(MaterialPageRoute(builder: (_) => const QuestionScreen()));
+          onStartNew: () => appState.startSession(
+            categoryKey: weakest?.key,
+            count: 3,
+          ),
+        );
         break;
       case ChatAction.openWeakReview:
         Navigator.of(

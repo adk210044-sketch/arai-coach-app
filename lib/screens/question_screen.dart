@@ -20,7 +20,7 @@ class QuestionScreen extends StatelessWidget {
         return AlertDialog(
           title: const Text('演習を中止しますか?'),
           content: const Text(
-            '今の演習を中止してTOPに戻るよ。ここまでの回答結果は保存されているから安心してね。',
+            '今の演習を中止してTOPに戻るよ。ここまでの進行状況は保存されるので、次に同じメニューを選ぶと続きから再開できるよ。',
             style: TextStyle(color: AppColors.textDim, height: 1.6),
           ),
           actions: [
@@ -32,9 +32,12 @@ class QuestionScreen extends StatelessWidget {
               ),
             ),
             TextButton(
-              onPressed: () {
+              onPressed: () async {
                 Navigator.of(ctx).pop();
-                Navigator.of(context).popUntil((r) => r.isFirst);
+                await context.read<AppState>().saveQuizProgress();
+                if (context.mounted) {
+                  Navigator.of(context).popUntil((r) => r.isFirst);
+                }
               },
               child: const Text(
                 '中止する',

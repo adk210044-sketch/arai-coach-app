@@ -6,7 +6,7 @@ import '../widgets/coach_bubble.dart';
 import '../widgets/pass_probability_card.dart';
 import '../widgets/ad_banner_placeholder.dart';
 import '../widgets/intensive_pack_promo_card.dart';
-import 'question_screen.dart';
+import '../widgets/quiz_resume_dialog.dart';
 import 'mock_exam_screen.dart';
 import 'paywall_screen.dart';
 import 'bookmarked_questions_screen.dart';
@@ -207,13 +207,11 @@ class HomeScreen extends StatelessWidget {
                     height: 46,
                     child: ElevatedButton(
                       onPressed: () {
-                        context.read<AppState>().startDailyTaskSession(
-                          plan.categoryDistribution,
-                        );
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (_) => const QuestionScreen(),
-                          ),
+                        startQuizSession(
+                          context,
+                          onStartNew: () => context
+                              .read<AppState>()
+                              .startDailyTaskSession(plan.categoryDistribution),
                         );
                       },
                       style: ElevatedButton.styleFrom(
@@ -377,9 +375,11 @@ class HomeScreen extends StatelessWidget {
                   ? AppColors.primaryFaint
                   : const Color(0xFFFFEEE4),
               onTap: () {
-                context.read<AppState>().startWeakReviewSession(count: 10);
-                Navigator.of(context).push(
-                  MaterialPageRoute(builder: (_) => const QuestionScreen()),
+                startQuizSession(
+                  context,
+                  onStartNew: () => context
+                      .read<AppState>()
+                      .startWeakReviewSession(count: 10),
                 );
               },
             ),
@@ -390,12 +390,11 @@ class HomeScreen extends StatelessWidget {
               '5分でサッと3問',
               const Color(0xFFFFF7DC),
               onTap: () {
-                context.read<AppState>().startSession(
-                  count: 3,
-                  isGapStudy: true,
-                );
-                Navigator.of(context).push(
-                  MaterialPageRoute(builder: (_) => const QuestionScreen()),
+                startQuizSession(
+                  context,
+                  onStartNew: () => context
+                      .read<AppState>()
+                      .startSession(count: 3, isGapStudy: true),
                 );
               },
             ),

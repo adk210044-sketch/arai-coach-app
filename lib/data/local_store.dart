@@ -145,4 +145,27 @@ class LocalStore {
   static Future<void> clearMockExamProgress() async {
     await _progressBox?.delete(mockExamProgressKey);
   }
+
+  // ─── 通常演習(今日のタスク・カテゴリ別・ランダム等)の一時保存(中断・再開) ──────
+  // 演習中に×ボタンで中断した場合、次回同じ入り口から始めようとしたときに
+  // 「続きから」を選べるようにするための保存領域。
+  static const String quizSessionProgressKey = 'quizSessionProgress';
+
+  static Map<String, dynamic>? loadQuizSessionProgress() {
+    final raw = _progressBox?.get(quizSessionProgressKey);
+    if (raw == null) return null;
+    try {
+      return Map<String, dynamic>.from(raw as Map);
+    } catch (_) {
+      return null;
+    }
+  }
+
+  static Future<void> saveQuizSessionProgress(Map<String, dynamic> data) async {
+    await _progressBox?.put(quizSessionProgressKey, data);
+  }
+
+  static Future<void> clearQuizSessionProgress() async {
+    await _progressBox?.delete(quizSessionProgressKey);
+  }
 }

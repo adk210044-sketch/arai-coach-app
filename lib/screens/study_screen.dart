@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import '../theme/tokens.dart';
 import '../state/app_state.dart';
 import '../widgets/ad_banner_placeholder.dart';
-import 'question_screen.dart';
+import '../widgets/quiz_resume_dialog.dart';
 import 'mock_exam_screen.dart';
 import 'calendar_screen.dart';
 import 'paywall_screen.dart';
@@ -89,11 +89,10 @@ class StudyScreen extends StatelessWidget {
                   ),
                   TextButton(
                     onPressed: () {
-                      context.read<AppState>().startSession(count: 10);
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (_) => const QuestionScreen(),
-                        ),
+                      startQuizSession(
+                        context,
+                        onStartNew: () =>
+                            context.read<AppState>().startSession(count: 10),
                       );
                     },
                     style: TextButton.styleFrom(
@@ -128,12 +127,12 @@ class StudyScreen extends StatelessWidget {
                   : (pct < 75 ? AppColors.yellow : AppColors.ok);
               return GestureDetector(
                 onTap: () {
-                  context.read<AppState>().startSession(
-                    categoryKey: cat.key,
-                    count: 10,
-                  );
-                  Navigator.of(context).push(
-                    MaterialPageRoute(builder: (_) => const QuestionScreen()),
+                  startQuizSession(
+                    context,
+                    onStartNew: () => context.read<AppState>().startSession(
+                      categoryKey: cat.key,
+                      count: 10,
+                    ),
                   );
                 },
                 child: Container(

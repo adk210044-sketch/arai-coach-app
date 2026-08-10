@@ -5,7 +5,7 @@ import '../state/app_state.dart';
 import '../widgets/progress_ring.dart';
 import '../widgets/pass_probability_card.dart';
 import 'paywall_screen.dart';
-import 'question_screen.dart';
+import '../widgets/quiz_resume_dialog.dart';
 
 class AnalysisScreen extends StatefulWidget {
   const AnalysisScreen({super.key});
@@ -251,11 +251,32 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
             const SizedBox(height: 16),
 
             const Text(
-              '科目別',
+              '科目別の正答率',
               style: TextStyle(
                 fontSize: AppFontSize.lg,
                 fontWeight: FontWeight.w700,
               ),
+            ),
+            const SizedBox(height: 4),
+            Row(
+              children: [
+                Container(
+                  width: 10,
+                  height: 10,
+                  margin: const EdgeInsets.only(right: 5),
+                  decoration: BoxDecoration(
+                    border: Border.all(color: AppColors.textDim, width: 1.5),
+                    shape: BoxShape.circle,
+                  ),
+                ),
+                const Text(
+                  '「┃」= 合格ライン(各科目40%以上)',
+                  style: TextStyle(
+                    fontSize: AppFontSize.xs,
+                    color: AppColors.textDim,
+                  ),
+                ),
+              ],
             ),
             const SizedBox(height: 8),
             Container(
@@ -335,14 +356,47 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
                           ],
                         ),
                         const SizedBox(height: 8),
-                        ClipRRect(
-                          borderRadius: BorderRadius.circular(AppRadius.pill),
-                          child: LinearProgressIndicator(
-                            value: pct / 100,
-                            minHeight: 6,
-                            backgroundColor: AppColors.borderSoft,
-                            valueColor: AlwaysStoppedAnimation(barColor),
-                          ),
+                        LayoutBuilder(
+                          builder: (context, constraints) {
+                            final barWidth = constraints.maxWidth;
+                            const passLineRatio = 0.4; // 各科目40%以上が合格基準
+                            final markerX = (barWidth * passLineRatio).clamp(
+                              0.0,
+                              barWidth,
+                            );
+                            return SizedBox(
+                              height: 6,
+                              child: Stack(
+                                clipBehavior: Clip.none,
+                                children: [
+                                  ClipRRect(
+                                    borderRadius: BorderRadius.circular(
+                                      AppRadius.pill,
+                                    ),
+                                    child: LinearProgressIndicator(
+                                      value: pct / 100,
+                                      minHeight: 6,
+                                      backgroundColor: AppColors.borderSoft,
+                                      valueColor: AlwaysStoppedAnimation(
+                                        barColor,
+                                      ),
+                                    ),
+                                  ),
+                                  Positioned(
+                                    left: markerX - 1,
+                                    top: -2,
+                                    bottom: -2,
+                                    child: Container(
+                                      width: 2,
+                                      color: AppColors.textDim.withValues(
+                                        alpha: 0.85,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            );
+                          },
                         ),
                       ],
                     ),
@@ -437,14 +491,13 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
                         ),
                         child: GestureDetector(
                           onTap: () {
-                            context.read<AppState>().startSession(
-                              categoryKey: cat.key,
-                              count: 10,
-                            );
-                            Navigator.of(context).push(
-                              MaterialPageRoute(
-                                builder: (_) => const QuestionScreen(),
-                              ),
+                            startQuizSession(
+                              context,
+                              onStartNew: () =>
+                                  context.read<AppState>().startSession(
+                                    categoryKey: cat.key,
+                                    count: 10,
+                                  ),
                             );
                           },
                           child: Container(

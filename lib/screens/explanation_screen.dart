@@ -71,8 +71,12 @@ class _ExplanationScreenState extends State<ExplanationScreen>
               Row(
                 children: [
                   IconButton(
-                    onPressed: () =>
-                        Navigator.of(context).popUntil((r) => r.isFirst),
+                    onPressed: () async {
+                      await context.read<AppState>().saveQuizProgress();
+                      if (context.mounted) {
+                        Navigator.of(context).popUntil((r) => r.isFirst);
+                      }
+                    },
                     icon: const Icon(Icons.close, color: AppColors.textDim),
                   ),
                   Expanded(
@@ -326,6 +330,7 @@ class _ExplanationScreenState extends State<ExplanationScreen>
                         ),
                       );
                     } else {
+                      appState.clearQuizProgress();
                       Navigator.of(context).popUntil((r) => r.isFirst);
                     }
                   },
