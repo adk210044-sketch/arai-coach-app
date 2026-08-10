@@ -1,6 +1,7 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart' hide AppState;
 import 'package:provider/provider.dart';
 import 'firebase_options.dart';
@@ -73,6 +74,17 @@ class HygieneCoachApp extends StatelessWidget {
             debugShowCheckedModeBanner: false,
             theme: AppTheme.light,
             themeMode: ThemeMode.light,
+            // CJK統合漢字(例:「雇」等)が中国語向けの字形で表示されて
+            // しまう問題を防ぐため、アプリ全体のロケールを日本語に固定する。
+            // ロケール未指定だとプラットフォームのCJKフォントフォールバックが
+            // 中国語字形を優先することがあるため明示が必要。
+            locale: const Locale('ja', 'JP'),
+            supportedLocales: const [Locale('ja', 'JP')],
+            localizationsDelegates: const [
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
             builder: (context, child) {
               return MediaQuery(
                 data: MediaQuery.of(
