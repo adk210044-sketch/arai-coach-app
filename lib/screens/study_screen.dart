@@ -4,6 +4,7 @@ import '../theme/tokens.dart';
 import '../state/app_state.dart';
 import '../widgets/ad_banner_placeholder.dart';
 import '../widgets/quiz_resume_dialog.dart';
+import '../widgets/status_legend_dot.dart';
 import 'mock_exam_screen.dart';
 import 'calendar_screen.dart';
 import 'paywall_screen.dart';
@@ -119,12 +120,45 @@ class StudyScreen extends StatelessWidget {
                 fontWeight: FontWeight.w700,
               ),
             ),
+            const SizedBox(height: 4),
+            const Wrap(
+              spacing: 10,
+              runSpacing: 2,
+              children: [
+                StatusLegendDot(color: AppColors.textMute, label: '診断中:5問未満'),
+                StatusLegendDot(color: AppColors.ng, label: '要復習:60%未満'),
+                StatusLegendDot(
+                  color: AppColors.yellow,
+                  label: 'もう少し:60〜74%',
+                ),
+                StatusLegendDot(color: AppColors.ok, label: '安全圏:75%以上'),
+              ],
+            ),
             const SizedBox(height: 10),
             ...categories.map((cat) {
               final pct = cat.accuracyPercent;
-              final barColor = pct < 60
-                  ? AppColors.ng
-                  : (pct < 75 ? AppColors.yellow : AppColors.ok);
+              // 4段階の習熟度ステータス。分析ページの「科目別の正答率」と統一。
+              final hasEnoughData = cat.total >= 5;
+              final String statusLabel;
+              final Color statusColor;
+              final Color barColor;
+              if (!hasEnoughData) {
+                statusLabel = '診断中';
+                statusColor = AppColors.textMute;
+                barColor = AppColors.textMute;
+              } else if (pct < 60) {
+                statusLabel = '要復習';
+                statusColor = AppColors.ng;
+                barColor = AppColors.ng;
+              } else if (pct < 75) {
+                statusLabel = 'もう少し';
+                statusColor = AppColors.yellow;
+                barColor = AppColors.yellow;
+              } else {
+                statusLabel = '安全圏';
+                statusColor = AppColors.ok;
+                barColor = AppColors.ok;
+              }
               return GestureDetector(
                 onTap: () {
                   startQuizSession(
@@ -158,29 +192,27 @@ class StudyScreen extends StatelessWidget {
                                   fontWeight: FontWeight.w600,
                                 ),
                               ),
-                              if (cat.weak) ...[
-                                const SizedBox(width: 6),
-                                Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 7,
-                                    vertical: 2,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: const Color(0xFFFEE2E2),
-                                    borderRadius: BorderRadius.circular(
-                                      AppRadius.pill,
-                                    ),
-                                  ),
-                                  child: const Text(
-                                    '要復習',
-                                    style: TextStyle(
-                                      fontSize: 10,
-                                      color: AppColors.ng,
-                                      fontWeight: FontWeight.w600,
-                                    ),
+                              const SizedBox(width: 6),
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 7,
+                                  vertical: 2,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: statusColor.withValues(alpha: 0.14),
+                                  borderRadius: BorderRadius.circular(
+                                    AppRadius.pill,
                                   ),
                                 ),
-                              ],
+                                child: Text(
+                                  statusLabel,
+                                  style: TextStyle(
+                                    fontSize: 10,
+                                    color: statusColor,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ),
                             ],
                           ),
                           Icon(Icons.chevron_right, color: AppColors.textMute),

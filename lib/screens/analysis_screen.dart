@@ -6,6 +6,8 @@ import '../widgets/progress_ring.dart';
 import '../widgets/pass_probability_card.dart';
 import 'paywall_screen.dart';
 import '../widgets/quiz_resume_dialog.dart';
+import '../widgets/status_legend_dot.dart';
+import '../widgets/trend_arrow_icon.dart';
 import '../models/category.dart';
 
 class AnalysisScreen extends StatefulWidget {
@@ -284,13 +286,13 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
               spacing: 10,
               runSpacing: 2,
               children: [
-                _StatusLegendDot(color: AppColors.textMute, label: '診断中:5問未満'),
-                _StatusLegendDot(color: AppColors.ng, label: '要復習:60%未満'),
-                _StatusLegendDot(
+                StatusLegendDot(color: AppColors.textMute, label: '診断中:5問未満'),
+                StatusLegendDot(color: AppColors.ng, label: '要復習:60%未満'),
+                StatusLegendDot(
                   color: AppColors.yellow,
                   label: 'もう少し:60〜74%',
                 ),
-                _StatusLegendDot(color: AppColors.ok, label: '安全圏:75%以上'),
+                StatusLegendDot(color: AppColors.ok, label: '安全圏:75%以上'),
               ],
             ),
             const SizedBox(height: 8),
@@ -615,12 +617,12 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
       return cell.accuracyPercent < 60 ? Colors.white : AppColors.text;
     }
 
-    // 前週との比較で「上がっている/下がっている/ほぼ変わらず」を矢印アイコンで表す。
-    // 絵文字矢印(↗️等)は環境によって色付きの四角い背景つきで表示されて見づらいため、
-    // Icons(ベクターアイコン)を使い、サイズ・色を自由に調整できるようにする。
+    // 前週との比較で「上がっている/下がっている/ほぼ変わらず」を直線の矢印アイコンで
+    // 表す(ジグザグのtrending_up等ではなく、シンプルな直線矢印。色は全て白抜きに
+    // 統一し、太さを上げて視認性を確保する)。
     // 両方の週にデータがある場合のみ表示(片方でもデータ不足なら比較不能のため非表示)。
     // ±4ポイント以内は「ほぼ変わらず」とみなす。
-    ({IconData icon, Color color})? trendArrow(
+    TrendDirection? trendArrow(
       CategoryWeekCell current,
       CategoryWeekCell? previous,
     ) {
@@ -628,9 +630,9 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
         return null;
       }
       final diff = current.accuracyPercent - previous.accuracyPercent;
-      if (diff > 4) return (icon: Icons.trending_up, color: AppColors.ok);
-      if (diff < -4) return (icon: Icons.trending_down, color: AppColors.ng);
-      return (icon: Icons.trending_flat, color: AppColors.textMute);
+      if (diff > 4) return TrendDirection.up;
+      if (diff < -4) return TrendDirection.down;
+      return TrendDirection.flat;
     }
 
     return Container(
@@ -689,24 +691,24 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
               height: 1.4,
             ),
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: 6),
           Row(
             children: [
-              Icon(Icons.trending_up, size: 14, color: AppColors.ok),
+              _trendLegendChip(AppColors.ok, TrendDirection.up),
               const SizedBox(width: 3),
               const Text(
                 '前週より上昇',
                 style: TextStyle(fontSize: 10, color: AppColors.textDim),
               ),
               const SizedBox(width: 10),
-              Icon(Icons.trending_down, size: 14, color: AppColors.ng),
+              _trendLegendChip(AppColors.ng, TrendDirection.down),
               const SizedBox(width: 3),
               const Text(
                 '前週より下降',
                 style: TextStyle(fontSize: 10, color: AppColors.textDim),
               ),
               const SizedBox(width: 10),
-              Icon(Icons.trending_flat, size: 14, color: AppColors.textMute),
+              _trendLegendChip(AppColors.textMute, TrendDirection.flat),
               const SizedBox(width: 3),
               const Text(
                 'ほぼ変わらず',
@@ -802,10 +804,11 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
                                 ),
                                 if (arrow != null) ...[
                                   const SizedBox(height: 1),
-                                  Icon(
-                                    arrow.icon,
+                                  TrendArrowIcon(
+                                    direction: arrow,
                                     size: 22,
-                                    color: arrow.color,
+                                    color: Colors.white,
+                                    strokeWidth: 3.5,
                                   ),
                                 ],
                               ],
@@ -820,6 +823,24 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
             );
           }),
         ],
+      ),
+    );
+  }
+
+  /// 凡例用の矢印チップ。セル内は白抜き矢印のため、白背景の凡例エリアでは
+  /// そのままだと見えなくなる。ここでは色付きの小さな丸背景に白矢印を載せることで
+  /// 視認性を確保しつつ、セル内表示と同じ矢印デザイン(直線+矢じり)を使う。
+  Widget _trendLegendChip(Color bgColor, TrendDirection direction) {
+    return Container(
+      width: 18,
+      height: 18,
+      decoration: BoxDecoration(color: bgColor, shape: BoxShape.circle),
+      alignment: Alignment.center,
+      child: TrendArrowIcon(
+        direction: direction,
+        size: 12,
+        color: Colors.white,
+        strokeWidth: 2.2,
       ),
     );
   }
@@ -1045,34 +1066,6 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
           ],
         ),
       ),
-    );
-  }
-}
-
-/// 「科目別の正答率」の4段階ステータス(診断中/要復習/もう少し/安全圏)の
-/// 凡例に使う、色付き丸+ラベルの小さな行ウィジェット。
-class _StatusLegendDot extends StatelessWidget {
-  final Color color;
-  final String label;
-
-  const _StatusLegendDot({required this.color, required this.label});
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Container(
-          width: 7,
-          height: 7,
-          decoration: BoxDecoration(color: color, shape: BoxShape.circle),
-        ),
-        const SizedBox(width: 4),
-        Text(
-          label,
-          style: const TextStyle(fontSize: AppFontSize.xs, color: AppColors.textDim),
-        ),
-      ],
     );
   }
 }
