@@ -828,13 +828,17 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
   }
 
   /// 凡例用の矢印チップ。セル内は白抜き矢印のため、白背景の凡例エリアでは
-  /// そのままだと見えなくなる。ここでは色付きの小さな丸背景に白矢印を載せることで
-  /// 視認性を確保しつつ、セル内表示と同じ矢印デザイン(直線+矢じり)を使う。
+  /// そのままだと見えなくなる。ここでは色付きの小さな角ばった背景(丸ではなく
+  /// シャープな四角)に白矢印を載せることで視認性を確保しつつ、セル内表示と
+  /// 同じ矢印デザイン(直線+矢じり)を使う。
   Widget _trendLegendChip(Color bgColor, TrendDirection direction) {
     return Container(
       width: 18,
       height: 18,
-      decoration: BoxDecoration(color: bgColor, shape: BoxShape.circle),
+      decoration: BoxDecoration(
+        color: bgColor,
+        borderRadius: BorderRadius.circular(3),
+      ),
       alignment: Alignment.center,
       child: TrendArrowIcon(
         direction: direction,

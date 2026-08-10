@@ -51,13 +51,21 @@ class _TrendArrowPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final paint = Paint()
+    // 線の端・角を「丸」ではなく「キッチリ角ばった」形にするため、
+    // strokeCap/strokeJoinはsquare/miterを使う。矢じりも開いた2本線ではなく
+    // 塗りつぶしの三角形(Path.fill)にすることで、シャープな輪郭にする。
+    final linePaint = Paint()
       ..color = color
       ..strokeWidth = strokeWidth
-      ..strokeCap = StrokeCap.round
+      ..strokeCap = StrokeCap.square
+      ..strokeJoin = StrokeJoin.miter
       ..style = PaintingStyle.stroke;
 
-    final pad = strokeWidth + 1;
+    final headPaint = Paint()
+      ..color = color
+      ..style = PaintingStyle.fill;
+
+    final pad = strokeWidth + 2;
     final w = size.width;
     final h = size.height;
 
@@ -78,13 +86,17 @@ class _TrendArrowPainter extends CustomPainter {
         break;
     }
 
-    // 本線(直線の矢印の軸)
-    canvas.drawLine(start, end, paint);
-
-    // 矢じり(先端に「く」の字型を描く)
+    // 矢じり(先端の塗りつぶし三角形)の分だけ軸線を手前で止め、
+    // 三角形と軸線が綺麗に繋がるようにする。
     final angle = math.atan2(end.dy - start.dy, end.dx - start.dx);
-    const arrowLen = 6.0;
-    const arrowAngle = math.pi / 6.5; // 矢じりの開き角
+    const arrowLen = 7.5;
+    const arrowAngle = math.pi / 7.0; // 矢じりの開き角(狭いほどシャープ)
+
+    final shaftEnd = Offset(
+      end.dx - (arrowLen * 0.85) * math.cos(angle),
+      end.dy - (arrowLen * 0.85) * math.sin(angle),
+    );
+    canvas.drawLine(start, shaftEnd, linePaint);
 
     final p1 = Offset(
       end.dx - arrowLen * math.cos(angle - arrowAngle),
@@ -95,8 +107,12 @@ class _TrendArrowPainter extends CustomPainter {
       end.dy - arrowLen * math.sin(angle + arrowAngle),
     );
 
-    canvas.drawLine(end, p1, paint);
-    canvas.drawLine(end, p2, paint);
+    final headPath = Path()
+      ..moveTo(end.dx, end.dy)
+      ..lineTo(p1.dx, p1.dy)
+      ..lineTo(p2.dx, p2.dy)
+      ..close();
+    canvas.drawPath(headPath, headPaint);
   }
 
   @override
