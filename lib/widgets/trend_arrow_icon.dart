@@ -69,22 +69,28 @@ class _TrendArrowPainter extends CustomPainter {
     final w = size.width;
     final h = size.height;
 
-    Offset start;
-    Offset end;
+    // 中心点を基準に、方向ベクトル(正規化済み)×共通の半長(halfLen)で
+    // start/endを決める。以前はup/downが正方形の対角線(√2倍長い)を使い、
+    // flatが幅方向のみ(短い)を使っていたため、横矢印だけ小さく見える
+    // 不揃いが発生していた。この方式なら全方向で線の長さが必ず揃う。
+    final center = Offset(w / 2, h / 2);
+    final halfLen = math.min(w, h) / 2 - pad;
+
+    Offset dir;
     switch (direction) {
       case TrendDirection.up:
-        start = Offset(pad, h - pad);
-        end = Offset(w - pad, pad);
+        dir = const Offset(1, -1);
         break;
       case TrendDirection.down:
-        start = Offset(pad, pad);
-        end = Offset(w - pad, h - pad);
+        dir = const Offset(1, 1);
         break;
       case TrendDirection.flat:
-        start = Offset(pad, h / 2);
-        end = Offset(w - pad, h / 2);
+        dir = const Offset(1, 0);
         break;
     }
+    final normDir = dir / dir.distance;
+    final start = center - normDir * halfLen;
+    final end = center + normDir * halfLen;
 
     // 矢じり(先端の塗りつぶし三角形)の分だけ軸線を手前で止め、
     // 三角形と軸線が綺麗に繋がるようにする。
@@ -93,8 +99,8 @@ class _TrendArrowPainter extends CustomPainter {
     // 「矢印だとわかりやすい」ように、比率・開き角・上限のいずれも大きめに設定。
     final angle = math.atan2(end.dy - start.dy, end.dx - start.dx);
     final lineLength = (end - start).distance;
-    final arrowLen = math.min(lineLength * 0.62, 12.0);
-    const arrowAngle = math.pi / 4.8; // 矢じりの開き角(広いほど三角形が大きく見える)
+    final arrowLen = math.min(lineLength * 0.68, 16.0);
+    const arrowAngle = math.pi / 4.4; // 矢じりの開き角(広いほど三角形が大きく見える)
 
     final shaftEnd = Offset(
       end.dx - (arrowLen * 0.72) * math.cos(angle),

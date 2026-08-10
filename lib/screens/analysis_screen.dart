@@ -782,7 +782,7 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
                             );
                           },
                           child: Container(
-                            height: 56,
+                            height: 60,
                             alignment: Alignment.center,
                             decoration: BoxDecoration(
                               color: cellColor(cell),
@@ -806,9 +806,9 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
                                   const SizedBox(height: 1),
                                   TrendArrowIcon(
                                     direction: arrow,
-                                    size: 22,
+                                    size: 28,
                                     color: Colors.white,
-                                    strokeWidth: 3.5,
+                                    strokeWidth: 4.2,
                                   ),
                                 ],
                               ],
@@ -834,18 +834,18 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
   /// 白矢印を載せて視認性を確保する。
   Widget _trendLegendChip(TrendDirection direction) {
     return Container(
-      width: 20,
-      height: 20,
+      width: 28,
+      height: 28,
       decoration: BoxDecoration(
         color: AppColors.primary,
-        borderRadius: BorderRadius.circular(3),
+        borderRadius: BorderRadius.circular(4),
       ),
       alignment: Alignment.center,
       child: TrendArrowIcon(
         direction: direction,
-        size: 13,
+        size: 20,
         color: Colors.white,
-        strokeWidth: 2.2,
+        strokeWidth: 3.2,
       ),
     );
   }
