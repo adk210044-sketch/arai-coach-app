@@ -617,6 +617,14 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
       return cell.accuracyPercent < 60 ? Colors.white : AppColors.text;
     }
 
+    // 矢印の色。セル背景が薄い(得意=heat0/heat1)場合は白矢印が同化して
+    // 見えなくなるため、その場合は青(primary)にする。背景が濃い
+    // (苦手=heat2/heat3)場合は白のままコントラストを確保する。
+    Color arrowColorFor(CategoryWeekCell cell) {
+      if (!cell.hasData) return AppColors.textMute;
+      return cell.accuracyPercent < 60 ? Colors.white : AppColors.primary;
+    }
+
     // 前週との比較で「上がっている/下がっている/ほぼ変わらず」を直線の矢印アイコンで
     // 表す(ジグザグのtrending_up等ではなく、シンプルな直線矢印。色は全て白抜きに
     // 統一し、太さを上げて視認性を確保する)。
@@ -807,7 +815,7 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
                                   TrendArrowIcon(
                                     direction: arrow,
                                     size: 28,
-                                    color: Colors.white,
+                                    color: arrowColorFor(cell),
                                     strokeWidth: 4.2,
                                   ),
                                 ],
