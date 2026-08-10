@@ -417,18 +417,10 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
                     style: TextStyle(fontSize: 10, color: AppColors.textMute),
                   ),
                   const SizedBox(height: 10),
-                  GridView.builder(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 2,
-                          crossAxisSpacing: 8,
-                          mainAxisSpacing: 8,
-                          childAspectRatio: 1.7,
-                        ),
-                    itemCount: kCategories.length,
-                    itemBuilder: (context, i) {
+                  // 5科目を縦一列の横長カードで並べる(2列グリッドだと5÷2で
+                  // 余りが出て隙間ができてしまうため、隙間なく収まる1列レイアウトに変更)。
+                  Column(
+                    children: List.generate(kCategories.length, (i) {
                       final cat = kCategories[i];
                       // 回答数が少ない科目は正答率が不安定なため「診断中」表示にする
                       // (事象④の合格可能性診断と同じしきい値の考え方に合わせている)。
@@ -436,65 +428,74 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
                       final w = hasEnoughData
                           ? (1 - cat.accuracy).clamp(0.0, 1.0)
                           : 0.0;
-                      return GestureDetector(
-                        onTap: () {
-                          context.read<AppState>().startSession(
-                            categoryKey: cat.key,
-                            count: 10,
-                          );
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (_) => const QuestionScreen(),
+                      final textColor = !hasEnoughData
+                          ? AppColors.textDim
+                          : (w > 0.5 ? Colors.white : const Color(0xFF7F1D1D));
+                      return Padding(
+                        padding: EdgeInsets.only(
+                          bottom: i < kCategories.length - 1 ? 8 : 0,
+                        ),
+                        child: GestureDetector(
+                          onTap: () {
+                            context.read<AppState>().startSession(
+                              categoryKey: cat.key,
+                              count: 10,
+                            );
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (_) => const QuestionScreen(),
+                              ),
+                            );
+                          },
+                          child: Container(
+                            width: double.infinity,
+                            decoration: BoxDecoration(
+                              color: hasEnoughData
+                                  ? AppColors.ng.withValues(
+                                      alpha: 0.1 + w * 0.75,
+                                    )
+                                  : AppColors.borderSoft,
+                              borderRadius: BorderRadius.circular(12),
                             ),
-                          );
-                        },
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: hasEnoughData
-                                ? AppColors.ng.withValues(alpha: 0.1 + w * 0.75)
-                                : AppColors.borderSoft,
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          alignment: Alignment.center,
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 6,
-                            vertical: 4,
-                          ),
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Text(
-                                cat.name,
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.w600,
-                                  color: !hasEnoughData
-                                      ? AppColors.textDim
-                                      : (w > 0.5
-                                            ? Colors.white
-                                            : const Color(0xFF7F1D1D)),
-                                  height: 1.2,
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 14,
+                            ),
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    cat.name,
+                                    style: TextStyle(
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.w700,
+                                      color: textColor,
+                                      height: 1.2,
+                                    ),
+                                  ),
                                 ),
-                              ),
-                              const SizedBox(height: 2),
-                              Text(
-                                hasEnoughData ? '${cat.accuracyPercent}%' : '診断中',
-                                style: TextStyle(
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.w700,
-                                  color: !hasEnoughData
-                                      ? AppColors.textMute
-                                      : (w > 0.5
-                                            ? Colors.white
-                                            : const Color(0xFF7F1D1D)),
+                                Text(
+                                  hasEnoughData
+                                      ? '${cat.accuracyPercent}%'
+                                      : '診断中',
+                                  style: TextStyle(
+                                    fontSize: 17,
+                                    fontWeight: FontWeight.w800,
+                                    color: textColor,
+                                  ),
                                 ),
-                              ),
-                            ],
+                                const SizedBox(width: 4),
+                                Icon(
+                                  Icons.chevron_right,
+                                  size: 20,
+                                  color: textColor.withValues(alpha: 0.7),
+                                ),
+                              ],
+                            ),
                           ),
                         ),
                       );
-                    },
+                    }),
                   ),
                 ],
               ),
