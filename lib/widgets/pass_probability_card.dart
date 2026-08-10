@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import '../theme/tokens.dart';
 import '../logic/pass_probability.dart';
 import 'progress_ring.dart';
+import 'status_legend_dot.dart';
 
 class PassProbabilityCard extends StatelessWidget {
   final PassProbabilityResult result;
@@ -143,6 +144,25 @@ class PassProbabilityCard extends StatelessWidget {
                     height: 1.5,
                   ),
                 ),
+                if (!compact) ...[
+                  const SizedBox(height: 8),
+                  const Wrap(
+                    spacing: 8,
+                    runSpacing: 2,
+                    children: [
+                      StatusLegendDot(color: AppColors.ng, label: '要注意:45%未満'),
+                      StatusLegendDot(
+                        color: AppColors.yellow,
+                        label: 'もう一歩:45〜64%',
+                      ),
+                      StatusLegendDot(
+                        color: AppColors.primary,
+                        label: '合格圏:65〜79%',
+                      ),
+                      StatusLegendDot(color: AppColors.ok, label: '安全圏:80%以上'),
+                    ],
+                  ),
+                ],
               ],
             ),
           ),
