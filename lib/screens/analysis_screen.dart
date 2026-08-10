@@ -694,21 +694,21 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
           const SizedBox(height: 6),
           Row(
             children: [
-              _trendLegendChip(AppColors.ok, TrendDirection.up),
+              _trendLegendChip(TrendDirection.up),
               const SizedBox(width: 3),
               const Text(
                 '前週より上昇',
                 style: TextStyle(fontSize: 10, color: AppColors.textDim),
               ),
               const SizedBox(width: 10),
-              _trendLegendChip(AppColors.ng, TrendDirection.down),
+              _trendLegendChip(TrendDirection.down),
               const SizedBox(width: 3),
               const Text(
                 '前週より下降',
                 style: TextStyle(fontSize: 10, color: AppColors.textDim),
               ),
               const SizedBox(width: 10),
-              _trendLegendChip(AppColors.textMute, TrendDirection.flat),
+              _trendLegendChip(TrendDirection.flat),
               const SizedBox(width: 3),
               const Text(
                 'ほぼ変わらず',
@@ -827,22 +827,23 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
     );
   }
 
-  /// 凡例用の矢印チップ。セル内は白抜き矢印のため、白背景の凡例エリアでは
-  /// そのままだと見えなくなる。ここでは色付きの小さな角ばった背景(丸ではなく
-  /// シャープな四角)に白矢印を載せることで視認性を確保しつつ、セル内表示と
-  /// 同じ矢印デザイン(直線+矢じり)を使う。
-  Widget _trendLegendChip(Color bgColor, TrendDirection direction) {
+  /// 凡例用の矢印チップ。セル内の矢印は方向にかかわらず常に白一色のため、
+  /// 凡例側も同じ配色(背景色は方向で変えない・矢印は白)にして実際の表示と
+  /// 一致させる。白抜き矢印は白背景の凡例エリアでは見えなくなるため、
+  /// ヒートマップと同系色(primary)の角ばった背景(丸ではなくシャープな四角)に
+  /// 白矢印を載せて視認性を確保する。
+  Widget _trendLegendChip(TrendDirection direction) {
     return Container(
-      width: 18,
-      height: 18,
+      width: 20,
+      height: 20,
       decoration: BoxDecoration(
-        color: bgColor,
+        color: AppColors.primary,
         borderRadius: BorderRadius.circular(3),
       ),
       alignment: Alignment.center,
       child: TrendArrowIcon(
         direction: direction,
-        size: 12,
+        size: 13,
         color: Colors.white,
         strokeWidth: 2.2,
       ),

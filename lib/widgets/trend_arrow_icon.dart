@@ -88,8 +88,11 @@ class _TrendArrowPainter extends CustomPainter {
 
     // 矢じり(先端の塗りつぶし三角形)の分だけ軸線を手前で止め、
     // 三角形と軸線が綺麗に繋がるようにする。
+    // arrowLenは矢印全体の長さに対する比率で決める(固定値だと、凡例のような
+    // 小さいサイズで矢じりが本体の線を覆ってしまい、形が崩れて見える)。
     final angle = math.atan2(end.dy - start.dy, end.dx - start.dx);
-    const arrowLen = 7.5;
+    final lineLength = (end - start).distance;
+    final arrowLen = math.min(lineLength * 0.42, 7.5);
     const arrowAngle = math.pi / 7.0; // 矢じりの開き角(狭いほどシャープ)
 
     final shaftEnd = Offset(
