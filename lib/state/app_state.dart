@@ -523,6 +523,79 @@ class AppState extends ChangeNotifier {
     return trend;
   }
 
+  /// 苦手ヒートマップ用: 直近4週間、各週「その週だけ」の科目別正答率マトリクス。
+  /// (「科目別の正答率」セクションは全期間の累計スナップショットを表示するのに対し、
+  /// ここでは週ごとに区切って集計するため、直近の伸び・落ち込みが科目別に見える)
+  /// 戻り値は週ごとのリスト(古い週→新しい週の順、要素数4)。各要素は科目順に
+  /// [CategoryWeekCell] を並べたリスト。
+  List<List<CategoryWeekCell>> get categoryWeeklyHeatmap {
+    final repo = QuestionRepository.instance;
+    final orders =
+        QuestionRepository.categoryOrder[examTypeKey] ??
+        QuestionRepository.categoryOrder['type1']!;
+    if (!repo.isLoaded || repo.all.isEmpty) {
+      return List.generate(
+        4,
+        (_) => orders
+            .map(
+              (e) => CategoryWeekCell(
+                categoryKey: e.key,
+                categoryName: e.value,
+                total: 0,
+                correct: 0,
+              ),
+            )
+            .toList(),
+      );
+    }
+    final questionsById = {for (final q in repo.all) q.id: q};
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+
+    final weeks = <List<CategoryWeekCell>>[];
+    for (var weeksAgo = 3; weeksAgo >= 0; weeksAgo--) {
+      final weekEnd = today.subtract(Duration(days: weeksAgo * 7));
+      final weekStart = weekEnd.subtract(const Duration(days: 6));
+      final answered = <String, int>{};
+      final correct = <String, int>{};
+      for (final log in LocalStore.allAnswerLogs()) {
+        final answeredAt = DateTime.tryParse(
+          log['answeredAt'] as String? ?? '',
+        );
+        if (answeredAt == null) continue;
+        final day = DateTime(
+          answeredAt.year,
+          answeredAt.month,
+          answeredAt.day,
+        );
+        if (day.isBefore(weekStart) ||
+            day.isAfter(weekEnd.add(const Duration(days: 1)))) {
+          continue;
+        }
+        final qid = log['questionId'] as String?;
+        final q = qid != null ? questionsById[qid] : null;
+        if (q == null || q.examTypeKey != examTypeKey) continue;
+        answered[q.categoryKey] = (answered[q.categoryKey] ?? 0) + 1;
+        if (log['isCorrect'] == true) {
+          correct[q.categoryKey] = (correct[q.categoryKey] ?? 0) + 1;
+        }
+      }
+      weeks.add(
+        orders
+            .map(
+              (e) => CategoryWeekCell(
+                categoryKey: e.key,
+                categoryName: e.value,
+                total: answered[e.key] ?? 0,
+                correct: correct[e.key] ?? 0,
+              ),
+            )
+            .toList(),
+      );
+    }
+    return weeks;
+  }
+
   // ─── AI弱点分析(プレミアム限定の強化機能) ──────────────────────
   /// 優先復習ランキング(正答率が低い科目から並べたAI分析結果)。
   List<WeakPointInsight> get weakPointInsights =>

@@ -6,6 +6,7 @@ import '../widgets/progress_ring.dart';
 import '../widgets/pass_probability_card.dart';
 import 'paywall_screen.dart';
 import '../widgets/quiz_resume_dialog.dart';
+import '../models/category.dart';
 
 class AnalysisScreen extends StatefulWidget {
   const AnalysisScreen({super.key});
@@ -411,148 +412,14 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
             const SizedBox(height: 16),
 
             const Text(
-              '苦手科目ヒートマップ',
+              '苦手ヒートマップ(週別トレンド)',
               style: TextStyle(
                 fontSize: AppFontSize.lg,
                 fontWeight: FontWeight.w700,
               ),
             ),
             const SizedBox(height: 8),
-            Container(
-              padding: const EdgeInsets.all(14),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(AppRadius.md),
-                boxShadow: AppShadow.card,
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // 凡例: 色が薄い=得意(正答率が高い) / 色が濃い=苦手(正答率が低い)
-                  Row(
-                    children: [
-                      const Text(
-                        '得意',
-                        style: TextStyle(
-                          fontSize: 10,
-                          color: AppColors.textDim,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      const SizedBox(width: 6),
-                      Expanded(
-                        child: Container(
-                          height: 10,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(AppRadius.pill),
-                            gradient: LinearGradient(
-                              colors: [
-                                AppColors.ng.withValues(alpha: 0.1),
-                                AppColors.ng.withValues(alpha: 0.85),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 6),
-                      const Text(
-                        '苦手',
-                        style: TextStyle(
-                          fontSize: 10,
-                          color: AppColors.textDim,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 2),
-                  const Text(
-                    '色が濃い科目ほど正答率が低く、優先して復習が必要です。タップするとその科目の演習に進めます。',
-                    style: TextStyle(fontSize: 10, color: AppColors.textMute),
-                  ),
-                  const SizedBox(height: 10),
-                  // 5科目を縦一列の横長カードで並べる(2列グリッドだと5÷2で
-                  // 余りが出て隙間ができてしまうため、隙間なく収まる1列レイアウトに変更)。
-                  Column(
-                    children: List.generate(kCategories.length, (i) {
-                      final cat = kCategories[i];
-                      // 回答数が少ない科目は正答率が不安定なため「診断中」表示にする
-                      // (事象④の合格可能性診断と同じしきい値の考え方に合わせている)。
-                      final hasEnoughData = cat.total >= 5;
-                      final w = hasEnoughData
-                          ? (1 - cat.accuracy).clamp(0.0, 1.0)
-                          : 0.0;
-                      final textColor = !hasEnoughData
-                          ? AppColors.textDim
-                          : (w > 0.5 ? Colors.white : const Color(0xFF7F1D1D));
-                      return Padding(
-                        padding: EdgeInsets.only(
-                          bottom: i < kCategories.length - 1 ? 8 : 0,
-                        ),
-                        child: GestureDetector(
-                          onTap: () {
-                            startQuizSession(
-                              context,
-                              onStartNew: () =>
-                                  context.read<AppState>().startSession(
-                                    categoryKey: cat.key,
-                                    count: 10,
-                                  ),
-                            );
-                          },
-                          child: Container(
-                            width: double.infinity,
-                            decoration: BoxDecoration(
-                              color: hasEnoughData
-                                  ? AppColors.ng.withValues(
-                                      alpha: 0.1 + w * 0.75,
-                                    )
-                                  : AppColors.borderSoft,
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 14,
-                            ),
-                            child: Row(
-                              children: [
-                                Expanded(
-                                  child: Text(
-                                    cat.name,
-                                    style: TextStyle(
-                                      fontSize: 15,
-                                      fontWeight: FontWeight.w700,
-                                      color: textColor,
-                                      height: 1.2,
-                                    ),
-                                  ),
-                                ),
-                                Text(
-                                  hasEnoughData
-                                      ? '${cat.accuracyPercent}%'
-                                      : '診断中',
-                                  style: TextStyle(
-                                    fontSize: 17,
-                                    fontWeight: FontWeight.w800,
-                                    color: textColor,
-                                  ),
-                                ),
-                                const SizedBox(width: 4),
-                                Icon(
-                                  Icons.chevron_right,
-                                  size: 20,
-                                  color: textColor.withValues(alpha: 0.7),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      );
-                    }),
-                  ),
-                ],
-              ),
-            ),
+            _weeklyHeatmapSection(context, appState),
           ],
         ),
       ),
@@ -690,6 +557,178 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
   }
 
   /// AIによる優先復習ランキング。プレミアム限定のAI強化機能。
+  /// 苦手ヒートマップ(週別トレンド)。
+  /// 「科目別の正答率」(全期間の累計)とは異なり、直近4週間を1週ずつ区切って
+  /// 集計するグリッドにすることで、「最近伸びている/落ち込んでいる科目」を
+  /// 一目で確認できるようにする。セルをタップするとその科目の演習に進める。
+  Widget _weeklyHeatmapSection(BuildContext context, AppState appState) {
+    final weeks = appState.categoryWeeklyHeatmap; // [週(古→新)][科目]
+    if (weeks.isEmpty || weeks.first.isEmpty) {
+      return const SizedBox.shrink();
+    }
+    final categories = weeks.first; // 科目の並び(名前取得用)
+    const weekLabels = ['3週前', '2週前', '先週', '今週'];
+
+    Color cellColor(CategoryWeekCell cell) {
+      if (!cell.hasData) return AppColors.borderSoft;
+      final pct = cell.accuracyPercent;
+      if (pct < 40) return AppColors.heat3;
+      if (pct < 60) return AppColors.heat2;
+      if (pct < 80) return AppColors.heat1;
+      return AppColors.heat0;
+    }
+
+    Color textColorFor(CategoryWeekCell cell) {
+      if (!cell.hasData) return AppColors.textMute;
+      return cell.accuracyPercent < 60 ? Colors.white : AppColors.text;
+    }
+
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(AppRadius.md),
+        boxShadow: AppShadow.card,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // 凡例: 色が濃いほど正答率が低い(苦手)週
+          Row(
+            children: [
+              const Text(
+                '得意',
+                style: TextStyle(
+                  fontSize: 10,
+                  color: AppColors.textDim,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              const SizedBox(width: 6),
+              Expanded(
+                child: Row(
+                  children: [
+                    AppColors.heat0,
+                    AppColors.heat1,
+                    AppColors.heat2,
+                    AppColors.heat3,
+                  ].map((c) {
+                    return Expanded(
+                      child: Container(height: 10, color: c),
+                    );
+                  }).toList(),
+                ),
+              ),
+              const SizedBox(width: 6),
+              const Text(
+                '苦手',
+                style: TextStyle(
+                  fontSize: 10,
+                  color: AppColors.textDim,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 2),
+          const Text(
+            '週ごとの正答率を色で表示。最近伸びている科目・落ち込んでいる科目が一目でわかります。セルをタップするとその科目の演習に進めます。',
+            style: TextStyle(
+              fontSize: 10,
+              color: AppColors.textMute,
+              height: 1.4,
+            ),
+          ),
+          const SizedBox(height: 12),
+          // ヘッダー行(週ラベル): 左に科目名の余白分だけ空けて右詰めで配置
+          Row(
+            children: [
+              const SizedBox(width: 92),
+              ...weekLabels.map(
+                (label) => Expanded(
+                  child: Center(
+                    child: Text(
+                      label,
+                      style: const TextStyle(
+                        fontSize: 10,
+                        color: AppColors.textMute,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 6),
+          // 科目ごとの行: 科目名 + 4週分のセル
+          ...List.generate(categories.length, (catIdx) {
+            final categoryName = categories[catIdx].categoryName;
+            final categoryKey = categories[catIdx].categoryKey;
+            return Padding(
+              padding: EdgeInsets.only(
+                bottom: catIdx < categories.length - 1 ? 6 : 0,
+              ),
+              child: Row(
+                children: [
+                  SizedBox(
+                    width: 92,
+                    child: Text(
+                      categoryName,
+                      style: const TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        height: 1.2,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  ...List.generate(weeks.length, (weekIdx) {
+                    final cell = weeks[weekIdx][catIdx];
+                    return Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 2),
+                        child: GestureDetector(
+                          onTap: () {
+                            startQuizSession(
+                              context,
+                              onStartNew: () =>
+                                  context.read<AppState>().startSession(
+                                    categoryKey: categoryKey,
+                                    count: 10,
+                                  ),
+                            );
+                          },
+                          child: Container(
+                            height: 40,
+                            alignment: Alignment.center,
+                            decoration: BoxDecoration(
+                              color: cellColor(cell),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Text(
+                              cell.hasData ? '${cell.accuracyPercent}%' : '−',
+                              style: TextStyle(
+                                fontSize: 11,
+                                fontWeight: FontWeight.w700,
+                                color: textColorFor(cell),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    );
+                  }),
+                ],
+              ),
+            );
+          }),
+        ],
+      ),
+    );
+  }
+
   Widget _weakPointRankingSection(
     BuildContext context,
     AppState appState,
