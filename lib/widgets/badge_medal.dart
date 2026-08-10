@@ -7,7 +7,6 @@
 // ライトブルー/ビビッドブルー/シルバーの3ティアでランクを表現する。
 import 'package:flutter/material.dart';
 import '../theme/tokens.dart';
-import '../theme/app_colors_ext.dart';
 import '../models/badge.dart';
 
 class BadgeMedal extends StatelessWidget {
@@ -99,7 +98,7 @@ class BadgeRibbonTag extends StatelessWidget {
   });
 
   Color _color(BuildContext context) {
-    if (!unlocked) return context.appColors.textMute;
+    if (!unlocked) return AppColors.textMute;
     switch (tier) {
       case BadgeTier.light:
         return const Color(0xFF2E7FE0);
@@ -117,7 +116,7 @@ class BadgeRibbonTag extends StatelessWidget {
       decoration: BoxDecoration(
         color: unlocked
             ? _color(context).withValues(alpha: 0.12)
-            : context.appColors.surfaceSoft,
+            : AppColors.bgSoft,
         borderRadius: BorderRadius.circular(AppRadius.pill),
       ),
       child: Text(

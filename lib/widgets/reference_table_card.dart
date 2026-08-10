@@ -3,7 +3,6 @@
 
 import 'package:flutter/material.dart';
 import '../theme/tokens.dart';
-import '../theme/app_colors_ext.dart';
 import '../data/reference_tables.dart';
 
 class ReferenceTableCard extends StatelessWidget {
@@ -44,7 +43,7 @@ class ReferenceTableCard extends StatelessWidget {
                   style: TextStyle(
                     fontSize: AppFontSize.lg,
                     fontWeight: FontWeight.w700,
-                    color: context.appColors.text,
+                    color: AppColors.text,
                   ),
                 ),
               ),
@@ -58,7 +57,7 @@ class ReferenceTableCard extends StatelessWidget {
                 table.note!,
                 style: TextStyle(
                   fontSize: AppFontSize.sm,
-                  color: context.appColors.textMute,
+                  color: AppColors.textMute,
                 ),
               ),
             ),
@@ -75,7 +74,7 @@ class ReferenceTableCard extends StatelessWidget {
       borderRadius: BorderRadius.circular(AppRadius.sm),
       child: Table(
         border: TableBorder.all(
-          color: context.appColors.border,
+          color: AppColors.border,
           width: 1,
           borderRadius: BorderRadius.circular(AppRadius.sm),
         ),
@@ -106,7 +105,7 @@ class ReferenceTableCard extends StatelessWidget {
           for (int i = 0; i < table.rows.length; i++)
             TableRow(
               decoration: BoxDecoration(
-                color: i.isEven ? Colors.white : context.appColors.surfaceSoft,
+                color: i.isEven ? Colors.white : AppColors.bgSoft,
               ),
               children: [
                 for (final cell in table.rows[i])
@@ -119,7 +118,7 @@ class ReferenceTableCard extends StatelessWidget {
                       cell,
                       style: TextStyle(
                         fontSize: AppFontSize.md,
-                        color: context.appColors.text,
+                        color: AppColors.text,
                         height: 1.4,
                       ),
                     ),

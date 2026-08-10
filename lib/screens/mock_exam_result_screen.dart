@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../theme/tokens.dart';
-import '../theme/app_colors_ext.dart';
 import '../models/question.dart';
 import '../widgets/app_button.dart';
 import '../widgets/coach_bubble.dart';
@@ -32,7 +31,7 @@ class MockExamResultScreen extends StatelessWidget {
         : (passed ? CoachMood.correct : CoachMood.incorrect);
 
     return Scaffold(
-      backgroundColor: context.appColors.surfaceSoft,
+      backgroundColor: AppColors.bgSoft,
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.fromLTRB(24, 40, 24, 24),
@@ -63,7 +62,7 @@ class MockExamResultScreen extends StatelessWidget {
                 '$score / $total問正解 ($pct%)',
                 style: TextStyle(
                   fontSize: AppFontSize.lg,
-                  color: context.appColors.textDim,
+                  color: AppColors.textDim,
                 ),
               ),
               const SizedBox(height: 30),
@@ -82,7 +81,7 @@ class MockExamResultScreen extends StatelessWidget {
                       children: [
                         Text(
                           '合格ライン',
-                          style: TextStyle(color: context.appColors.textDim),
+                          style: TextStyle(color: AppColors.textDim),
                         ),
                         Text(
                           '$passingScore問以上',
@@ -96,7 +95,7 @@ class MockExamResultScreen extends StatelessWidget {
                       children: [
                         Text(
                           'あなたの得点',
-                          style: TextStyle(color: context.appColors.textDim),
+                          style: TextStyle(color: AppColors.textDim),
                         ),
                         Text(
                           '$score問',

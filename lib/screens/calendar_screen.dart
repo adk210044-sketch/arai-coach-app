@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../theme/tokens.dart';
-import '../theme/app_colors_ext.dart';
 import '../state/app_state.dart';
 import '../data/sample_data.dart';
 import '../widgets/badge_detail_dialog.dart';
@@ -169,7 +168,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                                   child: Container(
                                     decoration: BoxDecoration(
                                       color: v == 0
-                                          ? context.appColors.borderSoft
+                                          ? AppColors.borderSoft
                                           : null,
                                       gradient: v == 0
                                           ? null
@@ -190,7 +189,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                                   '${i + 11 > 24 ? i + 11 - 14 : i + 11}',
                                   style: TextStyle(
                                     fontSize: 9,
-                                    color: context.appColors.textMute,
+                                    color: AppColors.textMute,
                                   ),
                                 ),
                               ],
@@ -260,7 +259,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                                 d,
                                 style: TextStyle(
                                   fontSize: 11,
-                                  color: context.appColors.textMute,
+                                  color: AppColors.textMute,
                                   fontWeight: FontWeight.w600,
                                 ),
                               ),
@@ -296,9 +295,9 @@ class _CalendarScreenState extends State<CalendarScreen> {
                           date.month == today.month &&
                           date.day == today.day;
                       Color bg;
-                      Color fg = context.appColors.text;
+                      Color fg = AppColors.text;
                       if (activity == 0) {
-                        bg = context.appColors.surfaceSoft;
+                        bg = AppColors.bgSoft;
                       } else if (activity < 10) {
                         bg = const Color(0xFFDBEAFE);
                       } else if (activity < 20) {
@@ -336,12 +335,12 @@ class _CalendarScreenState extends State<CalendarScreen> {
                         '少ない',
                         style: TextStyle(
                           fontSize: 10,
-                          color: context.appColors.textDim,
+                          color: AppColors.textDim,
                         ),
                       ),
                       const SizedBox(width: 6),
                       ...[
-                        context.appColors.surfaceSoft,
+                        AppColors.bgSoft,
                         const Color(0xFFDBEAFE),
                         const Color(0xFF93C5FD),
                         AppColors.primary,
@@ -361,7 +360,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                         '多い',
                         style: TextStyle(
                           fontSize: 10,
-                          color: context.appColors.textDim,
+                          color: AppColors.textDim,
                         ),
                       ),
                     ],
@@ -427,7 +426,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                       decoration: BoxDecoration(
                         color: b.unlocked
                             ? AppColors.primaryFaint
-                            : context.appColors.surfaceSoft,
+                            : AppColors.bgSoft,
                         borderRadius: BorderRadius.circular(14),
                       ),
                       alignment: Alignment.center,
@@ -459,7 +458,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                                 style: TextStyle(
                                   fontSize: 9,
                                   fontWeight: FontWeight.w700,
-                                  color: context.appColors.textMute,
+                                  color: AppColors.textMute,
                                 ),
                               ),
                             ),
@@ -483,11 +482,11 @@ class _CalendarScreenState extends State<CalendarScreen> {
         width: 28,
         height: 28,
         decoration: BoxDecoration(
-          color: context.appColors.surfaceSoft,
+          color: AppColors.bgSoft,
           borderRadius: BorderRadius.circular(8),
         ),
         alignment: Alignment.center,
-        child: Icon(icon, size: 18, color: context.appColors.textDim),
+        child: Icon(icon, size: 18, color: AppColors.textDim),
       ),
     );
   }

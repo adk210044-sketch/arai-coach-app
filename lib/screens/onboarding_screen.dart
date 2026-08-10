@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../theme/tokens.dart';
-import '../theme/app_colors_ext.dart';
 import '../state/app_state.dart';
 import '../models/user_profile.dart';
 import '../models/question.dart';
@@ -67,7 +66,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: context.appColors.surface,
+      backgroundColor: AppColors.bg,
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.fromLTRB(22, 20, 22, 24),
@@ -80,7 +79,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     IconButton(
                       onPressed: _back,
                       icon: const Icon(Icons.arrow_back_ios_new, size: 18),
-                      color: context.appColors.textDim,
+                      color: AppColors.textDim,
                     ),
                   Expanded(
                     child: Row(
@@ -92,7 +91,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                             decoration: BoxDecoration(
                               color: i <= _step
                                   ? AppColors.primary
-                                  : context.appColors.borderSoft,
+                                  : AppColors.borderSoft,
                               borderRadius: BorderRadius.circular(
                                 AppRadius.pill,
                               ),
@@ -153,7 +152,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             fontSize: AppFontSize.xxxxl,
             fontWeight: FontWeight.w700,
             height: 1.4,
-            color: context.appColors.text,
+            color: AppColors.text,
           ),
         ),
         const SizedBox(height: 6),
@@ -161,7 +160,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           desc,
           style: TextStyle(
             fontSize: AppFontSize.md,
-            color: context.appColors.textDim,
+            color: AppColors.textDim,
             height: 1.7,
           ),
         ),
@@ -247,7 +246,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               fontSize: AppFontSize.lg,
               fontWeight: FontWeight.w600,
               height: 1.6,
-              color: context.appColors.text,
+              color: AppColors.text,
             ),
           ),
         ],
@@ -290,7 +289,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         decoration: BoxDecoration(
           color: selected ? AppColors.primary : Colors.white,
           border: Border.all(
-            color: selected ? AppColors.primary : context.appColors.border,
+            color: selected ? AppColors.primary : AppColors.border,
             width: 1.5,
           ),
           borderRadius: BorderRadius.circular(AppRadius.md),
@@ -304,7 +303,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               style: TextStyle(
                 fontSize: AppFontSize.xxl,
                 fontWeight: FontWeight.w700,
-                color: selected ? Colors.white : context.appColors.text,
+                color: selected ? Colors.white : AppColors.text,
               ),
             ),
             const SizedBox(height: 6),
@@ -314,7 +313,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 fontSize: AppFontSize.base,
                 color: selected
                     ? Colors.white.withValues(alpha: 0.85)
-                    : context.appColors.textDim,
+                    : AppColors.textDim,
               ),
             ),
           ],
@@ -344,7 +343,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         Container(
           padding: const EdgeInsets.all(18),
           decoration: BoxDecoration(
-            color: context.appColors.surfaceSoft,
+            color: AppColors.bgSoft,
             borderRadius: BorderRadius.circular(AppRadius.md),
           ),
           child: InkWell(
@@ -364,7 +363,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   '試験日',
                   style: TextStyle(
                     fontSize: AppFontSize.sm,
-                    color: context.appColors.textDim,
+                    color: AppColors.textDim,
                   ),
                 ),
                 const SizedBox(height: 6),
@@ -381,7 +380,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   '${weekdayNames[_examDate.weekday - 1]}曜日',
                   style: TextStyle(
                     fontSize: AppFontSize.md,
-                    color: context.appColors.textDim,
+                    color: AppColors.textDim,
                   ),
                 ),
               ],
@@ -405,9 +404,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     decoration: BoxDecoration(
                       color: active ? AppColors.primary : Colors.white,
                       border: Border.all(
-                        color: active
-                            ? AppColors.primary
-                            : context.appColors.border,
+                        color: active ? AppColors.primary : AppColors.border,
                         width: 1.5,
                       ),
                       borderRadius: BorderRadius.circular(AppRadius.sm),
@@ -417,7 +414,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                       style: TextStyle(
                         fontSize: AppFontSize.base,
                         fontWeight: FontWeight.w600,
-                        color: active ? Colors.white : context.appColors.text,
+                        color: active ? Colors.white : AppColors.text,
                       ),
                     ),
                   ),
@@ -448,7 +445,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                       style: TextStyle(
                         fontSize: AppFontSize.base,
                         height: 1.7,
-                        color: context.appColors.text,
+                        color: AppColors.text,
                       ),
                       children: [
                         TextSpan(text: '残り'),
@@ -490,7 +487,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         Container(
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
-            color: context.appColors.surfaceSoft,
+            color: AppColors.bgSoft,
             borderRadius: BorderRadius.circular(AppRadius.md),
           ),
           child: Column(
@@ -506,7 +503,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               SliderTheme(
                 data: SliderTheme.of(context).copyWith(
                   activeTrackColor: AppColors.primary,
-                  inactiveTrackColor: context.appColors.borderSoft,
+                  inactiveTrackColor: AppColors.borderSoft,
                   thumbColor: AppColors.primary,
                 ),
                 child: Slider(
@@ -524,14 +521,14 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     '5分',
                     style: TextStyle(
                       fontSize: AppFontSize.sm,
-                      color: context.appColors.textMute,
+                      color: AppColors.textMute,
                     ),
                   ),
                   Text(
                     '60分',
                     style: TextStyle(
                       fontSize: AppFontSize.sm,
-                      color: context.appColors.textMute,
+                      color: AppColors.textMute,
                     ),
                   ),
                 ],
@@ -572,7 +569,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 '${q.number} · ${q.year}',
                 style: TextStyle(
                   fontSize: AppFontSize.xs,
-                  color: context.appColors.textDim,
+                  color: AppColors.textDim,
                   letterSpacing: 1,
                 ),
               ),
@@ -595,7 +592,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                       style: TextStyle(
                         fontSize: AppFontSize.md,
                         height: 1.6,
-                        color: context.appColors.textDim,
+                        color: AppColors.textDim,
                       ),
                     ),
                   ),
@@ -649,7 +646,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             '選択肢をタップして答えてみてね。',
             style: TextStyle(
               fontSize: AppFontSize.sm,
-              color: context.appColors.textMute,
+              color: AppColors.textMute,
             ),
           ),
         ],
@@ -680,7 +677,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
           decoration: BoxDecoration(
             color: Colors.white,
-            border: Border.all(color: context.appColors.border),
+            border: Border.all(color: AppColors.border),
             borderRadius: BorderRadius.circular(AppRadius.md),
           ),
           child: Row(
@@ -722,7 +719,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   '通知プレビュー',
                   style: TextStyle(
                     fontSize: AppFontSize.sm,
-                    color: context.appColors.textDim,
+                    color: AppColors.textDim,
                     fontWeight: FontWeight.w600,
                   ),
                 ),

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../theme/tokens.dart';
-import '../theme/app_colors_ext.dart';
 import '../state/app_state.dart';
 import '../models/question.dart';
 import '../widgets/app_chip.dart';
@@ -22,15 +21,12 @@ class QuestionScreen extends StatelessWidget {
           title: const Text('演習を中止しますか?'),
           content: Text(
             '今の演習を中止してTOPに戻るよ。ここまでの進行状況は保存されるので、次に同じメニューを選ぶと続きから再開できるよ。',
-            style: TextStyle(color: context.appColors.textDim, height: 1.6),
+            style: TextStyle(color: AppColors.textDim, height: 1.6),
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(ctx).pop(),
-              child: Text(
-                'キャンセル',
-                style: TextStyle(color: context.appColors.textDim),
-              ),
+              child: Text('キャンセル', style: TextStyle(color: AppColors.textDim)),
             ),
             TextButton(
               onPressed: () async {
@@ -65,7 +61,7 @@ class QuestionScreen extends StatelessWidget {
         (appState.currentIndex + 1) / appState.questionQueue.length;
 
     return Scaffold(
-      backgroundColor: context.appColors.surfaceSoft,
+      backgroundColor: AppColors.bgSoft,
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.fromLTRB(18, 14, 18, 24),
@@ -76,15 +72,12 @@ class QuestionScreen extends StatelessWidget {
                 children: [
                   IconButton(
                     onPressed: () => _confirmQuit(context),
-                    icon: Icon(Icons.close, color: context.appColors.textDim),
+                    icon: Icon(Icons.close, color: AppColors.textDim),
                   ),
                   if (appState.currentIndex > 0)
                     IconButton(
                       onPressed: () => appState.previousQuestion(),
-                      icon: Icon(
-                        Icons.arrow_back,
-                        color: context.appColors.textDim,
-                      ),
+                      icon: Icon(Icons.arrow_back, color: AppColors.textDim),
                     ),
                   Expanded(
                     child: ClipRRect(
@@ -104,7 +97,7 @@ class QuestionScreen extends StatelessWidget {
                     '${appState.currentIndex + 1}/${appState.questionQueue.length}',
                     style: TextStyle(
                       fontSize: AppFontSize.base,
-                      color: context.appColors.textDim,
+                      color: AppColors.textDim,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
@@ -115,8 +108,8 @@ class QuestionScreen extends StatelessWidget {
                 children: [
                   AppChip(
                     label: q.format == QuestionFormat.ox ? '◯×問題' : '五肢択一',
-                    bg: context.appColors.neutralSoft,
-                    fg: context.appColors.neutralFg,
+                    bg: AppColors.neutralSoft,
+                    fg: AppColors.neutralFg,
                   ),
                   const SizedBox(width: 6),
                   AppChip(
@@ -148,7 +141,7 @@ class QuestionScreen extends StatelessWidget {
                               '${q.number} · ${q.year}',
                               style: TextStyle(
                                 fontSize: AppFontSize.xs,
-                                color: context.appColors.textDim,
+                                color: AppColors.textDim,
                                 letterSpacing: 1,
                               ),
                             ),
@@ -171,7 +164,7 @@ class QuestionScreen extends StatelessWidget {
                                     style: TextStyle(
                                       fontSize: AppFontSize.md,
                                       height: 1.6,
-                                      color: context.appColors.textDim,
+                                      color: AppColors.textDim,
                                     ),
                                   ),
                                 ),
@@ -218,11 +211,8 @@ class QuestionScreen extends StatelessWidget {
                               }
                             },
                       style: OutlinedButton.styleFrom(
-                        foregroundColor: context.appColors.textDim,
-                        side: BorderSide(
-                          color: context.appColors.border,
-                          width: 1.5,
-                        ),
+                        foregroundColor: AppColors.textDim,
+                        side: BorderSide(color: AppColors.border, width: 1.5),
                         padding: const EdgeInsets.symmetric(vertical: 13),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(AppRadius.pill),
@@ -248,7 +238,7 @@ class QuestionScreen extends StatelessWidget {
                             },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppColors.primary,
-                        disabledBackgroundColor: context.appColors.border,
+                        disabledBackgroundColor: AppColors.border,
                         foregroundColor: Colors.white,
                         padding: const EdgeInsets.symmetric(vertical: 13),
                         shape: RoundedRectangleBorder(

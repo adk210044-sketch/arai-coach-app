@@ -2,7 +2,6 @@
 // ホーム画面・分析画面の両方で使い回す共通ウィジェット。
 import 'package:flutter/material.dart';
 import '../theme/tokens.dart';
-import '../theme/app_colors_ext.dart';
 import '../logic/pass_probability.dart';
 import 'progress_ring.dart';
 import 'status_legend_dot.dart';
@@ -74,7 +73,7 @@ class PassProbabilityCard extends StatelessWidget {
                 Icon(
                   Icons.hourglass_empty,
                   size: compact ? 18 : 22,
-                  color: context.appColors.textMute,
+                  color: AppColors.textMute,
                 ),
                 const SizedBox(height: 2),
                 Text(
@@ -82,7 +81,7 @@ class PassProbabilityCard extends StatelessWidget {
                   style: TextStyle(
                     fontSize: compact ? 11 : 13,
                     fontWeight: FontWeight.w700,
-                    color: context.appColors.textMute,
+                    color: AppColors.textMute,
                   ),
                 ),
               ],
@@ -111,7 +110,7 @@ class PassProbabilityCard extends StatelessWidget {
                       '合格可能性',
                       style: TextStyle(
                         fontSize: AppFontSize.base,
-                        color: context.appColors.textDim,
+                        color: AppColors.textDim,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
@@ -141,7 +140,7 @@ class PassProbabilityCard extends StatelessWidget {
                   result.comment,
                   style: TextStyle(
                     fontSize: AppFontSize.base,
-                    color: context.appColors.text,
+                    color: AppColors.text,
                     height: 1.5,
                   ),
                 ),

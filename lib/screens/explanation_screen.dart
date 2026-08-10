@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../theme/tokens.dart';
-import '../theme/app_colors_ext.dart';
 import '../state/app_state.dart';
 import '../models/question.dart';
 import '../data/reference_tables.dart';
@@ -62,7 +61,7 @@ class _ExplanationScreenState extends State<ExplanationScreen>
     final circleColor = correct ? AppColors.ok : AppColors.ng;
 
     return Scaffold(
-      backgroundColor: context.appColors.surfaceSoft,
+      backgroundColor: AppColors.bgSoft,
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.fromLTRB(18, 14, 18, 30),
@@ -78,7 +77,7 @@ class _ExplanationScreenState extends State<ExplanationScreen>
                         Navigator.of(context).popUntil((r) => r.isFirst);
                       }
                     },
-                    icon: Icon(Icons.close, color: context.appColors.textDim),
+                    icon: Icon(Icons.close, color: AppColors.textDim),
                   ),
                   Expanded(
                     child: ClipRRect(
@@ -98,7 +97,7 @@ class _ExplanationScreenState extends State<ExplanationScreen>
                     '${appState.currentIndex + 1}/${appState.questionQueue.length}',
                     style: TextStyle(
                       fontSize: AppFontSize.base,
-                      color: context.appColors.textDim,
+                      color: AppColors.textDim,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
@@ -191,7 +190,7 @@ class _ExplanationScreenState extends State<ExplanationScreen>
                       style: TextStyle(
                         fontSize: 13.5,
                         height: 1.9,
-                        color: context.appColors.text,
+                        color: AppColors.text,
                       ),
                     ),
                     const SizedBox(height: 10),
@@ -201,7 +200,7 @@ class _ExplanationScreenState extends State<ExplanationScreen>
                         Icon(
                           Icons.info_outline,
                           size: 13,
-                          color: context.appColors.textMute,
+                          color: AppColors.textMute,
                         ),
                         const SizedBox(width: 4),
                         Expanded(
@@ -209,7 +208,7 @@ class _ExplanationScreenState extends State<ExplanationScreen>
                             'AIコーチによる解説',
                             style: TextStyle(
                               fontSize: 10.5,
-                              color: context.appColors.textMute,
+                              color: AppColors.textMute,
                               fontWeight: FontWeight.w600,
                             ),
                           ),
@@ -296,7 +295,7 @@ class _ExplanationScreenState extends State<ExplanationScreen>
                       'この解説はどうだった?',
                       style: TextStyle(
                         fontSize: AppFontSize.base,
-                        color: context.appColors.textDim,
+                        color: AppColors.textDim,
                       ),
                     ),
                     const SizedBox(height: 8),
@@ -379,7 +378,7 @@ class _ExplanationScreenState extends State<ExplanationScreen>
         decoration: BoxDecoration(
           color: active ? AppColors.primaryFaint : null,
           border: Border.all(
-            color: active ? AppColors.primary : context.appColors.border,
+            color: active ? AppColors.primary : AppColors.border,
           ),
           borderRadius: BorderRadius.circular(AppRadius.pill),
         ),
@@ -389,7 +388,7 @@ class _ExplanationScreenState extends State<ExplanationScreen>
           style: TextStyle(
             fontSize: 11.5,
             fontWeight: FontWeight.w500,
-            color: active ? AppColors.primary : context.appColors.text,
+            color: active ? AppColors.primary : AppColors.text,
           ),
         ),
       ),
@@ -403,7 +402,7 @@ class _ExplanationScreenState extends State<ExplanationScreen>
         padding: const EdgeInsets.symmetric(vertical: 8),
         decoration: BoxDecoration(
           color: Colors.white,
-          border: Border.all(color: context.appColors.border),
+          border: Border.all(color: AppColors.border),
           borderRadius: BorderRadius.circular(AppRadius.pill),
         ),
         alignment: Alignment.center,
@@ -474,8 +473,8 @@ class _ExplanationScreenState extends State<ExplanationScreen>
                                 label: q.format == QuestionFormat.ox
                                     ? '◯×問題'
                                     : '五肢択一',
-                                bg: context.appColors.neutralSoft,
-                                fg: context.appColors.neutralFg,
+                                bg: AppColors.neutralSoft,
+                                fg: AppColors.neutralFg,
                               ),
                               const SizedBox(width: 6),
                               AppChip(
@@ -490,7 +489,7 @@ class _ExplanationScreenState extends State<ExplanationScreen>
                             '${q.number} · ${q.year}',
                             style: TextStyle(
                               fontSize: AppFontSize.xs,
-                              color: context.appColors.textDim,
+                              color: AppColors.textDim,
                               letterSpacing: 1,
                             ),
                           ),
@@ -501,7 +500,7 @@ class _ExplanationScreenState extends State<ExplanationScreen>
                               fontSize: AppFontSize.xl,
                               height: 1.85,
                               fontWeight: FontWeight.w500,
-                              color: context.appColors.text,
+                              color: AppColors.text,
                             ),
                           ),
                           if (q.items.isNotEmpty) ...[
@@ -514,7 +513,7 @@ class _ExplanationScreenState extends State<ExplanationScreen>
                                   style: TextStyle(
                                     fontSize: AppFontSize.md,
                                     height: 1.6,
-                                    color: context.appColors.textDim,
+                                    color: AppColors.textDim,
                                   ),
                                 ),
                               ),
@@ -539,7 +538,7 @@ class _ExplanationScreenState extends State<ExplanationScreen>
                               Icon(
                                 Icons.info_outline,
                                 size: 13,
-                                color: context.appColors.textMute,
+                                color: AppColors.textMute,
                               ),
                               const SizedBox(width: 4),
                               Expanded(
@@ -549,7 +548,7 @@ class _ExplanationScreenState extends State<ExplanationScreen>
                                       : '緑枠が正解、赤枠が自分の回答だよ',
                                   style: TextStyle(
                                     fontSize: 10.5,
-                                    color: context.appColors.textMute,
+                                    color: AppColors.textMute,
                                   ),
                                 ),
                               ),
@@ -611,7 +610,7 @@ class _ExplanationScreenState extends State<ExplanationScreen>
                       style: TextStyle(
                         fontSize: 13.5,
                         height: 1.9,
-                        color: context.appColors.text,
+                        color: AppColors.text,
                       ),
                     ),
                   ),
@@ -651,7 +650,7 @@ class _ExplanationScreenState extends State<ExplanationScreen>
                   '報告してくれると、運営チームが内容を確認して解説をすぐに修正するよ。ありがとう!',
                   style: TextStyle(
                     fontSize: AppFontSize.md,
-                    color: context.appColors.textDim,
+                    color: AppColors.textDim,
                     height: 1.7,
                   ),
                 ),

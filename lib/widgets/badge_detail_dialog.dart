@@ -2,7 +2,6 @@
 // タップ時の詳細表示と、新規獲得時のお祝い表示の両方をこの1つのウィジェットで担う。
 import 'package:flutter/material.dart';
 import '../theme/tokens.dart';
-import '../theme/app_colors_ext.dart';
 import '../models/badge.dart';
 import 'badge_medal.dart';
 
@@ -55,14 +54,14 @@ class BadgeDetailDialog extends StatelessWidget {
                     vertical: 3,
                   ),
                   decoration: BoxDecoration(
-                    color: context.appColors.surfaceSoft,
+                    color: AppColors.bgSoft,
                     borderRadius: BorderRadius.circular(AppRadius.pill),
                   ),
                   child: Text(
                     '${badge.category.emoji} ${badge.category.label}',
                     style: TextStyle(
                       fontSize: AppFontSize.sm,
-                      color: context.appColors.textDim,
+                      color: AppColors.textDim,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
@@ -90,7 +89,7 @@ class BadgeDetailDialog extends StatelessWidget {
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: AppFontSize.base,
-                color: context.appColors.textDim,
+                color: AppColors.textDim,
                 height: 1.6,
               ),
             ),
@@ -102,7 +101,7 @@ class BadgeDetailDialog extends StatelessWidget {
                   vertical: 6,
                 ),
                 decoration: BoxDecoration(
-                  color: context.appColors.surfaceSoft,
+                  color: AppColors.bgSoft,
                   borderRadius: BorderRadius.circular(AppRadius.pill),
                 ),
                 child: Row(
@@ -111,14 +110,14 @@ class BadgeDetailDialog extends StatelessWidget {
                     Icon(
                       Icons.lock_outline,
                       size: 14,
-                      color: context.appColors.textMute,
+                      color: AppColors.textMute,
                     ),
                     SizedBox(width: 6),
                     Text(
                       '未獲得だよ、これから挑戦してみよう',
                       style: TextStyle(
                         fontSize: AppFontSize.sm,
-                        color: context.appColors.textMute,
+                        color: AppColors.textMute,
                       ),
                     ),
                   ],

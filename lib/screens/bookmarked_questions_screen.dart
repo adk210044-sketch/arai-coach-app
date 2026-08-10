@@ -5,7 +5,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../theme/tokens.dart';
-import '../theme/app_colors_ext.dart';
 import '../state/app_state.dart';
 import '../models/question.dart';
 import '../widgets/app_chip.dart';
@@ -21,16 +20,16 @@ class BookmarkedQuestionsScreen extends StatelessWidget {
     final questions = appState.bookmarkedQuestions;
 
     return Scaffold(
-      backgroundColor: context.appColors.surfaceSoft,
+      backgroundColor: AppColors.bgSoft,
       appBar: AppBar(
-        backgroundColor: context.appColors.surfaceSoft,
+        backgroundColor: AppColors.bgSoft,
         elevation: 0,
         title: Text(
           '保存した問題 (${questions.length})',
           style: TextStyle(
             fontSize: AppFontSize.xl,
             fontWeight: FontWeight.w700,
-            color: context.appColors.text,
+            color: AppColors.text,
           ),
         ),
       ),
@@ -62,7 +61,7 @@ class BookmarkedQuestionsScreen extends StatelessWidget {
               style: TextStyle(
                 fontSize: AppFontSize.lg,
                 fontWeight: FontWeight.w700,
-                color: context.appColors.text,
+                color: AppColors.text,
               ),
             ),
             const SizedBox(height: 6),
@@ -71,7 +70,7 @@ class BookmarkedQuestionsScreen extends StatelessWidget {
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: AppFontSize.md,
-                color: context.appColors.textDim,
+                color: AppColors.textDim,
                 height: 1.6,
               ),
             ),
@@ -109,8 +108,8 @@ class BookmarkedQuestionsScreen extends StatelessWidget {
                 const SizedBox(width: 6),
                 AppChip(
                   label: q.format == QuestionFormat.ox ? '◯×問題' : '五肢択一',
-                  bg: context.appColors.neutralSoft,
-                  fg: context.appColors.neutralFg,
+                  bg: AppColors.neutralSoft,
+                  fg: AppColors.neutralFg,
                 ),
                 const Spacer(),
                 GestureDetector(
@@ -131,7 +130,7 @@ class BookmarkedQuestionsScreen extends StatelessWidget {
               style: TextStyle(
                 fontSize: AppFontSize.md,
                 height: 1.6,
-                color: context.appColors.text,
+                color: AppColors.text,
               ),
             ),
             const SizedBox(height: 8),
@@ -141,7 +140,7 @@ class BookmarkedQuestionsScreen extends StatelessWidget {
                   '${q.number} · ${q.year}',
                   style: TextStyle(
                     fontSize: AppFontSize.xs,
-                    color: context.appColors.textMute,
+                    color: AppColors.textMute,
                   ),
                 ),
                 const Spacer(),

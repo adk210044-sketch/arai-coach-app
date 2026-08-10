@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../theme/tokens.dart';
-import '../theme/app_colors_ext.dart';
 import '../state/app_state.dart';
 import '../widgets/coach_bubble.dart';
 import '../widgets/pass_probability_card.dart';
@@ -51,7 +50,7 @@ class HomeScreen extends StatelessWidget {
                       '今日もコツコツやっていこう',
                       style: TextStyle(
                         fontSize: AppFontSize.md,
-                        color: context.appColors.textDim,
+                        color: AppColors.textDim,
                       ),
                     ),
                   ],
@@ -278,7 +277,7 @@ class HomeScreen extends StatelessWidget {
                                   TextSpan(
                                     text: '${profile.streakDays}',
                                     style: TextStyle(
-                                      color: context.appColors.text,
+                                      color: AppColors.text,
                                       fontSize: 22,
                                       fontWeight: FontWeight.w700,
                                     ),
@@ -286,7 +285,7 @@ class HomeScreen extends StatelessWidget {
                                   TextSpan(
                                     text: '日連続',
                                     style: TextStyle(
-                                      color: context.appColors.textDim,
+                                      color: AppColors.textDim,
                                       fontSize: 12,
                                     ),
                                   ),
@@ -297,7 +296,7 @@ class HomeScreen extends StatelessWidget {
                               '最長 ${profile.longestStreak}日',
                               style: TextStyle(
                                 fontSize: 10,
-                                color: context.appColors.textDim,
+                                color: AppColors.textDim,
                               ),
                             ),
                           ],
@@ -323,7 +322,7 @@ class HomeScreen extends StatelessWidget {
                           '試験まで',
                           style: TextStyle(
                             fontSize: 10,
-                            color: context.appColors.textDim,
+                            color: AppColors.textDim,
                           ),
                         ),
                         RichText(
@@ -340,7 +339,7 @@ class HomeScreen extends StatelessWidget {
                               TextSpan(
                                 text: '日',
                                 style: TextStyle(
-                                  color: context.appColors.textDim,
+                                  color: AppColors.textDim,
                                   fontSize: 12,
                                 ),
                               ),
@@ -472,17 +471,13 @@ class HomeScreen extends StatelessWidget {
                     '見返したい問題をあとでまとめて復習できるよ',
                     style: TextStyle(
                       fontSize: AppFontSize.sm,
-                      color: context.appColors.textDim,
+                      color: AppColors.textDim,
                     ),
                   ),
                 ],
               ),
             ),
-            Icon(
-              Icons.chevron_right,
-              color: context.appColors.textMute,
-              size: 24,
-            ),
+            Icon(Icons.chevron_right, color: AppColors.textMute, size: 24),
           ],
         ),
       ),
@@ -537,9 +532,7 @@ class HomeScreen extends StatelessWidget {
                     sub,
                     style: TextStyle(
                       fontSize: AppFontSize.sm,
-                      color: locked
-                          ? AppColors.accent
-                          : context.appColors.textDim,
+                      color: locked ? AppColors.accent : AppColors.textDim,
                       fontWeight: locked ? FontWeight.w600 : FontWeight.normal,
                     ),
                   ),
@@ -548,7 +541,7 @@ class HomeScreen extends StatelessWidget {
             ),
             Icon(
               locked ? Icons.lock_outline : Icons.chevron_right,
-              color: locked ? AppColors.accent : context.appColors.textMute,
+              color: locked ? AppColors.accent : AppColors.textMute,
               size: locked ? 18 : 24,
             ),
           ],

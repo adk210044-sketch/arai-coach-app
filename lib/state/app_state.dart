@@ -668,13 +668,6 @@ class AppState extends ChangeNotifier {
     notifyListeners();
   }
 
-  // ─── ダークモード(自動/オン/オフ) ──────────────────────
-  void setDarkModeOption(DarkModeOption option) {
-    profile = profile.copyWith(darkModeOption: option);
-    _persistProfile();
-    notifyListeners();
-  }
-
   // ─── 学習ゴール(1日の目標問題数) ──────────────────────
   void setDailyGoalQuestions(int count) {
     profile = profile.copyWith(dailyGoalQuestions: count);

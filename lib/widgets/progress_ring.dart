@@ -1,7 +1,6 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import '../theme/tokens.dart';
-import '../theme/app_colors_ext.dart';
 
 class ProgressRing extends StatelessWidget {
   final double pct; // 0-100
@@ -23,7 +22,7 @@ class ProgressRing extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final resolvedTrackColor = trackColor ?? context.appColors.borderSoft;
+    final resolvedTrackColor = trackColor ?? AppColors.borderSoft;
     return TweenAnimationBuilder<double>(
       tween: Tween(begin: 0, end: pct),
       duration: const Duration(milliseconds: 500),

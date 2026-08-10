@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../state/app_state.dart';
 import '../theme/tokens.dart';
-import '../theme/app_colors_ext.dart';
 import '../screens/question_screen.dart';
 
 /// 演習を開始する共通処理。
@@ -39,7 +38,7 @@ void startQuizSession(
         content: Text(
           '前回中断した演習が残っているよ。続きから再開する?\n'
           '「最初から」を選ぶと、前回の進行状況は削除されるよ。',
-          style: TextStyle(color: context.appColors.textDim, height: 1.6),
+          style: TextStyle(color: AppColors.textDim, height: 1.6),
         ),
         actions: [
           TextButton(
@@ -49,10 +48,7 @@ void startQuizSession(
               onStartNew();
               pushQuestionScreen();
             },
-            child: Text(
-              '最初から',
-              style: TextStyle(color: context.appColors.textDim),
-            ),
+            child: Text('最初から', style: TextStyle(color: AppColors.textDim)),
           ),
           TextButton(
             onPressed: () {

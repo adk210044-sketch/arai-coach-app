@@ -4,7 +4,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../theme/tokens.dart';
-import '../theme/app_colors_ext.dart';
 import '../services/gemini_service.dart';
 import '../state/app_state.dart';
 import '../widgets/coach_bubble.dart';
@@ -119,16 +118,16 @@ class _CoachAiSettingsScreenState extends State<CoachAiSettingsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: context.appColors.surfaceSoft,
+      backgroundColor: AppColors.bgSoft,
       appBar: AppBar(
-        backgroundColor: context.appColors.surfaceSoft,
+        backgroundColor: AppColors.bgSoft,
         elevation: 0,
         title: Text(
           'あらいコーチのAI連携',
           style: TextStyle(
             fontSize: AppFontSize.xl,
             fontWeight: FontWeight.w700,
-            color: context.appColors.text,
+            color: AppColors.text,
           ),
         ),
       ),
@@ -162,7 +161,7 @@ class _CoachAiSettingsScreenState extends State<CoachAiSettingsScreen> {
                                       : 'APIキーを登録すると、僕がもっと自由に、君専用の相談相手になれるよ。',
                                   style: TextStyle(
                                     fontSize: AppFontSize.base,
-                                    color: context.appColors.textDim,
+                                    color: AppColors.textDim,
                                     height: 1.6,
                                   ),
                                 ),
@@ -257,7 +256,7 @@ class _CoachAiSettingsScreenState extends State<CoachAiSettingsScreen> {
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(AppRadius.md),
-                        border: Border.all(color: context.appColors.border),
+                        border: Border.all(color: AppColors.border),
                       ),
                       child: TextField(
                         controller: _controller,
@@ -270,7 +269,7 @@ class _CoachAiSettingsScreenState extends State<CoachAiSettingsScreen> {
                               _obscure
                                   ? Icons.visibility_outlined
                                   : Icons.visibility_off_outlined,
-                              color: context.appColors.textMute,
+                              color: AppColors.textMute,
                               size: 20,
                             ),
                             onPressed: () =>
@@ -284,7 +283,7 @@ class _CoachAiSettingsScreenState extends State<CoachAiSettingsScreen> {
                       'キーはこの端末内(ローカル)にのみ保存され、外部には送信されないよ(Gemini API呼び出し時のみ利用)。',
                       style: TextStyle(
                         fontSize: 11,
-                        color: context.appColors.textMute,
+                        color: AppColors.textMute,
                         height: 1.5,
                       ),
                     ),
@@ -341,7 +340,7 @@ class _CoachAiSettingsScreenState extends State<CoachAiSettingsScreen> {
                       '「いい質問だね〜」のような定型文しか返ってこない場合は、ここで接続テストをするとエラー内容(キーが無効/権限不足など)を確認できるよ。',
                       style: TextStyle(
                         fontSize: 11,
-                        color: context.appColors.textMute,
+                        color: AppColors.textMute,
                         height: 1.5,
                       ),
                     ),
@@ -420,7 +419,7 @@ class _CoachAiSettingsScreenState extends State<CoachAiSettingsScreen> {
                   desc,
                   style: TextStyle(
                     fontSize: AppFontSize.sm,
-                    color: context.appColors.textDim,
+                    color: AppColors.textDim,
                     height: 1.5,
                   ),
                 ),
@@ -470,7 +469,7 @@ class _ApiKeyStep extends StatelessWidget {
             text,
             style: TextStyle(
               fontSize: AppFontSize.sm,
-              color: context.appColors.textDim,
+              color: AppColors.textDim,
               height: 1.5,
             ),
           ),

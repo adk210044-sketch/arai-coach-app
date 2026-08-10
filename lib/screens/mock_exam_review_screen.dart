@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../theme/tokens.dart';
-import '../theme/app_colors_ext.dart';
 import '../models/question.dart';
 import '../widgets/choice_item.dart';
 import '../widgets/app_chip.dart';
@@ -44,15 +43,15 @@ class _MockExamReviewScreenState extends State<MockExamReviewScreen> {
     }).toList();
 
     return Scaffold(
-      backgroundColor: context.appColors.surfaceSoft,
+      backgroundColor: AppColors.bgSoft,
       appBar: AppBar(
-        backgroundColor: context.appColors.surfaceSoft,
+        backgroundColor: AppColors.bgSoft,
         title: Text(
           '解答を確認',
           style: TextStyle(
             fontSize: AppFontSize.xl,
             fontWeight: FontWeight.w700,
-            color: context.appColors.text,
+            color: AppColors.text,
           ),
         ),
       ),
@@ -95,7 +94,7 @@ class _MockExamReviewScreenState extends State<MockExamReviewScreen> {
                   ? Center(
                       child: Text(
                         '該当する問題はありません',
-                        style: TextStyle(color: context.appColors.textDim),
+                        style: TextStyle(color: AppColors.textDim),
                       ),
                     )
                   : ListView.builder(
@@ -137,7 +136,7 @@ class _MockExamReviewScreenState extends State<MockExamReviewScreen> {
             label,
             style: TextStyle(
               fontSize: AppFontSize.sm,
-              color: context.appColors.textDim,
+              color: AppColors.textDim,
             ),
           ),
         ],
@@ -155,7 +154,7 @@ class _MockExamReviewScreenState extends State<MockExamReviewScreen> {
           color: active ? AppColors.primary : Colors.white,
           borderRadius: BorderRadius.circular(AppRadius.pill),
           border: Border.all(
-            color: active ? AppColors.primary : context.appColors.border,
+            color: active ? AppColors.primary : AppColors.border,
           ),
         ),
         child: Text(
@@ -163,7 +162,7 @@ class _MockExamReviewScreenState extends State<MockExamReviewScreen> {
           style: TextStyle(
             fontSize: AppFontSize.sm,
             fontWeight: FontWeight.w600,
-            color: active ? Colors.white : context.appColors.textDim,
+            color: active ? Colors.white : AppColors.textDim,
           ),
         ),
       ),
@@ -216,7 +215,7 @@ class _MockExamReviewScreenState extends State<MockExamReviewScreen> {
                 style: TextStyle(
                   fontSize: AppFontSize.sm,
                   fontWeight: FontWeight.w700,
-                  color: context.appColors.textDim,
+                  color: AppColors.textDim,
                 ),
               ),
               const Spacer(),
@@ -245,7 +244,7 @@ class _MockExamReviewScreenState extends State<MockExamReviewScreen> {
                   it,
                   style: TextStyle(
                     fontSize: AppFontSize.sm,
-                    color: context.appColors.textDim,
+                    color: AppColors.textDim,
                     height: 1.5,
                   ),
                 ),
@@ -269,14 +268,14 @@ class _MockExamReviewScreenState extends State<MockExamReviewScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
               margin: const EdgeInsets.only(bottom: 8),
               decoration: BoxDecoration(
-                color: context.appColors.surfaceSoft,
+                color: AppColors.bgSoft,
                 borderRadius: BorderRadius.circular(AppRadius.chip),
               ),
               child: Text(
                 '未回答でした',
                 style: TextStyle(
                   fontSize: AppFontSize.sm,
-                  color: context.appColors.textDim,
+                  color: AppColors.textDim,
                   fontWeight: FontWeight.w600,
                 ),
               ),
@@ -314,7 +313,7 @@ class _MockExamReviewScreenState extends State<MockExamReviewScreen> {
                   style: TextStyle(
                     fontSize: AppFontSize.sm,
                     height: 1.7,
-                    color: context.appColors.text,
+                    color: AppColors.text,
                   ),
                 ),
               ],

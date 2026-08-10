@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../theme/tokens.dart';
-import '../theme/app_colors_ext.dart';
 import '../state/app_state.dart';
 import '../widgets/progress_ring.dart';
 import '../widgets/pass_probability_card.dart';
@@ -51,7 +50,7 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
               'AIがあなたの弱点を見つけました',
               style: TextStyle(
                 fontSize: AppFontSize.base,
-                color: context.appColors.textDim,
+                color: AppColors.textDim,
               ),
             ),
             const SizedBox(height: 16),
@@ -73,17 +72,13 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
                         color: active ? AppColors.primary : Colors.white,
                         borderRadius: BorderRadius.circular(AppRadius.pill),
                         border: Border.all(
-                          color: active
-                              ? AppColors.primary
-                              : context.appColors.border,
+                          color: active ? AppColors.primary : AppColors.border,
                         ),
                       ),
                       child: Text(
                         labels[i],
                         style: TextStyle(
-                          color: active
-                              ? Colors.white
-                              : context.appColors.textDim,
+                          color: active ? Colors.white : AppColors.textDim,
                           fontWeight: FontWeight.w600,
                           fontSize: AppFontSize.base,
                         ),
@@ -137,7 +132,7 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
                           '総合正答率',
                           style: TextStyle(
                             fontSize: 9,
-                            color: context.appColors.textDim,
+                            color: AppColors.textDim,
                           ),
                         ),
                       ],
@@ -178,7 +173,7 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
                             'もう少しで合格ライン!',
                             style: TextStyle(
                               fontSize: 10,
-                              color: context.appColors.textDim,
+                              color: AppColors.textDim,
                             ),
                           ),
                         ],
@@ -219,7 +214,7 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
                         style: TextStyle(
                           fontSize: 12.5,
                           height: 1.7,
-                          color: context.appColors.text,
+                          color: AppColors.text,
                         ),
                         children: [
                           TextSpan(
@@ -240,12 +235,12 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
                           TextSpan(text: 'が要注意です。\n'),
                           TextSpan(
                             text: '10分間の集中復習セットを用意しました。',
-                            style: TextStyle(color: context.appColors.textDim),
+                            style: TextStyle(color: AppColors.textDim),
                           ),
                           TextSpan(
                             text: '\n※「演習」ページでチャレンジしてね',
                             style: TextStyle(
-                              color: context.appColors.textMute,
+                              color: AppColors.textMute,
                               fontSize: 11,
                             ),
                           ),
@@ -273,10 +268,7 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
                   height: 10,
                   margin: const EdgeInsets.only(right: 5),
                   decoration: BoxDecoration(
-                    border: Border.all(
-                      color: context.appColors.textDim,
-                      width: 1.5,
-                    ),
+                    border: Border.all(color: AppColors.textDim, width: 1.5),
                     shape: BoxShape.circle,
                   ),
                 ),
@@ -284,7 +276,7 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
                   '「┃」= 合格ライン(各科目40%以上)',
                   style: TextStyle(
                     fontSize: AppFontSize.xs,
-                    color: context.appColors.textDim,
+                    color: AppColors.textDim,
                   ),
                 ),
               ],
@@ -294,10 +286,7 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
               spacing: 10,
               runSpacing: 2,
               children: [
-                StatusLegendDot(
-                  color: context.appColors.textMute,
-                  label: '診断中:5問未満',
-                ),
+                StatusLegendDot(color: AppColors.textMute, label: '診断中:5問未満'),
                 StatusLegendDot(color: AppColors.ng, label: '要復習:60%未満'),
                 StatusLegendDot(color: AppColors.yellow, label: 'もう少し:60〜74%'),
                 StatusLegendDot(color: AppColors.ok, label: '安全圏:75%以上'),
@@ -323,8 +312,8 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
                   final Color barColor;
                   if (!hasEnoughData) {
                     statusLabel = '診断中';
-                    statusColor = context.appColors.textMute;
-                    barColor = context.appColors.textMute;
+                    statusColor = AppColors.textMute;
+                    barColor = AppColors.textMute;
                   } else if (pct < 60) {
                     statusLabel = '要復習';
                     statusColor = AppColors.ng;
@@ -346,7 +335,7 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
                     decoration: BoxDecoration(
                       border: Border(
                         bottom: i < kCategories.length - 1
-                            ? BorderSide(color: context.appColors.borderSoft)
+                            ? BorderSide(color: AppColors.borderSoft)
                             : BorderSide.none,
                       ),
                     ),
@@ -419,8 +408,7 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
                                     child: LinearProgressIndicator(
                                       value: pct / 100,
                                       minHeight: 6,
-                                      backgroundColor:
-                                          context.appColors.borderSoft,
+                                      backgroundColor: AppColors.borderSoft,
                                       valueColor: AlwaysStoppedAnimation(
                                         barColor,
                                       ),
@@ -432,8 +420,9 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
                                     bottom: -2,
                                     child: Container(
                                       width: 2,
-                                      color: context.appColors.textDim
-                                          .withValues(alpha: 0.85),
+                                      color: AppColors.textDim.withValues(
+                                        alpha: 0.85,
+                                      ),
                                     ),
                                   ),
                                 ],
@@ -533,7 +522,7 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
               'もう少しデータが集まると、週ごとの伸びをAIが分析できるようになるよ。',
               style: TextStyle(
                 fontSize: AppFontSize.sm,
-                color: context.appColors.textDim,
+                color: AppColors.textDim,
                 height: 1.6,
               ),
             )
@@ -563,7 +552,7 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
                                   : FontWeight.w500,
                               color: isLast
                                   ? AppColors.primary
-                                  : context.appColors.textMute,
+                                  : AppColors.textMute,
                             ),
                           ),
                           const SizedBox(height: 4),
@@ -583,7 +572,7 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
                                 : '${trend.length - 1 - i}週前',
                             style: TextStyle(
                               fontSize: 9,
-                              color: context.appColors.textMute,
+                              color: AppColors.textMute,
                             ),
                           ),
                         ],
@@ -612,7 +601,7 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
     const weekLabels = ['3週前', '2週前', '先週', '今週'];
 
     Color cellColor(CategoryWeekCell cell) {
-      if (!cell.hasData) return context.appColors.borderSoft;
+      if (!cell.hasData) return AppColors.borderSoft;
       final pct = cell.accuracyPercent;
       if (pct < 40) return AppColors.heat3;
       if (pct < 60) return AppColors.heat2;
@@ -621,15 +610,15 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
     }
 
     Color textColorFor(CategoryWeekCell cell) {
-      if (!cell.hasData) return context.appColors.textMute;
-      return cell.accuracyPercent < 60 ? Colors.white : context.appColors.text;
+      if (!cell.hasData) return AppColors.textMute;
+      return cell.accuracyPercent < 60 ? Colors.white : AppColors.text;
     }
 
     // 矢印の色。セル背景が薄い(得意=heat0/heat1)場合は白矢印が同化して
     // 見えなくなるため、その場合は青(primary)にする。背景が濃い
     // (苦手=heat2/heat3)場合は白のままコントラストを確保する。
     Color arrowColorFor(CategoryWeekCell cell) {
-      if (!cell.hasData) return context.appColors.textMute;
+      if (!cell.hasData) return AppColors.textMute;
       return cell.accuracyPercent < 60 ? Colors.white : AppColors.primary;
     }
 
@@ -668,7 +657,7 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
                 '得意',
                 style: TextStyle(
                   fontSize: 10,
-                  color: context.appColors.textDim,
+                  color: AppColors.textDim,
                   fontWeight: FontWeight.w600,
                 ),
               ),
@@ -691,7 +680,7 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
                 '苦手',
                 style: TextStyle(
                   fontSize: 10,
-                  color: context.appColors.textDim,
+                  color: AppColors.textDim,
                   fontWeight: FontWeight.w600,
                 ),
               ),
@@ -702,7 +691,7 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
             '週ごとの正答率を色で表示。セルをタップするとその科目の演習に進めます。',
             style: TextStyle(
               fontSize: 10,
-              color: context.appColors.textMute,
+              color: AppColors.textMute,
               height: 1.4,
             ),
           ),
@@ -713,30 +702,21 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
               const SizedBox(width: 3),
               Text(
                 '前週より上昇',
-                style: TextStyle(
-                  fontSize: 10,
-                  color: context.appColors.textDim,
-                ),
+                style: TextStyle(fontSize: 10, color: AppColors.textDim),
               ),
               const SizedBox(width: 10),
               _trendLegendChip(TrendDirection.down),
               const SizedBox(width: 3),
               Text(
                 '前週より下降',
-                style: TextStyle(
-                  fontSize: 10,
-                  color: context.appColors.textDim,
-                ),
+                style: TextStyle(fontSize: 10, color: AppColors.textDim),
               ),
               const SizedBox(width: 10),
               _trendLegendChip(TrendDirection.flat),
               const SizedBox(width: 3),
               Text(
                 'ほぼ変わらず',
-                style: TextStyle(
-                  fontSize: 10,
-                  color: context.appColors.textDim,
-                ),
+                style: TextStyle(fontSize: 10, color: AppColors.textDim),
               ),
             ],
           ),
@@ -752,7 +732,7 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
                       label,
                       style: TextStyle(
                         fontSize: 10,
-                        color: context.appColors.textMute,
+                        color: AppColors.textMute,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
@@ -930,7 +910,7 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
             '正答率と合格基準への影響度から、AIが復習の優先順位を自動で並べ替えるよ',
             style: TextStyle(
               fontSize: AppFontSize.sm,
-              color: context.appColors.textDim,
+              color: AppColors.textDim,
               height: 1.5,
             ),
           ),
@@ -947,7 +927,7 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
               'まだ解答データが少ないよ。いくつか問題を解くと、AIが優先順位を分析できるようになるよ。',
               style: TextStyle(
                 fontSize: AppFontSize.sm,
-                color: context.appColors.textDim,
+                color: AppColors.textDim,
                 height: 1.6,
               ),
             )
@@ -963,7 +943,7 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
                   margin: const EdgeInsets.only(bottom: 8),
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: context.appColors.surfaceSoft,
+                    color: AppColors.bgSoft,
                     borderRadius: BorderRadius.circular(14),
                   ),
                   child: Row(
@@ -975,7 +955,7 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
                         decoration: BoxDecoration(
                           color: w.rank == 1 ? AppColors.accent : Colors.white,
                           shape: BoxShape.circle,
-                          border: Border.all(color: context.appColors.border),
+                          border: Border.all(color: AppColors.border),
                         ),
                         alignment: Alignment.center,
                         child: Text(
@@ -985,7 +965,7 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
                             fontWeight: FontWeight.w800,
                             color: w.rank == 1
                                 ? Colors.white
-                                : context.appColors.textDim,
+                                : AppColors.textDim,
                           ),
                         ),
                       ),
@@ -1020,7 +1000,7 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
                               w.comment,
                               style: TextStyle(
                                 fontSize: AppFontSize.sm,
-                                color: context.appColors.textDim,
+                                color: AppColors.textDim,
                                 height: 1.5,
                               ),
                             ),
@@ -1060,12 +1040,9 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
       child: Container(
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
-          color: context.appColors.surfaceSoft,
+          color: AppColors.bgSoft,
           borderRadius: BorderRadius.circular(14),
-          border: Border.all(
-            color: context.appColors.border,
-            style: BorderStyle.solid,
-          ),
+          border: Border.all(color: AppColors.border, style: BorderStyle.solid),
         ),
         child: Row(
           children: [
@@ -1089,7 +1066,7 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
                 message,
                 style: TextStyle(
                   fontSize: AppFontSize.sm,
-                  color: context.appColors.textDim,
+                  color: AppColors.textDim,
                   height: 1.6,
                 ),
               ),

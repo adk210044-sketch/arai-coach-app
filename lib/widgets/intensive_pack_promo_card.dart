@@ -4,7 +4,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../theme/tokens.dart';
-import '../theme/app_colors_ext.dart';
 import '../state/app_state.dart';
 import '../models/plan.dart';
 import '../screens/paywall_screen.dart';
@@ -79,7 +78,7 @@ class IntensivePackPromoCard extends StatelessWidget {
                           style: TextStyle(
                             fontSize: 10.5,
                             fontWeight: FontWeight.w800,
-                            color: context.appColors.text,
+                            color: AppColors.text,
                           ),
                         ),
                       ),

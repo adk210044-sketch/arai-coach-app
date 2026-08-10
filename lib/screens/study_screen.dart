@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../theme/tokens.dart';
-import '../theme/app_colors_ext.dart';
 import '../state/app_state.dart';
 import '../widgets/ad_banner_placeholder.dart';
 import '../widgets/quiz_resume_dialog.dart';
@@ -61,7 +60,7 @@ class StudyScreen extends StatelessWidget {
                   : 'カテゴリを選んで演習を始めよう(フリープランは同じ過去問50問を繰り返し利用可能)',
               style: TextStyle(
                 fontSize: AppFontSize.base,
-                color: context.appColors.textDim,
+                color: AppColors.textDim,
               ),
             ),
             const SizedBox(height: 14),
@@ -126,10 +125,7 @@ class StudyScreen extends StatelessWidget {
               spacing: 10,
               runSpacing: 2,
               children: [
-                StatusLegendDot(
-                  color: context.appColors.textMute,
-                  label: '診断中:5問未満',
-                ),
+                StatusLegendDot(color: AppColors.textMute, label: '診断中:5問未満'),
                 StatusLegendDot(color: AppColors.ng, label: '要復習:60%未満'),
                 StatusLegendDot(color: AppColors.yellow, label: 'もう少し:60〜74%'),
                 StatusLegendDot(color: AppColors.ok, label: '安全圏:75%以上'),
@@ -145,8 +141,8 @@ class StudyScreen extends StatelessWidget {
               final Color barColor;
               if (!hasEnoughData) {
                 statusLabel = '診断中';
-                statusColor = context.appColors.textMute;
-                barColor = context.appColors.textMute;
+                statusColor = AppColors.textMute;
+                barColor = AppColors.textMute;
               } else if (pct < 60) {
                 statusLabel = '要復習';
                 statusColor = AppColors.ng;
@@ -216,10 +212,7 @@ class StudyScreen extends StatelessWidget {
                               ),
                             ],
                           ),
-                          Icon(
-                            Icons.chevron_right,
-                            color: context.appColors.textMute,
-                          ),
+                          Icon(Icons.chevron_right, color: AppColors.textMute),
                         ],
                       ),
                       const SizedBox(height: 8),
@@ -233,7 +226,7 @@ class StudyScreen extends StatelessWidget {
                               child: LinearProgressIndicator(
                                 value: pct / 100,
                                 minHeight: 6,
-                                backgroundColor: context.appColors.borderSoft,
+                                backgroundColor: AppColors.borderSoft,
                                 valueColor: AlwaysStoppedAnimation(barColor),
                               ),
                             ),
@@ -298,7 +291,7 @@ class StudyScreen extends StatelessWidget {
                             style: TextStyle(
                               fontSize: AppFontSize.sm,
                               color: isPremium
-                                  ? context.appColors.textDim
+                                  ? AppColors.textDim
                                   : AppColors.accent,
                               fontWeight: isPremium
                                   ? FontWeight.normal
@@ -310,9 +303,7 @@ class StudyScreen extends StatelessWidget {
                     ),
                     Icon(
                       isPremium ? Icons.chevron_right : Icons.lock_outline,
-                      color: isPremium
-                          ? context.appColors.textMute
-                          : AppColors.accent,
+                      color: isPremium ? AppColors.textMute : AppColors.accent,
                     ),
                   ],
                 ),

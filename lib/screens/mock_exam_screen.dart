@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../theme/tokens.dart';
-import '../theme/app_colors_ext.dart';
 import '../state/app_state.dart';
 import '../models/user_profile.dart';
 import 'mock_exam_session_screen.dart';
@@ -108,15 +107,15 @@ class MockExamScreen extends StatelessWidget {
     final fullQuestionCount = isType2 ? 30 : 44;
     final savedProgress = appState.savedMockExamProgress;
     return Scaffold(
-      backgroundColor: context.appColors.surfaceSoft,
+      backgroundColor: AppColors.bgSoft,
       appBar: AppBar(
-        backgroundColor: context.appColors.surfaceSoft,
+        backgroundColor: AppColors.bgSoft,
         title: Text(
           '模擬試験',
           style: TextStyle(
             fontSize: AppFontSize.xl,
             fontWeight: FontWeight.w700,
-            color: context.appColors.text,
+            color: AppColors.text,
           ),
         ),
       ),
@@ -130,7 +129,7 @@ class MockExamScreen extends StatelessWidget {
                 '本番と同じ形式で実力チェック',
                 style: TextStyle(
                   fontSize: AppFontSize.base,
-                  color: context.appColors.textDim,
+                  color: AppColors.textDim,
                 ),
               ),
               const SizedBox(height: 18),
@@ -177,7 +176,7 @@ class MockExamScreen extends StatelessWidget {
                         ' · 残り${_fmtSec(savedProgress['remainingSec'] as int? ?? 0)}',
                         style: TextStyle(
                           fontSize: AppFontSize.sm,
-                          color: context.appColors.textDim,
+                          color: AppColors.textDim,
                         ),
                       ),
                       const SizedBox(height: 14),
@@ -331,7 +330,7 @@ class MockExamScreen extends StatelessWidget {
                             'スキマ時間で15分',
                             style: TextStyle(
                               fontSize: AppFontSize.sm,
-                              color: context.appColors.textDim,
+                              color: AppColors.textDim,
                             ),
                           ),
                         ],
@@ -462,7 +461,7 @@ class MockExamScreen extends StatelessWidget {
         border: Border(
           bottom: isLast
               ? BorderSide.none
-              : BorderSide(color: context.appColors.borderSoft),
+              : BorderSide(color: AppColors.borderSoft),
         ),
       ),
       child: Row(
@@ -501,7 +500,7 @@ class MockExamScreen extends StatelessWidget {
                   msg,
                   style: TextStyle(
                     fontSize: AppFontSize.sm,
-                    color: context.appColors.textDim,
+                    color: AppColors.textDim,
                   ),
                 ),
               ],
@@ -520,10 +519,7 @@ class MockExamScreen extends StatelessWidget {
                 ),
                 TextSpan(
                   text: '%',
-                  style: TextStyle(
-                    color: context.appColors.textDim,
-                    fontSize: 11,
-                  ),
+                  style: TextStyle(color: AppColors.textDim, fontSize: 11),
                 ),
               ],
             ),

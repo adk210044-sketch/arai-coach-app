@@ -4,7 +4,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../theme/tokens.dart';
-import '../theme/app_colors_ext.dart';
 import '../state/app_state.dart';
 import '../models/badge.dart';
 import '../widgets/badge_detail_dialog.dart';
@@ -20,16 +19,16 @@ class AllBadgesScreen extends StatelessWidget {
     final grouped = appState.badgesByCategory;
 
     return Scaffold(
-      backgroundColor: context.appColors.surfaceSoft,
+      backgroundColor: AppColors.bgSoft,
       appBar: AppBar(
-        backgroundColor: context.appColors.surfaceSoft,
+        backgroundColor: AppColors.bgSoft,
         elevation: 0,
         title: Text(
           '実績バッジ一覧',
           style: TextStyle(
             fontSize: AppFontSize.xl,
             fontWeight: FontWeight.w700,
-            color: context.appColors.text,
+            color: AppColors.text,
           ),
         ),
       ),
@@ -119,7 +118,7 @@ class _CategorySection extends StatelessWidget {
                 '$unlockedCount/${badges.length}',
                 style: TextStyle(
                   fontSize: AppFontSize.sm,
-                  color: context.appColors.textDim,
+                  color: AppColors.textDim,
                 ),
               ),
             ],
@@ -157,7 +156,7 @@ class _CategorySection extends StatelessWidget {
                     decoration: BoxDecoration(
                       color: b.unlocked
                           ? AppColors.primaryFaint
-                          : context.appColors.surfaceSoft,
+                          : AppColors.bgSoft,
                       borderRadius: BorderRadius.circular(14),
                     ),
                     alignment: Alignment.center,
@@ -179,8 +178,8 @@ class _CategorySection extends StatelessWidget {
                             fontSize: 9,
                             fontWeight: FontWeight.w600,
                             color: b.unlocked
-                                ? context.appColors.text
-                                : context.appColors.textMute,
+                                ? AppColors.text
+                                : AppColors.textMute,
                           ),
                         ),
                         if (!b.unlocked)
@@ -191,7 +190,7 @@ class _CategorySection extends StatelessWidget {
                               style: TextStyle(
                                 fontSize: 9,
                                 fontWeight: FontWeight.w700,
-                                color: context.appColors.textMute,
+                                color: AppColors.textMute,
                               ),
                             ),
                           ),

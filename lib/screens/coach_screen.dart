@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../theme/tokens.dart';
-import '../theme/app_colors_ext.dart';
 import '../state/app_state.dart';
 import '../models/chat_message.dart';
 import '../data/sample_data.dart';
@@ -147,9 +146,7 @@ class _CoachScreenState extends State<CoachScreen> {
             padding: const EdgeInsets.fromLTRB(18, 10, 18, 14),
             decoration: BoxDecoration(
               color: Colors.white,
-              border: Border(
-                bottom: BorderSide(color: context.appColors.borderSoft),
-              ),
+              border: Border(bottom: BorderSide(color: AppColors.borderSoft)),
             ),
             child: Row(
               children: [
@@ -385,9 +382,7 @@ class _CoachScreenState extends State<CoachScreen> {
                             Text(
                               m.text,
                               style: TextStyle(
-                                color: isUser
-                                    ? Colors.white
-                                    : context.appColors.text,
+                                color: isUser ? Colors.white : AppColors.text,
                                 fontSize: AppFontSize.md,
                                 height: 1.7,
                               ),
@@ -408,9 +403,7 @@ class _CoachScreenState extends State<CoachScreen> {
             padding: const EdgeInsets.fromLTRB(14, 10, 14, 14),
             decoration: BoxDecoration(
               color: Colors.white,
-              border: Border(
-                top: BorderSide(color: context.appColors.borderSoft),
-              ),
+              border: Border(top: BorderSide(color: AppColors.borderSoft)),
             ),
             child: Row(
               children: [
@@ -421,7 +414,7 @@ class _CoachScreenState extends State<CoachScreen> {
                       vertical: 4,
                     ),
                     decoration: BoxDecoration(
-                      color: context.appColors.surfaceSoft,
+                      color: AppColors.bgSoft,
                       borderRadius: BorderRadius.circular(22),
                     ),
                     child: TextField(
@@ -430,7 +423,7 @@ class _CoachScreenState extends State<CoachScreen> {
                       decoration: InputDecoration(
                         hintText: 'コーチに質問…',
                         hintStyle: TextStyle(
-                          color: context.appColors.textMute,
+                          color: AppColors.textMute,
                           fontSize: AppFontSize.md,
                         ),
                         border: InputBorder.none,

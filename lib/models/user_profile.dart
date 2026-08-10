@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'plan.dart';
 
 enum ExamType { type1, type2 }
@@ -11,34 +10,6 @@ extension TextSizeOptionX on TextSizeOption {
 
   /// アプリ全体のテキストスケール倍率。
   double get scaleFactor => this == TextSizeOption.large ? 1.18 : 1.0;
-}
-
-/// ダークモード設定(自動/オン/オフの3段階)。
-enum DarkModeOption { auto, on, off }
-
-extension DarkModeOptionX on DarkModeOption {
-  String get label {
-    switch (this) {
-      case DarkModeOption.auto:
-        return '自動';
-      case DarkModeOption.on:
-        return 'オン';
-      case DarkModeOption.off:
-        return 'オフ';
-    }
-  }
-
-  /// MaterialAppに渡す実際のThemeMode。
-  ThemeMode get themeMode {
-    switch (this) {
-      case DarkModeOption.auto:
-        return ThemeMode.system;
-      case DarkModeOption.on:
-        return ThemeMode.dark;
-      case DarkModeOption.off:
-        return ThemeMode.light;
-    }
-  }
 }
 
 class UserProfile {
@@ -55,7 +26,6 @@ class UserProfile {
   final bool notificationsEnabled;
   final String reminderTime; // "HH:mm"
   final TextSizeOption textSizeOption;
-  final DarkModeOption darkModeOption;
   final bool onboardingDemoDone; // オンボーディング内デモ問題を体験済みか
 
   // ─── 料金プラン(価格モデル) ──────────────────────
@@ -78,7 +48,6 @@ class UserProfile {
     this.notificationsEnabled = true,
     this.reminderTime = '21:00',
     this.textSizeOption = TextSizeOption.standard,
-    this.darkModeOption = DarkModeOption.auto,
     this.onboardingDemoDone = false,
     this.planTier = PlanTier.free,
     this.planExpiresAt,
@@ -131,7 +100,6 @@ class UserProfile {
     bool? notificationsEnabled,
     String? reminderTime,
     TextSizeOption? textSizeOption,
-    DarkModeOption? darkModeOption,
     bool? onboardingDemoDone,
     PlanTier? planTier,
     DateTime? planExpiresAt,
@@ -153,7 +121,6 @@ class UserProfile {
       notificationsEnabled: notificationsEnabled ?? this.notificationsEnabled,
       reminderTime: reminderTime ?? this.reminderTime,
       textSizeOption: textSizeOption ?? this.textSizeOption,
-      darkModeOption: darkModeOption ?? this.darkModeOption,
       onboardingDemoDone: onboardingDemoDone ?? this.onboardingDemoDone,
       planTier: planTier ?? this.planTier,
       planExpiresAt: clearPlanExpiresAt
@@ -178,7 +145,6 @@ class UserProfile {
     'notificationsEnabled': notificationsEnabled,
     'reminderTime': reminderTime,
     'textSizeOption': textSizeOption.name,
-    'darkModeOption': darkModeOption.name,
     'onboardingDemoDone': onboardingDemoDone,
     'planTier': planTier.name,
     'planExpiresAt': planExpiresAt?.toIso8601String(),
@@ -207,9 +173,6 @@ class UserProfile {
       textSizeOption: (json['textSizeOption'] as String?) == 'large'
           ? TextSizeOption.large
           : TextSizeOption.standard,
-      darkModeOption: _darkModeOptionFromName(
-        json['darkModeOption'] as String?,
-      ),
       onboardingDemoDone: json['onboardingDemoDone'] as bool? ?? false,
       planTier: _planTierFromName(json['planTier'] as String?),
       planExpiresAt: json['planExpiresAt'] != null
@@ -218,17 +181,6 @@ class UserProfile {
       trialUsed: json['trialUsed'] as bool? ?? false,
       planIsTrial: json['planIsTrial'] as bool? ?? false,
     );
-  }
-
-  static DarkModeOption _darkModeOptionFromName(String? name) {
-    switch (name) {
-      case 'on':
-        return DarkModeOption.on;
-      case 'off':
-        return DarkModeOption.off;
-      default:
-        return DarkModeOption.auto;
-    }
   }
 
   static PlanTier _planTierFromName(String? name) {
