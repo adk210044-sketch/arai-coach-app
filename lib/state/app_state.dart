@@ -387,7 +387,10 @@ class AppState extends ChangeNotifier {
   /// 設定されていればそれを使用し、無ければ通常課金に自動フォールバックする。
   /// ストアが利用できない環境ではfalseを返すので、呼び出し元は[selectPlan]で
   /// モック挙動にフォールバックすること。
-  Future<bool> startStorePurchase(PlanTier tier, {bool withTrial = false}) async {
+  Future<bool> startStorePurchase(
+    PlanTier tier, {
+    bool withTrial = false,
+  }) async {
     final product = tier.purchasableProduct;
     if (product == null || !_purchaseService.isAvailable) return false;
     await _purchaseService.buy(product, withTrial: withTrial);
@@ -563,11 +566,7 @@ class AppState extends ChangeNotifier {
           log['answeredAt'] as String? ?? '',
         );
         if (answeredAt == null) continue;
-        final day = DateTime(
-          answeredAt.year,
-          answeredAt.month,
-          answeredAt.day,
-        );
+        final day = DateTime(answeredAt.year, answeredAt.month, answeredAt.day);
         if (day.isBefore(weekStart) ||
             day.isAfter(weekEnd.add(const Duration(days: 1)))) {
           continue;

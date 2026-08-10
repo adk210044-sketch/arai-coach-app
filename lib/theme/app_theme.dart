@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'tokens.dart';
+import 'app_colors_ext.dart';
 
 class AppTheme {
   AppTheme._();
@@ -54,6 +55,7 @@ class AppTheme {
           ),
         ),
       ),
+      extensions: const [AppSemanticColors.light],
     );
   }
 
@@ -109,6 +111,7 @@ class AppTheme {
           ),
         ),
       ),
+      extensions: const [AppSemanticColors.dark],
     );
   }
 }

@@ -4,6 +4,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../theme/tokens.dart';
+import '../theme/app_colors_ext.dart';
 import '../services/gemini_service.dart';
 import '../state/app_state.dart';
 import '../widgets/coach_bubble.dart';
@@ -65,9 +66,9 @@ class _CoachAiSettingsScreenState extends State<CoachAiSettingsScreen> {
   Future<void> _testConnection() async {
     final key = _controller.text.trim();
     if (key.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('先にAPIキーを入力してね')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('先にAPIキーを入力してね')));
       return;
     }
     // 入力中のキーで即テストできるよう、テスト前に保存しておく
@@ -89,7 +90,8 @@ class _CoachAiSettingsScreenState extends State<CoachAiSettingsScreen> {
       resultDetail = '$reply\n\n---\n送信したキー: $keyInfo';
     } catch (e) {
       resultTitle = '接続に失敗したよ';
-      resultDetail = '$e\n\n---\n送信したキー: $keyInfo\n'
+      resultDetail =
+          '$e\n\n---\n送信したキー: $keyInfo\n'
           '(Google AI Studioで表示されているキーと、上の文字数・先頭6文字/末尾4文字が一致しているか確認してね)';
     }
     if (!mounted) return;
@@ -117,16 +119,16 @@ class _CoachAiSettingsScreenState extends State<CoachAiSettingsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.bgSoft,
+      backgroundColor: context.appColors.surfaceSoft,
       appBar: AppBar(
-        backgroundColor: AppColors.bgSoft,
+        backgroundColor: context.appColors.surfaceSoft,
         elevation: 0,
-        title: const Text(
+        title: Text(
           'あらいコーチのAI連携',
           style: TextStyle(
             fontSize: AppFontSize.xl,
             fontWeight: FontWeight.w700,
-            color: AppColors.text,
+            color: context.appColors.text,
           ),
         ),
       ),
@@ -158,9 +160,9 @@ class _CoachAiSettingsScreenState extends State<CoachAiSettingsScreen> {
                                   _saved
                                       ? '今、僕はGeminiと連携して自由に質問に答えられる状態だよ。'
                                       : 'APIキーを登録すると、僕がもっと自由に、君専用の相談相手になれるよ。',
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     fontSize: AppFontSize.base,
-                                    color: AppColors.textDim,
+                                    color: context.appColors.textDim,
                                     height: 1.6,
                                   ),
                                 ),
@@ -255,7 +257,7 @@ class _CoachAiSettingsScreenState extends State<CoachAiSettingsScreen> {
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(AppRadius.md),
-                        border: Border.all(color: AppColors.border),
+                        border: Border.all(color: context.appColors.border),
                       ),
                       child: TextField(
                         controller: _controller,
@@ -268,7 +270,7 @@ class _CoachAiSettingsScreenState extends State<CoachAiSettingsScreen> {
                               _obscure
                                   ? Icons.visibility_outlined
                                   : Icons.visibility_off_outlined,
-                              color: AppColors.textMute,
+                              color: context.appColors.textMute,
                               size: 20,
                             ),
                             onPressed: () =>
@@ -278,11 +280,11 @@ class _CoachAiSettingsScreenState extends State<CoachAiSettingsScreen> {
                       ),
                     ),
                     const SizedBox(height: 10),
-                    const Text(
+                    Text(
                       'キーはこの端末内(ローカル)にのみ保存され、外部には送信されないよ(Gemini API呼び出し時のみ利用)。',
                       style: TextStyle(
                         fontSize: 11,
-                        color: AppColors.textMute,
+                        color: context.appColors.textMute,
                         height: 1.5,
                       ),
                     ),
@@ -326,18 +328,20 @@ class _CoachAiSettingsScreenState extends State<CoachAiSettingsScreen> {
                             ? const SizedBox(
                                 width: 16,
                                 height: 16,
-                                child: CircularProgressIndicator(strokeWidth: 2),
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                ),
                               )
                             : const Icon(Icons.wifi_tethering, size: 18),
                         label: Text(_testing ? '確認中...' : '接続テストをする'),
                       ),
                     ),
                     const SizedBox(height: 6),
-                    const Text(
+                    Text(
                       '「いい質問だね〜」のような定型文しか返ってこない場合は、ここで接続テストをするとエラー内容(キーが無効/権限不足など)を確認できるよ。',
                       style: TextStyle(
                         fontSize: 11,
-                        color: AppColors.textMute,
+                        color: context.appColors.textMute,
                         height: 1.5,
                       ),
                     ),
@@ -363,7 +367,8 @@ class _CoachAiSettingsScreenState extends State<CoachAiSettingsScreen> {
                           SizedBox(height: 8),
                           _ApiKeyStep(
                             number: '1',
-                            text: 'Google AI Studio\n(aistudio.google.com/apikey)にアクセス',
+                            text:
+                                'Google AI Studio\n(aistudio.google.com/apikey)にアクセス',
                           ),
                           SizedBox(height: 6),
                           _ApiKeyStep(number: '2', text: 'Googleアカウントでログイン'),
@@ -413,9 +418,9 @@ class _CoachAiSettingsScreenState extends State<CoachAiSettingsScreen> {
                 const SizedBox(height: 2),
                 Text(
                   desc,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: AppFontSize.sm,
-                    color: AppColors.textDim,
+                    color: context.appColors.textDim,
                     height: 1.5,
                   ),
                 ),
@@ -463,9 +468,9 @@ class _ApiKeyStep extends StatelessWidget {
         Expanded(
           child: Text(
             text,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: AppFontSize.sm,
-              color: AppColors.textDim,
+              color: context.appColors.textDim,
               height: 1.5,
             ),
           ),

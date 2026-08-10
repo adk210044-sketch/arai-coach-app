@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../theme/tokens.dart';
+import '../theme/app_colors_ext.dart';
 import '../state/app_state.dart';
 import '../models/user_profile.dart';
 import '../models/question.dart';
@@ -66,7 +67,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.bg,
+      backgroundColor: context.appColors.surface,
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.fromLTRB(22, 20, 22, 24),
@@ -79,7 +80,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     IconButton(
                       onPressed: _back,
                       icon: const Icon(Icons.arrow_back_ios_new, size: 18),
-                      color: AppColors.textDim,
+                      color: context.appColors.textDim,
                     ),
                   Expanded(
                     child: Row(
@@ -91,7 +92,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                             decoration: BoxDecoration(
                               color: i <= _step
                                   ? AppColors.primary
-                                  : AppColors.borderSoft,
+                                  : context.appColors.borderSoft,
                               borderRadius: BorderRadius.circular(
                                 AppRadius.pill,
                               ),
@@ -148,19 +149,19 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         const SizedBox(height: 8),
         Text(
           title,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: AppFontSize.xxxxl,
             fontWeight: FontWeight.w700,
             height: 1.4,
-            color: AppColors.text,
+            color: context.appColors.text,
           ),
         ),
         const SizedBox(height: 6),
         Text(
           desc,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: AppFontSize.md,
-            color: AppColors.textDim,
+            color: context.appColors.textDim,
             height: 1.7,
           ),
         ),
@@ -239,14 +240,14 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             ),
           ),
           const SizedBox(height: 8),
-          const Text(
+          Text(
             '合格まで、僕が全力で寄り添うよ!\n一緒に頑張ろうね。',
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: AppFontSize.lg,
               fontWeight: FontWeight.w600,
               height: 1.6,
-              color: AppColors.text,
+              color: context.appColors.text,
             ),
           ),
         ],
@@ -289,7 +290,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         decoration: BoxDecoration(
           color: selected ? AppColors.primary : Colors.white,
           border: Border.all(
-            color: selected ? AppColors.primary : AppColors.border,
+            color: selected ? AppColors.primary : context.appColors.border,
             width: 1.5,
           ),
           borderRadius: BorderRadius.circular(AppRadius.md),
@@ -303,7 +304,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               style: TextStyle(
                 fontSize: AppFontSize.xxl,
                 fontWeight: FontWeight.w700,
-                color: selected ? Colors.white : AppColors.text,
+                color: selected ? Colors.white : context.appColors.text,
               ),
             ),
             const SizedBox(height: 6),
@@ -313,7 +314,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 fontSize: AppFontSize.base,
                 color: selected
                     ? Colors.white.withValues(alpha: 0.85)
-                    : AppColors.textDim,
+                    : context.appColors.textDim,
               ),
             ),
           ],
@@ -343,7 +344,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         Container(
           padding: const EdgeInsets.all(18),
           decoration: BoxDecoration(
-            color: AppColors.bgSoft,
+            color: context.appColors.surfaceSoft,
             borderRadius: BorderRadius.circular(AppRadius.md),
           ),
           child: InkWell(
@@ -359,11 +360,11 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
+                Text(
                   '試験日',
                   style: TextStyle(
                     fontSize: AppFontSize.sm,
-                    color: AppColors.textDim,
+                    color: context.appColors.textDim,
                   ),
                 ),
                 const SizedBox(height: 6),
@@ -378,9 +379,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 const SizedBox(height: 4),
                 Text(
                   '${weekdayNames[_examDate.weekday - 1]}曜日',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: AppFontSize.md,
-                    color: AppColors.textDim,
+                    color: context.appColors.textDim,
                   ),
                 ),
               ],
@@ -404,7 +405,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     decoration: BoxDecoration(
                       color: active ? AppColors.primary : Colors.white,
                       border: Border.all(
-                        color: active ? AppColors.primary : AppColors.border,
+                        color: active
+                            ? AppColors.primary
+                            : context.appColors.border,
                         width: 1.5,
                       ),
                       borderRadius: BorderRadius.circular(AppRadius.sm),
@@ -414,7 +417,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                       style: TextStyle(
                         fontSize: AppFontSize.base,
                         fontWeight: FontWeight.w600,
-                        color: active ? Colors.white : AppColors.text,
+                        color: active ? Colors.white : context.appColors.text,
                       ),
                     ),
                   ),
@@ -442,10 +445,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 Expanded(
                   child: RichText(
                     text: TextSpan(
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: AppFontSize.base,
                         height: 1.7,
-                        color: AppColors.text,
+                        color: context.appColors.text,
                       ),
                       children: [
                         TextSpan(text: '残り'),
@@ -487,7 +490,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         Container(
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
-            color: AppColors.bgSoft,
+            color: context.appColors.surfaceSoft,
             borderRadius: BorderRadius.circular(AppRadius.md),
           ),
           child: Column(
@@ -503,7 +506,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               SliderTheme(
                 data: SliderTheme.of(context).copyWith(
                   activeTrackColor: AppColors.primary,
-                  inactiveTrackColor: AppColors.borderSoft,
+                  inactiveTrackColor: context.appColors.borderSoft,
                   thumbColor: AppColors.primary,
                 ),
                 child: Slider(
@@ -514,21 +517,21 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   onChanged: (v) => setState(() => _goalMinutes = v),
                 ),
               ),
-              const Row(
+              Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
                     '5分',
                     style: TextStyle(
                       fontSize: AppFontSize.sm,
-                      color: AppColors.textMute,
+                      color: context.appColors.textMute,
                     ),
                   ),
                   Text(
                     '60分',
                     style: TextStyle(
                       fontSize: AppFontSize.sm,
-                      color: AppColors.textMute,
+                      color: context.appColors.textMute,
                     ),
                   ),
                 ],
@@ -567,9 +570,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             children: [
               Text(
                 '${q.number} · ${q.year}',
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: AppFontSize.xs,
-                  color: AppColors.textDim,
+                  color: context.appColors.textDim,
                   letterSpacing: 1,
                 ),
               ),
@@ -589,10 +592,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     padding: const EdgeInsets.only(bottom: 6),
                     child: Text(
                       it,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: AppFontSize.md,
                         height: 1.6,
-                        color: AppColors.textDim,
+                        color: context.appColors.textDim,
                       ),
                     ),
                   ),
@@ -642,11 +645,11 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           ),
         ] else ...[
           const SizedBox(height: 8),
-          const Text(
+          Text(
             '選択肢をタップして答えてみてね。',
             style: TextStyle(
               fontSize: AppFontSize.sm,
-              color: AppColors.textMute,
+              color: context.appColors.textMute,
             ),
           ),
         ],
@@ -677,7 +680,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
           decoration: BoxDecoration(
             color: Colors.white,
-            border: Border.all(color: AppColors.border),
+            border: Border.all(color: context.appColors.border),
             borderRadius: BorderRadius.circular(AppRadius.md),
           ),
           child: Row(
@@ -715,11 +718,11 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
+                Text(
                   '通知プレビュー',
                   style: TextStyle(
                     fontSize: AppFontSize.sm,
-                    color: AppColors.textDim,
+                    color: context.appColors.textDim,
                     fontWeight: FontWeight.w600,
                   ),
                 ),

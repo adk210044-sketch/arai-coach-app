@@ -3,6 +3,7 @@
 
 import 'package:flutter/material.dart';
 import '../theme/tokens.dart';
+import '../theme/app_colors_ext.dart';
 import '../data/reference_tables.dart';
 
 class ReferenceTableCard extends StatelessWidget {
@@ -40,10 +41,10 @@ class ReferenceTableCard extends StatelessWidget {
               Expanded(
                 child: Text(
                   table.title,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: AppFontSize.lg,
                     fontWeight: FontWeight.w700,
-                    color: AppColors.text,
+                    color: context.appColors.text,
                   ),
                 ),
               ),
@@ -55,26 +56,26 @@ class ReferenceTableCard extends StatelessWidget {
               padding: const EdgeInsets.only(left: 34),
               child: Text(
                 table.note!,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: AppFontSize.sm,
-                  color: AppColors.textMute,
+                  color: context.appColors.textMute,
                 ),
               ),
             ),
           ],
           const SizedBox(height: 12),
-          _buildTable(),
+          _buildTable(context),
         ],
       ),
     );
   }
 
-  Widget _buildTable() {
+  Widget _buildTable(BuildContext context) {
     return ClipRRect(
       borderRadius: BorderRadius.circular(AppRadius.sm),
       child: Table(
         border: TableBorder.all(
-          color: AppColors.border,
+          color: context.appColors.border,
           width: 1,
           borderRadius: BorderRadius.circular(AppRadius.sm),
         ),
@@ -105,7 +106,7 @@ class ReferenceTableCard extends StatelessWidget {
           for (int i = 0; i < table.rows.length; i++)
             TableRow(
               decoration: BoxDecoration(
-                color: i.isEven ? Colors.white : AppColors.bgSoft,
+                color: i.isEven ? Colors.white : context.appColors.surfaceSoft,
               ),
               children: [
                 for (final cell in table.rows[i])
@@ -116,9 +117,9 @@ class ReferenceTableCard extends StatelessWidget {
                     ),
                     child: Text(
                       cell,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: AppFontSize.md,
-                        color: AppColors.text,
+                        color: context.appColors.text,
                         height: 1.4,
                       ),
                     ),

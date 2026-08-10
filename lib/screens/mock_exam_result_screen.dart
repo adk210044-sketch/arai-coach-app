@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../theme/tokens.dart';
+import '../theme/app_colors_ext.dart';
 import '../models/question.dart';
 import '../widgets/app_button.dart';
 import '../widgets/coach_bubble.dart';
@@ -31,7 +32,7 @@ class MockExamResultScreen extends StatelessWidget {
         : (passed ? CoachMood.correct : CoachMood.incorrect);
 
     return Scaffold(
-      backgroundColor: AppColors.bgSoft,
+      backgroundColor: context.appColors.surfaceSoft,
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.fromLTRB(24, 40, 24, 24),
@@ -60,9 +61,9 @@ class MockExamResultScreen extends StatelessWidget {
               const SizedBox(height: 8),
               Text(
                 '$score / $total問正解 ($pct%)',
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: AppFontSize.lg,
-                  color: AppColors.textDim,
+                  color: context.appColors.textDim,
                 ),
               ),
               const SizedBox(height: 30),
@@ -79,9 +80,9 @@ class MockExamResultScreen extends StatelessWidget {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const Text(
+                        Text(
                           '合格ライン',
-                          style: TextStyle(color: AppColors.textDim),
+                          style: TextStyle(color: context.appColors.textDim),
                         ),
                         Text(
                           '$passingScore問以上',
@@ -93,9 +94,9 @@ class MockExamResultScreen extends StatelessWidget {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const Text(
+                        Text(
                           'あなたの得点',
-                          style: TextStyle(color: AppColors.textDim),
+                          style: TextStyle(color: context.appColors.textDim),
                         ),
                         Text(
                           '$score問',

@@ -5,6 +5,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../theme/tokens.dart';
+import '../theme/app_colors_ext.dart';
 import '../state/app_state.dart';
 import '../models/question.dart';
 import '../widgets/app_chip.dart';
@@ -20,16 +21,16 @@ class BookmarkedQuestionsScreen extends StatelessWidget {
     final questions = appState.bookmarkedQuestions;
 
     return Scaffold(
-      backgroundColor: AppColors.bgSoft,
+      backgroundColor: context.appColors.surfaceSoft,
       appBar: AppBar(
-        backgroundColor: AppColors.bgSoft,
+        backgroundColor: context.appColors.surfaceSoft,
         elevation: 0,
         title: Text(
           '保存した問題 (${questions.length})',
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: AppFontSize.xl,
             fontWeight: FontWeight.w700,
-            color: AppColors.text,
+            color: context.appColors.text,
           ),
         ),
       ),
@@ -56,21 +57,21 @@ class BookmarkedQuestionsScreen extends StatelessWidget {
           children: [
             const Text('📌', style: TextStyle(fontSize: 48)),
             const SizedBox(height: 14),
-            const Text(
+            Text(
               'まだ保存した問題がないよ',
               style: TextStyle(
                 fontSize: AppFontSize.lg,
                 fontWeight: FontWeight.w700,
-                color: AppColors.text,
+                color: context.appColors.text,
               ),
             ),
             const SizedBox(height: 6),
-            const Text(
+            Text(
               '正解・不正解の画面で「📌 保存する」を押すと、\nあとで見返したい問題をここにまとめておけるよ',
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: AppFontSize.md,
-                color: AppColors.textDim,
+                color: context.appColors.textDim,
                 height: 1.6,
               ),
             ),
@@ -80,17 +81,13 @@ class BookmarkedQuestionsScreen extends StatelessWidget {
     );
   }
 
-  Widget _questionCard(
-    BuildContext context,
-    AppState appState,
-    Question q,
-  ) {
+  Widget _questionCard(BuildContext context, AppState appState, Question q) {
     return GestureDetector(
       onTap: () {
         appState.startSingleQuestionSession(q);
-        Navigator.of(context).push(
-          MaterialPageRoute(builder: (_) => const QuestionScreen()),
-        );
+        Navigator.of(
+          context,
+        ).push(MaterialPageRoute(builder: (_) => const QuestionScreen()));
       },
       child: Container(
         padding: const EdgeInsets.all(16),
@@ -112,8 +109,8 @@ class BookmarkedQuestionsScreen extends StatelessWidget {
                 const SizedBox(width: 6),
                 AppChip(
                   label: q.format == QuestionFormat.ox ? '◯×問題' : '五肢択一',
-                  bg: AppColors.neutralSoft,
-                  fg: AppColors.neutralFg,
+                  bg: context.appColors.neutralSoft,
+                  fg: context.appColors.neutralFg,
                 ),
                 const Spacer(),
                 GestureDetector(
@@ -131,10 +128,10 @@ class BookmarkedQuestionsScreen extends StatelessWidget {
               q.text,
               maxLines: 3,
               overflow: TextOverflow.ellipsis,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: AppFontSize.md,
                 height: 1.6,
-                color: AppColors.text,
+                color: context.appColors.text,
               ),
             ),
             const SizedBox(height: 8),
@@ -142,9 +139,9 @@ class BookmarkedQuestionsScreen extends StatelessWidget {
               children: [
                 Text(
                   '${q.number} · ${q.year}',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: AppFontSize.xs,
-                    color: AppColors.textMute,
+                    color: context.appColors.textMute,
                   ),
                 ),
                 const Spacer(),

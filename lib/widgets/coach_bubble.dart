@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../theme/tokens.dart';
+import '../theme/app_colors_ext.dart';
 
 /// あらいコーチの表情バリエーション
 enum CoachMood {
@@ -119,10 +120,10 @@ class CoachBubble extends StatelessWidget {
               const SizedBox(height: 4),
               Text(
                 message,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 13.5,
                   height: 1.7,
-                  color: AppColors.text,
+                  color: context.appColors.text,
                 ),
               ),
               if (trailing != null) ...[const SizedBox(height: 8), trailing!],

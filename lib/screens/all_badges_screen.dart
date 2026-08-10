@@ -4,6 +4,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../theme/tokens.dart';
+import '../theme/app_colors_ext.dart';
 import '../state/app_state.dart';
 import '../models/badge.dart';
 import '../widgets/badge_detail_dialog.dart';
@@ -19,16 +20,16 @@ class AllBadgesScreen extends StatelessWidget {
     final grouped = appState.badgesByCategory;
 
     return Scaffold(
-      backgroundColor: AppColors.bgSoft,
+      backgroundColor: context.appColors.surfaceSoft,
       appBar: AppBar(
-        backgroundColor: AppColors.bgSoft,
+        backgroundColor: context.appColors.surfaceSoft,
         elevation: 0,
-        title: const Text(
+        title: Text(
           '実績バッジ一覧',
           style: TextStyle(
             fontSize: AppFontSize.xl,
             fontWeight: FontWeight.w700,
-            color: AppColors.text,
+            color: context.appColors.text,
           ),
         ),
       ),
@@ -116,9 +117,9 @@ class _CategorySection extends StatelessWidget {
               const SizedBox(width: 8),
               Text(
                 '$unlockedCount/${badges.length}',
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: AppFontSize.sm,
-                  color: AppColors.textDim,
+                  color: context.appColors.textDim,
                 ),
               ),
             ],
@@ -142,7 +143,7 @@ class _CategorySection extends StatelessWidget {
               ),
               itemCount: badges.length,
               itemBuilder: (context, i) {
-                  final b = badges[i];
+                final b = badges[i];
                 return GestureDetector(
                   onTap: () => showDialog(
                     context: context,
@@ -156,7 +157,7 @@ class _CategorySection extends StatelessWidget {
                     decoration: BoxDecoration(
                       color: b.unlocked
                           ? AppColors.primaryFaint
-                          : AppColors.bgSoft,
+                          : context.appColors.surfaceSoft,
                       borderRadius: BorderRadius.circular(14),
                     ),
                     alignment: Alignment.center,
@@ -178,19 +179,19 @@ class _CategorySection extends StatelessWidget {
                             fontSize: 9,
                             fontWeight: FontWeight.w600,
                             color: b.unlocked
-                                ? AppColors.text
-                                : AppColors.textMute,
+                                ? context.appColors.text
+                                : context.appColors.textMute,
                           ),
                         ),
                         if (!b.unlocked)
-                          const Padding(
+                          Padding(
                             padding: EdgeInsets.only(top: 2),
                             child: Text(
                               '未達成',
                               style: TextStyle(
                                 fontSize: 9,
                                 fontWeight: FontWeight.w700,
-                                color: AppColors.textMute,
+                                color: context.appColors.textMute,
                               ),
                             ),
                           ),

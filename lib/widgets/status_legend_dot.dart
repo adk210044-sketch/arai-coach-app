@@ -4,6 +4,7 @@
 // 参照することで、表記・見た目を統一する。
 import 'package:flutter/material.dart';
 import '../theme/tokens.dart';
+import '../theme/app_colors_ext.dart';
 
 class StatusLegendDot extends StatelessWidget {
   final Color color;
@@ -24,9 +25,9 @@ class StatusLegendDot extends StatelessWidget {
         const SizedBox(width: 4),
         Text(
           label,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: AppFontSize.xs,
-            color: AppColors.textDim,
+            color: context.appColors.textDim,
           ),
         ),
       ],

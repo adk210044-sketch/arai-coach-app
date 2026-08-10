@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../theme/tokens.dart';
+import '../theme/app_colors_ext.dart';
 import '../state/app_state.dart';
 import '../data/sample_data.dart';
 import '../widgets/badge_detail_dialog.dart';
@@ -168,7 +169,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                                   child: Container(
                                     decoration: BoxDecoration(
                                       color: v == 0
-                                          ? AppColors.borderSoft
+                                          ? context.appColors.borderSoft
                                           : null,
                                       gradient: v == 0
                                           ? null
@@ -187,9 +188,9 @@ class _CalendarScreenState extends State<CalendarScreen> {
                                 const SizedBox(height: 4),
                                 Text(
                                   '${i + 11 > 24 ? i + 11 - 14 : i + 11}',
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     fontSize: 9,
-                                    color: AppColors.textMute,
+                                    color: context.appColors.textMute,
                                   ),
                                 ),
                               ],
@@ -257,9 +258,9 @@ class _CalendarScreenState extends State<CalendarScreen> {
                             child: Center(
                               child: Text(
                                 d,
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontSize: 11,
-                                  color: AppColors.textMute,
+                                  color: context.appColors.textMute,
                                   fontWeight: FontWeight.w600,
                                 ),
                               ),
@@ -295,9 +296,9 @@ class _CalendarScreenState extends State<CalendarScreen> {
                           date.month == today.month &&
                           date.day == today.day;
                       Color bg;
-                      Color fg = AppColors.text;
+                      Color fg = context.appColors.text;
                       if (activity == 0) {
-                        bg = AppColors.bgSoft;
+                        bg = context.appColors.surfaceSoft;
                       } else if (activity < 10) {
                         bg = const Color(0xFFDBEAFE);
                       } else if (activity < 20) {
@@ -331,16 +332,16 @@ class _CalendarScreenState extends State<CalendarScreen> {
                   const SizedBox(height: 14),
                   Row(
                     children: [
-                      const Text(
+                      Text(
                         '少ない',
                         style: TextStyle(
                           fontSize: 10,
-                          color: AppColors.textDim,
+                          color: context.appColors.textDim,
                         ),
                       ),
                       const SizedBox(width: 6),
                       ...[
-                        AppColors.bgSoft,
+                        context.appColors.surfaceSoft,
                         const Color(0xFFDBEAFE),
                         const Color(0xFF93C5FD),
                         AppColors.primary,
@@ -356,11 +357,11 @@ class _CalendarScreenState extends State<CalendarScreen> {
                         ),
                       ),
                       const SizedBox(width: 6),
-                      const Text(
+                      Text(
                         '多い',
                         style: TextStyle(
                           fontSize: 10,
-                          color: AppColors.textDim,
+                          color: context.appColors.textDim,
                         ),
                       ),
                     ],
@@ -426,7 +427,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                       decoration: BoxDecoration(
                         color: b.unlocked
                             ? AppColors.primaryFaint
-                            : AppColors.bgSoft,
+                            : context.appColors.surfaceSoft,
                         borderRadius: BorderRadius.circular(14),
                       ),
                       alignment: Alignment.center,
@@ -451,14 +452,14 @@ class _CalendarScreenState extends State<CalendarScreen> {
                             overflow: TextOverflow.ellipsis,
                           ),
                           if (!b.unlocked)
-                            const Padding(
+                            Padding(
                               padding: EdgeInsets.only(top: 2),
                               child: Text(
                                 '未達成',
                                 style: TextStyle(
                                   fontSize: 9,
                                   fontWeight: FontWeight.w700,
-                                  color: AppColors.textMute,
+                                  color: context.appColors.textMute,
                                 ),
                               ),
                             ),
@@ -482,11 +483,11 @@ class _CalendarScreenState extends State<CalendarScreen> {
         width: 28,
         height: 28,
         decoration: BoxDecoration(
-          color: AppColors.bgSoft,
+          color: context.appColors.surfaceSoft,
           borderRadius: BorderRadius.circular(8),
         ),
         alignment: Alignment.center,
-        child: Icon(icon, size: 18, color: AppColors.textDim),
+        child: Icon(icon, size: 18, color: context.appColors.textDim),
       ),
     );
   }

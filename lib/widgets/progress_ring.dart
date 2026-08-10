@@ -1,13 +1,14 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import '../theme/tokens.dart';
+import '../theme/app_colors_ext.dart';
 
 class ProgressRing extends StatelessWidget {
   final double pct; // 0-100
   final double size;
   final double stroke;
   final Color color;
-  final Color trackColor;
+  final Color? trackColor;
   final Widget? child;
 
   const ProgressRing({
@@ -16,12 +17,13 @@ class ProgressRing extends StatelessWidget {
     this.size = 110,
     this.stroke = 11,
     this.color = AppColors.primary,
-    this.trackColor = AppColors.borderSoft,
+    this.trackColor,
     this.child,
   });
 
   @override
   Widget build(BuildContext context) {
+    final resolvedTrackColor = trackColor ?? context.appColors.borderSoft;
     return TweenAnimationBuilder<double>(
       tween: Tween(begin: 0, end: pct),
       duration: const Duration(milliseconds: 500),
@@ -39,7 +41,7 @@ class ProgressRing extends StatelessWidget {
                   pct: value,
                   stroke: stroke,
                   color: color,
-                  trackColor: trackColor,
+                  trackColor: resolvedTrackColor,
                 ),
               ),
               if (child != null) child!,

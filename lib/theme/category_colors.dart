@@ -30,6 +30,5 @@ class CategoryColors {
     Color(0xFF64748B),
   );
 
-  static CategoryColor of(String categoryKey) =>
-      _map[categoryKey] ?? _fallback;
+  static CategoryColor of(String categoryKey) => _map[categoryKey] ?? _fallback;
 }

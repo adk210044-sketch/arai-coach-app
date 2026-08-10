@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../theme/tokens.dart';
+import '../theme/app_colors_ext.dart';
 import '../state/app_state.dart';
 import '../models/question.dart';
 import '../data/question_repository.dart';
@@ -45,10 +46,7 @@ class _MockExamSessionScreenState extends State<MockExamSessionScreen> {
       final repo = QuestionRepository.instance;
       final ids = List<String>.from(resume['questionIds'] as List);
       final byId = {for (final q in repo.all) q.id: q};
-      _questions = ids
-          .map((id) => byId[id])
-          .whereType<Question>()
-          .toList();
+      _questions = ids.map((id) => byId[id]).whereType<Question>().toList();
       final savedAnswers = (resume['answers'] as List)
           .map((e) => e as int?)
           .toList();
@@ -166,7 +164,7 @@ class _MockExamSessionScreenState extends State<MockExamSessionScreen> {
     final q = _questions[_currentIndex];
 
     return Scaffold(
-      backgroundColor: AppColors.bgSoft,
+      backgroundColor: context.appColors.surfaceSoft,
       body: SafeArea(
         child: Column(
           children: [
@@ -180,13 +178,13 @@ class _MockExamSessionScreenState extends State<MockExamSessionScreen> {
                 children: [
                   IconButton(
                     onPressed: () => _confirmExit(),
-                    icon: const Icon(Icons.close, color: AppColors.textDim),
+                    icon: Icon(Icons.close, color: context.appColors.textDim),
                   ),
                   const Spacer(),
                   Icon(
                     Icons.timer_outlined,
                     size: 18,
-                    color: _isUrgent ? AppColors.ng : AppColors.textDim,
+                    color: _isUrgent ? AppColors.ng : context.appColors.textDim,
                   ),
                   const SizedBox(width: 6),
                   Text(
@@ -196,7 +194,9 @@ class _MockExamSessionScreenState extends State<MockExamSessionScreen> {
                       fontWeight: FontWeight.w700,
                       color: _isUrgent
                           ? AppColors.ng
-                          : (_isWarning ? AppColors.accent : AppColors.text),
+                          : (_isWarning
+                                ? AppColors.accent
+                                : context.appColors.text),
                       fontFeatures: const [FontFeature.tabularFigures()],
                     ),
                   ),
@@ -253,9 +253,9 @@ class _MockExamSessionScreenState extends State<MockExamSessionScreen> {
                       const Spacer(),
                       Text(
                         '${_currentIndex + 1}/${_questions.length}問 · いつでも再開可',
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 11,
-                          color: AppColors.textDim,
+                          color: context.appColors.textDim,
                         ),
                       ),
                     ],
@@ -283,9 +283,9 @@ class _MockExamSessionScreenState extends State<MockExamSessionScreen> {
                         children: [
                           Text(
                             '${q.number} · ${q.year}',
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 10,
-                              color: AppColors.textDim,
+                              color: context.appColors.textDim,
                             ),
                           ),
                           const SizedBox(height: 8),
@@ -304,9 +304,9 @@ class _MockExamSessionScreenState extends State<MockExamSessionScreen> {
                                 padding: const EdgeInsets.only(bottom: 5),
                                 child: Text(
                                   it,
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     fontSize: AppFontSize.md,
-                                    color: AppColors.textDim,
+                                    color: context.appColors.textDim,
                                     height: 1.5,
                                   ),
                                 ),
@@ -338,9 +338,11 @@ class _MockExamSessionScreenState extends State<MockExamSessionScreen> {
             // Question navigator
             Container(
               padding: const EdgeInsets.symmetric(vertical: 10),
-              decoration: const BoxDecoration(
+              decoration: BoxDecoration(
                 color: Colors.white,
-                border: Border(top: BorderSide(color: AppColors.borderSoft)),
+                border: Border(
+                  top: BorderSide(color: context.appColors.borderSoft),
+                ),
               ),
               child: SizedBox(
                 height: 50,
@@ -364,11 +366,11 @@ class _MockExamSessionScreenState extends State<MockExamSessionScreen> {
                               ? AppColors.primary
                               : (answered
                                     ? AppColors.primarySoft
-                                    : AppColors.bgSoft),
+                                    : context.appColors.surfaceSoft),
                           borderRadius: BorderRadius.circular(10),
                           border: active
                               ? null
-                              : Border.all(color: AppColors.border),
+                              : Border.all(color: context.appColors.border),
                         ),
                         alignment: Alignment.center,
                         child: Text(
@@ -378,7 +380,7 @@ class _MockExamSessionScreenState extends State<MockExamSessionScreen> {
                                 ? Colors.white
                                 : (answered
                                       ? AppColors.primary
-                                      : AppColors.textDim),
+                                      : context.appColors.textDim),
                             fontWeight: FontWeight.w700,
                             fontSize: 13,
                           ),
@@ -418,7 +420,10 @@ class _MockExamSessionScreenState extends State<MockExamSessionScreen> {
             },
             child: const Text(
               '保存して中断する',
-              style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.w700),
+              style: TextStyle(
+                color: AppColors.primary,
+                fontWeight: FontWeight.w700,
+              ),
             ),
           ),
         ],

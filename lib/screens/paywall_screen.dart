@@ -5,6 +5,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../theme/tokens.dart';
+import '../theme/app_colors_ext.dart';
 import '../state/app_state.dart';
 import '../models/plan.dart';
 import '../models/user_profile.dart';
@@ -62,9 +63,9 @@ class _PaywallScreenState extends State<PaywallScreen> {
         final error = appState.purchaseErrorMessage;
         appState.clearPurchaseMessages();
         if (success != null) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(success)),
-          );
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(success)));
         } else if (error != null) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text(error), backgroundColor: AppColors.ng),
@@ -74,16 +75,16 @@ class _PaywallScreenState extends State<PaywallScreen> {
     }
 
     return Scaffold(
-      backgroundColor: AppColors.bgSoft,
+      backgroundColor: context.appColors.surfaceSoft,
       appBar: AppBar(
-        backgroundColor: AppColors.bgSoft,
+        backgroundColor: context.appColors.surfaceSoft,
         elevation: 0,
-        title: const Text(
+        title: Text(
           'プラン管理',
           style: TextStyle(
             fontSize: AppFontSize.xl,
             fontWeight: FontWeight.w700,
-            color: AppColors.text,
+            color: context.appColors.text,
           ),
         ),
       ),
@@ -123,11 +124,11 @@ class _PaywallScreenState extends State<PaywallScreen> {
                 ),
               ),
               const SizedBox(height: 2),
-              const Text(
+              Text(
                 'プランの違いが一目でわかるよ',
                 style: TextStyle(
                   fontSize: AppFontSize.sm,
-                  color: AppColors.textDim,
+                  color: context.appColors.textDim,
                 ),
               ),
               const SizedBox(height: 10),
@@ -158,10 +159,10 @@ class _PaywallScreenState extends State<PaywallScreen> {
                   onPressed: () async {
                     await appState.restoreStorePurchases();
                   },
-                  child: const Text(
+                  child: Text(
                     '購入を復元する',
                     style: TextStyle(
-                      color: AppColors.textDim,
+                      color: context.appColors.textDim,
                       fontSize: AppFontSize.sm,
                     ),
                   ),
@@ -173,10 +174,10 @@ class _PaywallScreenState extends State<PaywallScreen> {
                 Center(
                   child: TextButton(
                     onPressed: () => _confirmCancel(context, appState),
-                    child: const Text(
+                    child: Text(
                       'プランを解約する(フリープランに戻す)',
                       style: TextStyle(
-                        color: AppColors.textDim,
+                        color: context.appColors.textDim,
                         fontSize: AppFontSize.base,
                       ),
                     ),
@@ -290,7 +291,7 @@ class _PaywallScreenState extends State<PaywallScreen> {
                           fontWeight: FontWeight.w800,
                           letterSpacing: 0.3,
                           color: t == PlanTier.free
-                              ? AppColors.textMute
+                              ? context.appColors.textMute
                               : AppColors.primary,
                         ),
                       ),
@@ -301,9 +302,9 @@ class _PaywallScreenState extends State<PaywallScreen> {
                             : t == PlanTier.premium
                             ? '¥1,200/月'
                             : '¥2,600/3M',
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 9.5,
-                          color: AppColors.textMute,
+                          color: context.appColors.textMute,
                         ),
                       ),
                     ],
@@ -312,7 +313,7 @@ class _PaywallScreenState extends State<PaywallScreen> {
             ],
           ),
           const SizedBox(height: 10),
-          Divider(color: AppColors.borderSoft, height: 1),
+          Divider(color: context.appColors.borderSoft, height: 1),
           for (final row in _featureMatrix) _featureRow(row, tiers),
         ],
       ),
@@ -340,10 +341,10 @@ class _PaywallScreenState extends State<PaywallScreen> {
             flex: 3,
             child: Text(
               row.label,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: AppFontSize.sm,
                 fontWeight: FontWeight.w600,
-                color: AppColors.text,
+                color: context.appColors.text,
               ),
             ),
           ),
@@ -370,7 +371,7 @@ class _PaywallScreenState extends State<PaywallScreen> {
         break;
       case FeatureLevel.none:
         icon = Icons.close;
-        color = AppColors.textMute;
+        color = context.appColors.textMute;
         break;
     }
 
@@ -383,9 +384,9 @@ class _PaywallScreenState extends State<PaywallScreen> {
           Text(
             valueText,
             textAlign: TextAlign.center,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 9,
-              color: AppColors.textDim,
+              color: context.appColors.textDim,
               height: 1.2,
             ),
           ),
@@ -409,7 +410,7 @@ class _PaywallScreenState extends State<PaywallScreen> {
           color: Colors.white,
           borderRadius: BorderRadius.circular(AppRadius.lg),
           border: Border.all(
-            color: selected ? AppColors.primary : AppColors.border,
+            color: selected ? AppColors.primary : context.appColors.border,
             width: selected ? 2 : 1,
           ),
           boxShadow: selected ? AppShadow.cardHover : AppShadow.card,
@@ -477,7 +478,9 @@ class _PaywallScreenState extends State<PaywallScreen> {
                     selected
                         ? Icons.radio_button_checked
                         : Icons.radio_button_unchecked,
-                    color: selected ? AppColors.primary : AppColors.textMute,
+                    color: selected
+                        ? AppColors.primary
+                        : context.appColors.textMute,
                   ),
               ],
             ),
@@ -495,8 +498,8 @@ class _PaywallScreenState extends State<PaywallScreen> {
                   ),
                   TextSpan(
                     text: info.periodLabel,
-                    style: const TextStyle(
-                      color: AppColors.textDim,
+                    style: TextStyle(
+                      color: context.appColors.textDim,
                       fontSize: AppFontSize.base,
                     ),
                   ),
@@ -506,9 +509,9 @@ class _PaywallScreenState extends State<PaywallScreen> {
             const SizedBox(height: 2),
             Text(
               info.subtitle,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: AppFontSize.sm,
-                color: AppColors.textDim,
+                color: context.appColors.textDim,
               ),
             ),
             if (info.hasFreeTrial) ...[
@@ -545,16 +548,16 @@ class _PaywallScreenState extends State<PaywallScreen> {
                           : Icons.check_circle,
                       size: 14,
                       color: tier == PlanTier.free
-                          ? AppColors.textMute
+                          ? context.appColors.textMute
                           : AppColors.ok,
                     ),
                     const SizedBox(width: 6),
                     Expanded(
                       child: Text(
                         f,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: AppFontSize.sm,
-                          color: AppColors.textDim,
+                          color: context.appColors.textDim,
                           height: 1.4,
                         ),
                       ),
@@ -672,11 +675,11 @@ class _PaywallScreenState extends State<PaywallScreen> {
                   ),
                 ),
                 const SizedBox(height: 4),
-                const Text(
+                Text(
                   '7日間は無料。期間終了後、選んだプランで自動的に始まるよ。',
                   style: TextStyle(
                     fontSize: AppFontSize.sm,
-                    color: AppColors.textDim,
+                    color: context.appColors.textDim,
                   ),
                 ),
                 const SizedBox(height: 16),
@@ -706,7 +709,7 @@ class _PaywallScreenState extends State<PaywallScreen> {
       child: Container(
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
-          border: Border.all(color: AppColors.border),
+          border: Border.all(color: context.appColors.border),
           borderRadius: BorderRadius.circular(AppRadius.lg),
         ),
         child: Row(
@@ -733,9 +736,7 @@ class _PaywallScreenState extends State<PaywallScreen> {
                           ),
                           decoration: BoxDecoration(
                             color: AppColors.accent.withValues(alpha: 0.15),
-                            borderRadius: BorderRadius.circular(
-                              AppRadius.pill,
-                            ),
+                            borderRadius: BorderRadius.circular(AppRadius.pill),
                           ),
                           child: Text(
                             info.badge!,
@@ -752,15 +753,15 @@ class _PaywallScreenState extends State<PaywallScreen> {
                   const SizedBox(height: 2),
                   Text(
                     'トライアル終了後 ${info.priceLabel}${info.periodLabel}',
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: AppFontSize.sm,
-                      color: AppColors.textDim,
+                      color: context.appColors.textDim,
                     ),
                   ),
                 ],
               ),
             ),
-            const Icon(Icons.chevron_right, color: AppColors.textMute),
+            Icon(Icons.chevron_right, color: context.appColors.textMute),
           ],
         ),
       ),
@@ -782,14 +783,14 @@ class _PaywallScreenState extends State<PaywallScreen> {
             '7日間は無料で全機能を使えるよ。期間が終わると自動的に${info.label}'
             '(${info.priceLabel}${info.periodLabel})に切り替わって課金が始まるから、\n'
             '不要な場合は期間内にPlayストアの定期購入管理画面から解約してね。',
-            style: const TextStyle(color: AppColors.textDim, height: 1.6),
+            style: TextStyle(color: context.appColors.textDim, height: 1.6),
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(ctx).pop(),
-              child: const Text(
+              child: Text(
                 'キャンセル',
-                style: TextStyle(color: AppColors.textDim),
+                style: TextStyle(color: context.appColors.textDim),
               ),
             ),
             TextButton(
@@ -804,9 +805,7 @@ class _PaywallScreenState extends State<PaywallScreen> {
                   if (context.mounted) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
-                        content: Text(
-                          '無料トライアルを開始したよ!(プレビュー環境のため決済はモックだよ)',
-                        ),
+                        content: Text('無料トライアルを開始したよ!(プレビュー環境のため決済はモックだよ)'),
                       ),
                     );
                   }
@@ -854,7 +853,7 @@ class _PaywallScreenState extends State<PaywallScreen> {
             : () => _confirmSelect(context, appState),
         style: ElevatedButton.styleFrom(
           backgroundColor: AppColors.primary,
-          disabledBackgroundColor: AppColors.border,
+          disabledBackgroundColor: context.appColors.border,
           foregroundColor: Colors.white,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(AppRadius.pill),
@@ -890,25 +889,25 @@ class _PaywallScreenState extends State<PaywallScreen> {
         builder: (ctx) {
           return AlertDialog(
             title: const Text('フリープランに切り替えますか?'),
-            content: const Text(
+            content: Text(
               '有料プランを解約して、フリープラン(同じ過去問50問を繰り返し利用)に戻るよ。学習の記録はそのまま残るから安心してね。',
-              style: TextStyle(color: AppColors.textDim, height: 1.6),
+              style: TextStyle(color: context.appColors.textDim, height: 1.6),
             ),
             actions: [
               TextButton(
                 onPressed: () => Navigator.of(ctx).pop(),
-                child: const Text(
+                child: Text(
                   'キャンセル',
-                  style: TextStyle(color: AppColors.textDim),
+                  style: TextStyle(color: context.appColors.textDim),
                 ),
               ),
               TextButton(
                 onPressed: () {
                   appState.cancelPlan();
                   Navigator.of(ctx).pop();
-                  ScaffoldMessenger.of(
-                    context,
-                  ).showSnackBar(const SnackBar(content: Text('フリープランに切り替えたよ')));
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('フリープランに切り替えたよ')),
+                  );
                 },
                 child: const Text(
                   '切り替える',
@@ -949,14 +948,14 @@ class _PaywallScreenState extends State<PaywallScreen> {
           title: Text('${info.label}に申し込むよ'),
           content: Text(
             dialogMessage,
-            style: const TextStyle(color: AppColors.textDim, height: 1.6),
+            style: TextStyle(color: context.appColors.textDim, height: 1.6),
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(ctx).pop(),
-              child: const Text(
+              child: Text(
                 'キャンセル',
-                style: TextStyle(color: AppColors.textDim),
+                style: TextStyle(color: context.appColors.textDim),
               ),
             ),
             TextButton(
@@ -999,16 +998,16 @@ class _PaywallScreenState extends State<PaywallScreen> {
       builder: (ctx) {
         return AlertDialog(
           title: const Text('プランを解約しますか?'),
-          content: const Text(
+          content: Text(
             '解約すると、フリープラン(同じ過去問50問を繰り返し利用)に戻るよ。学習の記録はそのまま残るから安心してね。',
-            style: TextStyle(color: AppColors.textDim, height: 1.6),
+            style: TextStyle(color: context.appColors.textDim, height: 1.6),
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(ctx).pop(),
-              child: const Text(
+              child: Text(
                 'キャンセル',
-                style: TextStyle(color: AppColors.textDim),
+                style: TextStyle(color: context.appColors.textDim),
               ),
             ),
             TextButton(

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../theme/tokens.dart';
+import '../theme/app_colors_ext.dart';
 import '../state/app_state.dart';
 import '../models/user_profile.dart';
 import 'mock_exam_session_screen.dart';
@@ -28,9 +29,7 @@ class MockExamScreen extends StatelessWidget {
         context: context,
         builder: (ctx) => AlertDialog(
           title: const Text('進行中の模試があります'),
-          content: const Text(
-            '新しく始めると、保存されている進行状況は削除されます。よろしいですか?',
-          ),
+          content: const Text('新しく始めると、保存されている進行状況は削除されます。よろしいですか?'),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(ctx),
@@ -49,7 +48,10 @@ class MockExamScreen extends StatelessWidget {
               },
               child: const Text(
                 '新しく始める',
-                style: TextStyle(color: AppColors.ng, fontWeight: FontWeight.w700),
+                style: TextStyle(
+                  color: AppColors.ng,
+                  fontWeight: FontWeight.w700,
+                ),
               ),
             ),
           ],
@@ -57,7 +59,11 @@ class MockExamScreen extends StatelessWidget {
       );
       return;
     }
-    _pushSession(context, questionCount: questionCount, durationSec: durationSec);
+    _pushSession(
+      context,
+      questionCount: questionCount,
+      durationSec: durationSec,
+    );
   }
 
   void _pushSession(
@@ -102,15 +108,15 @@ class MockExamScreen extends StatelessWidget {
     final fullQuestionCount = isType2 ? 30 : 44;
     final savedProgress = appState.savedMockExamProgress;
     return Scaffold(
-      backgroundColor: AppColors.bgSoft,
+      backgroundColor: context.appColors.surfaceSoft,
       appBar: AppBar(
-        backgroundColor: AppColors.bgSoft,
-        title: const Text(
+        backgroundColor: context.appColors.surfaceSoft,
+        title: Text(
           '模擬試験',
           style: TextStyle(
             fontSize: AppFontSize.xl,
             fontWeight: FontWeight.w700,
-            color: AppColors.text,
+            color: context.appColors.text,
           ),
         ),
       ),
@@ -120,11 +126,11 @@ class MockExamScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
+              Text(
                 '本番と同じ形式で実力チェック',
                 style: TextStyle(
                   fontSize: AppFontSize.base,
-                  color: AppColors.textDim,
+                  color: context.appColors.textDim,
                 ),
               ),
               const SizedBox(height: 18),
@@ -169,9 +175,9 @@ class MockExamScreen extends StatelessWidget {
                         '${(savedProgress['currentIndex'] as int? ?? 0) + 1}/'
                         '${savedProgress['questionCount']}問目まで回答済み'
                         ' · 残り${_fmtSec(savedProgress['remainingSec'] as int? ?? 0)}',
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: AppFontSize.sm,
-                          color: AppColors.textDim,
+                          color: context.appColors.textDim,
                         ),
                       ),
                       const SizedBox(height: 14),
@@ -309,7 +315,7 @@ class MockExamScreen extends StatelessWidget {
                   children: [
                     const Text('⚡', style: TextStyle(fontSize: 30)),
                     const SizedBox(width: 12),
-                    const Expanded(
+                    Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -325,7 +331,7 @@ class MockExamScreen extends StatelessWidget {
                             'スキマ時間で15分',
                             style: TextStyle(
                               fontSize: AppFontSize.sm,
-                              color: AppColors.textDim,
+                              color: context.appColors.textDim,
                             ),
                           ),
                         ],
@@ -375,6 +381,7 @@ class MockExamScreen extends StatelessWidget {
                 child: Column(
                   children: [
                     _historyRow(
+                      context,
                       '10月18日',
                       72,
                       'B',
@@ -382,6 +389,7 @@ class MockExamScreen extends StatelessWidget {
                       '合格圏まであと少し!',
                     ),
                     _historyRow(
+                      context,
                       '10月10日',
                       65,
                       'C',
@@ -389,6 +397,7 @@ class MockExamScreen extends StatelessWidget {
                       'コツコツ伸びてる',
                     ),
                     _historyRow(
+                      context,
                       '10月2日',
                       58,
                       'D',
@@ -439,6 +448,7 @@ class MockExamScreen extends StatelessWidget {
   }
 
   Widget _historyRow(
+    BuildContext context,
     String date,
     int score,
     String judge,
@@ -452,7 +462,7 @@ class MockExamScreen extends StatelessWidget {
         border: Border(
           bottom: isLast
               ? BorderSide.none
-              : const BorderSide(color: AppColors.borderSoft),
+              : BorderSide(color: context.appColors.borderSoft),
         ),
       ),
       child: Row(
@@ -489,9 +499,9 @@ class MockExamScreen extends StatelessWidget {
                 const SizedBox(height: 2),
                 Text(
                   msg,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: AppFontSize.sm,
-                    color: AppColors.textDim,
+                    color: context.appColors.textDim,
                   ),
                 ),
               ],
@@ -508,9 +518,12 @@ class MockExamScreen extends StatelessWidget {
                     fontWeight: FontWeight.w700,
                   ),
                 ),
-                const TextSpan(
+                TextSpan(
                   text: '%',
-                  style: TextStyle(color: AppColors.textDim, fontSize: 11),
+                  style: TextStyle(
+                    color: context.appColors.textDim,
+                    fontSize: 11,
+                  ),
                 ),
               ],
             ),

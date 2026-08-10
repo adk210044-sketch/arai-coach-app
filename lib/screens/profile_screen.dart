@@ -1,9 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../theme/tokens.dart';
+import '../theme/app_colors_ext.dart';
 import '../state/app_state.dart';
 import '../models/user_profile.dart'
-    show ExamType, TextSizeOption, TextSizeOptionX, DarkModeOption, DarkModeOptionX;
+    show
+        ExamType,
+        TextSizeOption,
+        TextSizeOptionX,
+        DarkModeOption,
+        DarkModeOptionX;
 import '../models/plan.dart';
 import '../services/notification_service.dart';
 import '../widgets/badge_detail_dialog.dart';
@@ -153,9 +159,7 @@ class ProfileScreen extends StatelessWidget {
                                   Icon(
                                     Icons.edit,
                                     size: 15,
-                                    color: Colors.white.withValues(
-                                      alpha: 0.85,
-                                    ),
+                                    color: Colors.white.withValues(alpha: 0.85),
                                   ),
                                 ],
                               ),
@@ -229,7 +233,7 @@ class ProfileScreen extends StatelessWidget {
                     children: [
                       const Text('💎', style: TextStyle(fontSize: 26)),
                       const SizedBox(width: 12),
-                      const Expanded(
+                      Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -245,7 +249,7 @@ class ProfileScreen extends StatelessWidget {
                               'プレミアム/集中パックにアップグレード',
                               style: TextStyle(
                                 fontSize: AppFontSize.sm,
-                                color: AppColors.textDim,
+                                color: context.appColors.textDim,
                               ),
                             ),
                           ],
@@ -271,9 +275,9 @@ class ProfileScreen extends StatelessWidget {
                 ),
                 Text(
                   '${appState.unlockedBadgeCount} / ${appState.totalBadgeCount} 個獲得',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: AppFontSize.sm,
-                    color: AppColors.textDim,
+                    color: context.appColors.textDim,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -314,7 +318,7 @@ class ProfileScreen extends StatelessWidget {
                           decoration: BoxDecoration(
                             color: b.unlocked
                                 ? AppColors.primaryFaint
-                                : AppColors.bgSoft,
+                                : context.appColors.surfaceSoft,
                             borderRadius: BorderRadius.circular(14),
                           ),
                           alignment: Alignment.center,
@@ -333,22 +337,22 @@ class ProfileScreen extends StatelessWidget {
                                   fontSize: 10,
                                   fontWeight: FontWeight.w600,
                                   color: b.unlocked
-                                      ? AppColors.text
-                                      : AppColors.textMute,
+                                      ? context.appColors.text
+                                      : context.appColors.textMute,
                                 ),
                                 textAlign: TextAlign.center,
                                 maxLines: 2,
                                 overflow: TextOverflow.ellipsis,
                               ),
                               if (!b.unlocked)
-                                const Padding(
+                                Padding(
                                   padding: EdgeInsets.only(top: 2),
                                   child: Text(
                                     '未達成',
                                     style: TextStyle(
                                       fontSize: 9,
                                       fontWeight: FontWeight.w700,
-                                      color: AppColors.textMute,
+                                      color: context.appColors.textMute,
                                     ),
                                   ),
                                 ),
@@ -368,15 +372,15 @@ class ProfileScreen extends StatelessWidget {
                         ),
                       ),
                       style: OutlinedButton.styleFrom(
-                        side: const BorderSide(color: AppColors.border),
+                        side: BorderSide(color: context.appColors.border),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(AppRadius.pill),
                         ),
                       ),
-                      child: const Text(
+                      child: Text(
                         'すべてのバッジを見る →',
                         style: TextStyle(
-                          color: AppColors.textDim,
+                          color: context.appColors.textDim,
                           fontSize: AppFontSize.base,
                         ),
                       ),
@@ -414,7 +418,7 @@ class ProfileScreen extends StatelessWidget {
                       decoration: BoxDecoration(
                         border: Border(
                           bottom: i < rows.length - 1
-                              ? const BorderSide(color: AppColors.borderSoft)
+                              ? BorderSide(color: context.appColors.borderSoft)
                               : BorderSide.none,
                         ),
                       ),
@@ -433,15 +437,15 @@ class ProfileScreen extends StatelessWidget {
                           ),
                           Text(
                             val,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: AppFontSize.base,
-                              color: AppColors.textDim,
+                              color: context.appColors.textDim,
                             ),
                           ),
                           const SizedBox(width: 4),
-                          const Icon(
+                          Icon(
                             Icons.chevron_right,
-                            color: AppColors.textMute,
+                            color: context.appColors.textMute,
                             size: 18,
                           ),
                         ],
@@ -477,18 +481,18 @@ class ProfileScreen extends StatelessWidget {
                 style: const TextStyle(fontWeight: FontWeight.w700),
               ),
               const SizedBox(height: 8),
-              const Text(
+              Text(
                 '第一種と第二種は出題範囲(有害業務の有無)が異なるよ。\n変更すると、これまでの学習履歴・正答率は該当する区分ごとに別々に保存されるから安心してね。',
-                style: TextStyle(color: AppColors.textDim, height: 1.6),
+                style: TextStyle(color: context.appColors.textDim, height: 1.6),
               ),
             ],
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(ctx).pop(),
-              child: const Text(
+              child: Text(
                 'キャンセル',
-                style: TextStyle(color: AppColors.textDim),
+                style: TextStyle(color: context.appColors.textDim),
               ),
             ),
             TextButton(
@@ -522,7 +526,9 @@ class ProfileScreen extends StatelessWidget {
 
   // 表示名の編集(デフォルトは「康一」だが自由に変更できる)。
   void _openDisplayNameSettings(BuildContext context, AppState appState) {
-    final controller = TextEditingController(text: appState.profile.displayName);
+    final controller = TextEditingController(
+      text: appState.profile.displayName,
+    );
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.white,
@@ -550,11 +556,11 @@ class ProfileScreen extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 4),
-                  const Text(
+                  Text(
                     'あらいコーチが呼びかける時のお名前だよ。',
                     style: TextStyle(
                       fontSize: AppFontSize.sm,
-                      color: AppColors.textDim,
+                      color: context.appColors.textDim,
                       height: 1.6,
                     ),
                   ),
@@ -566,7 +572,7 @@ class ProfileScreen extends StatelessWidget {
                     decoration: InputDecoration(
                       hintText: '名前を入力',
                       filled: true,
-                      fillColor: AppColors.bgSoft,
+                      fillColor: context.appColors.surfaceSoft,
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(AppRadius.md),
                         borderSide: BorderSide.none,
@@ -641,11 +647,11 @@ class ProfileScreen extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 4),
-                    const Text(
+                    Text(
                       'あらいコーチからの優しい一言だけを送るよ。数字や催促っぽい文言は送らないから安心してね。',
                       style: TextStyle(
                         fontSize: AppFontSize.sm,
-                        color: AppColors.textDim,
+                        color: context.appColors.textDim,
                         height: 1.6,
                       ),
                     ),
@@ -656,7 +662,7 @@ class ProfileScreen extends StatelessWidget {
                         vertical: 10,
                       ),
                       decoration: BoxDecoration(
-                        color: AppColors.bgSoft,
+                        color: context.appColors.surfaceSoft,
                         borderRadius: BorderRadius.circular(AppRadius.md),
                       ),
                       child: Row(
@@ -696,7 +702,7 @@ class ProfileScreen extends StatelessWidget {
                           vertical: 10,
                         ),
                         decoration: BoxDecoration(
-                          color: AppColors.bgSoft,
+                          color: context.appColors.surfaceSoft,
                           borderRadius: BorderRadius.circular(AppRadius.md),
                         ),
                         child: Row(
@@ -773,16 +779,16 @@ class ProfileScreen extends StatelessWidget {
                             }
                           },
                           style: OutlinedButton.styleFrom(
-                            side: const BorderSide(color: AppColors.border),
+                            side: BorderSide(color: context.appColors.border),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(
                                 AppRadius.pill,
                               ),
                             ),
                           ),
-                          child: const Text(
+                          child: Text(
                             'テスト通知を送る',
-                            style: TextStyle(color: AppColors.textDim),
+                            style: TextStyle(color: context.appColors.textDim),
                           ),
                         ),
                       ),
@@ -821,11 +827,11 @@ class ProfileScreen extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 4),
-                const Text(
+                Text(
                   '見やすいサイズに切り替えられるよ。アプリ全体に反映されるよ。',
                   style: TextStyle(
                     fontSize: AppFontSize.sm,
-                    color: AppColors.textDim,
+                    color: context.appColors.textDim,
                     height: 1.6,
                   ),
                 ),
@@ -846,11 +852,11 @@ class ProfileScreen extends StatelessWidget {
                       decoration: BoxDecoration(
                         color: selected
                             ? AppColors.primaryFaint
-                            : AppColors.bgSoft,
+                            : context.appColors.surfaceSoft,
                         border: Border.all(
                           color: selected
                               ? AppColors.primary
-                              : AppColors.border,
+                              : context.appColors.border,
                           width: selected ? 2 : 1,
                         ),
                         borderRadius: BorderRadius.circular(AppRadius.md),
@@ -866,7 +872,7 @@ class ProfileScreen extends StatelessWidget {
                               fontWeight: FontWeight.w700,
                               color: selected
                                   ? AppColors.primary
-                                  : AppColors.text,
+                                  : context.appColors.text,
                             ),
                           ),
                           const SizedBox(width: 12),
@@ -878,7 +884,7 @@ class ProfileScreen extends StatelessWidget {
                                 fontWeight: FontWeight.w600,
                                 color: selected
                                     ? AppColors.primary
-                                    : AppColors.text,
+                                    : context.appColors.text,
                               ),
                             ),
                           ),
@@ -888,7 +894,7 @@ class ProfileScreen extends StatelessWidget {
                                 : Icons.radio_button_unchecked,
                             color: selected
                                 ? AppColors.primary
-                                : AppColors.textMute,
+                                : context.appColors.textMute,
                           ),
                         ],
                       ),
@@ -928,11 +934,11 @@ class ProfileScreen extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 4),
-                const Text(
+                Text(
                   '1日に取り組む問題数の目標を選んでね。',
                   style: TextStyle(
                     fontSize: AppFontSize.sm,
-                    color: AppColors.textDim,
+                    color: context.appColors.textDim,
                     height: 1.6,
                   ),
                 ),
@@ -953,11 +959,11 @@ class ProfileScreen extends StatelessWidget {
                       decoration: BoxDecoration(
                         color: selected
                             ? AppColors.primaryFaint
-                            : AppColors.bgSoft,
+                            : context.appColors.surfaceSoft,
                         border: Border.all(
                           color: selected
                               ? AppColors.primary
-                              : AppColors.border,
+                              : context.appColors.border,
                           width: selected ? 2 : 1,
                         ),
                         borderRadius: BorderRadius.circular(AppRadius.md),
@@ -972,7 +978,7 @@ class ProfileScreen extends StatelessWidget {
                                 fontWeight: FontWeight.w600,
                                 color: selected
                                     ? AppColors.primary
-                                    : AppColors.text,
+                                    : context.appColors.text,
                               ),
                             ),
                           ),
@@ -982,7 +988,7 @@ class ProfileScreen extends StatelessWidget {
                                 : Icons.radio_button_unchecked,
                             color: selected
                                 ? AppColors.primary
-                                : AppColors.textMute,
+                                : context.appColors.textMute,
                           ),
                         ],
                       ),
@@ -1015,9 +1021,9 @@ class ProfileScreen extends StatelessWidget {
       builder: (ctx, child) {
         return Theme(
           data: Theme.of(ctx).copyWith(
-            colorScheme: Theme.of(ctx).colorScheme.copyWith(
-              primary: AppColors.primary,
-            ),
+            colorScheme: Theme.of(
+              ctx,
+            ).colorScheme.copyWith(primary: AppColors.primary),
           ),
           child: child!,
         );
@@ -1027,9 +1033,7 @@ class ProfileScreen extends StatelessWidget {
       appState.setExamDate(picked);
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('試験日を${picked.month}/${picked.day}に設定したよ'),
-          ),
+          SnackBar(content: Text('試験日を${picked.month}/${picked.day}に設定したよ')),
         );
       }
     }
@@ -1059,11 +1063,11 @@ class ProfileScreen extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 4),
-                const Text(
+                Text(
                   '自動にすると端末の設定に合わせて切り替わるよ。',
                   style: TextStyle(
                     fontSize: AppFontSize.sm,
-                    color: AppColors.textDim,
+                    color: context.appColors.textDim,
                     height: 1.6,
                   ),
                 ),
@@ -1084,11 +1088,11 @@ class ProfileScreen extends StatelessWidget {
                       decoration: BoxDecoration(
                         color: selected
                             ? AppColors.primaryFaint
-                            : AppColors.bgSoft,
+                            : context.appColors.surfaceSoft,
                         border: Border.all(
                           color: selected
                               ? AppColors.primary
-                              : AppColors.border,
+                              : context.appColors.border,
                           width: selected ? 2 : 1,
                         ),
                         borderRadius: BorderRadius.circular(AppRadius.md),
@@ -1099,11 +1103,11 @@ class ProfileScreen extends StatelessWidget {
                             option == DarkModeOption.auto
                                 ? Icons.brightness_auto
                                 : option == DarkModeOption.on
-                                    ? Icons.dark_mode
-                                    : Icons.light_mode,
+                                ? Icons.dark_mode
+                                : Icons.light_mode,
                             color: selected
                                 ? AppColors.primary
-                                : AppColors.textMute,
+                                : context.appColors.textMute,
                           ),
                           const SizedBox(width: 12),
                           Expanded(
@@ -1114,7 +1118,7 @@ class ProfileScreen extends StatelessWidget {
                                 fontWeight: FontWeight.w600,
                                 color: selected
                                     ? AppColors.primary
-                                    : AppColors.text,
+                                    : context.appColors.text,
                               ),
                             ),
                           ),
@@ -1124,7 +1128,7 @@ class ProfileScreen extends StatelessWidget {
                                 : Icons.radio_button_unchecked,
                             color: selected
                                 ? AppColors.primary
-                                : AppColors.textMute,
+                                : context.appColors.textMute,
                           ),
                         ],
                       ),

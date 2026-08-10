@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../theme/tokens.dart';
+import '../theme/app_colors_ext.dart';
 import '../state/app_state.dart';
 import '../widgets/coach_bubble.dart';
 import '../widgets/pass_probability_card.dart';
@@ -37,7 +38,7 @@ class HomeScreen extends StatelessWidget {
               children: [
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: const [
+                  children: [
                     Text(
                       'おかえりなさい 👋',
                       style: TextStyle(
@@ -50,7 +51,7 @@ class HomeScreen extends StatelessWidget {
                       '今日もコツコツやっていこう',
                       style: TextStyle(
                         fontSize: AppFontSize.md,
-                        color: AppColors.textDim,
+                        color: context.appColors.textDim,
                       ),
                     ),
                   ],
@@ -276,16 +277,16 @@ class HomeScreen extends StatelessWidget {
                                 children: [
                                   TextSpan(
                                     text: '${profile.streakDays}',
-                                    style: const TextStyle(
-                                      color: AppColors.text,
+                                    style: TextStyle(
+                                      color: context.appColors.text,
                                       fontSize: 22,
                                       fontWeight: FontWeight.w700,
                                     ),
                                   ),
-                                  const TextSpan(
+                                  TextSpan(
                                     text: '日連続',
                                     style: TextStyle(
-                                      color: AppColors.textDim,
+                                      color: context.appColors.textDim,
                                       fontSize: 12,
                                     ),
                                   ),
@@ -294,9 +295,9 @@ class HomeScreen extends StatelessWidget {
                             ),
                             Text(
                               '最長 ${profile.longestStreak}日',
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 10,
-                                color: AppColors.textDim,
+                                color: context.appColors.textDim,
                               ),
                             ),
                           ],
@@ -318,11 +319,11 @@ class HomeScreen extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
+                        Text(
                           '試験まで',
                           style: TextStyle(
                             fontSize: 10,
-                            color: AppColors.textDim,
+                            color: context.appColors.textDim,
                           ),
                         ),
                         RichText(
@@ -336,10 +337,10 @@ class HomeScreen extends StatelessWidget {
                                   fontWeight: FontWeight.w700,
                                 ),
                               ),
-                              const TextSpan(
+                              TextSpan(
                                 text: '日',
                                 style: TextStyle(
-                                  color: AppColors.textDim,
+                                  color: context.appColors.textDim,
                                   fontSize: 12,
                                 ),
                               ),
@@ -392,9 +393,10 @@ class HomeScreen extends StatelessWidget {
               onTap: () {
                 startQuizSession(
                   context,
-                  onStartNew: () => context
-                      .read<AppState>()
-                      .startSession(count: 3, isGapStudy: true),
+                  onStartNew: () => context.read<AppState>().startSession(
+                    count: 3,
+                    isGapStudy: true,
+                  ),
                 );
               },
             ),
@@ -466,19 +468,19 @@ class HomeScreen extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 2),
-                  const Text(
+                  Text(
                     '見返したい問題をあとでまとめて復習できるよ',
                     style: TextStyle(
                       fontSize: AppFontSize.sm,
-                      color: AppColors.textDim,
+                      color: context.appColors.textDim,
                     ),
                   ),
                 ],
               ),
             ),
-            const Icon(
+            Icon(
               Icons.chevron_right,
-              color: AppColors.textMute,
+              color: context.appColors.textMute,
               size: 24,
             ),
           ],
@@ -535,7 +537,9 @@ class HomeScreen extends StatelessWidget {
                     sub,
                     style: TextStyle(
                       fontSize: AppFontSize.sm,
-                      color: locked ? AppColors.accent : AppColors.textDim,
+                      color: locked
+                          ? AppColors.accent
+                          : context.appColors.textDim,
                       fontWeight: locked ? FontWeight.w600 : FontWeight.normal,
                     ),
                   ),
@@ -544,7 +548,7 @@ class HomeScreen extends StatelessWidget {
             ),
             Icon(
               locked ? Icons.lock_outline : Icons.chevron_right,
-              color: locked ? AppColors.accent : AppColors.textMute,
+              color: locked ? AppColors.accent : context.appColors.textMute,
               size: locked ? 18 : 24,
             ),
           ],

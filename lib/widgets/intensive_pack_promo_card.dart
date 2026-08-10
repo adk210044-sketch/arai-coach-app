@@ -4,6 +4,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../theme/tokens.dart';
+import '../theme/app_colors_ext.dart';
 import '../state/app_state.dart';
 import '../models/plan.dart';
 import '../screens/paywall_screen.dart';
@@ -73,12 +74,12 @@ class IntensivePackPromoCard extends StatelessWidget {
                           color: AppColors.yellow,
                           borderRadius: BorderRadius.circular(AppRadius.chip),
                         ),
-                        child: const Text(
+                        child: Text(
                           '7日間無料トライアル',
                           style: TextStyle(
                             fontSize: 10.5,
                             fontWeight: FontWeight.w800,
-                            color: AppColors.text,
+                            color: context.appColors.text,
                           ),
                         ),
                       ),

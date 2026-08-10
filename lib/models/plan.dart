@@ -64,13 +64,7 @@ const Map<PlanTier, PlanInfo> kPlanCatalog = {
     priceLabel: '¥0',
     periodLabel: '',
     subtitle: '同じ過去問50問を何度でも繰り返し演習できるよ',
-    features: [
-      '過去問 50問を繰り返し演習可能',
-      '一問一答機能',
-      '苦手復習機能',
-      'スキマ学習機能',
-      '広告が表示されるよ',
-    ],
+    features: ['過去問 50問を繰り返し演習可能', '一問一答機能', '苦手復習機能', 'スキマ学習機能', '広告が表示されるよ'],
   ),
   PlanTier.premium: PlanInfo(
     tier: PlanTier.premium,

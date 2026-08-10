@@ -207,7 +207,9 @@ class UserProfile {
       textSizeOption: (json['textSizeOption'] as String?) == 'large'
           ? TextSizeOption.large
           : TextSizeOption.standard,
-      darkModeOption: _darkModeOptionFromName(json['darkModeOption'] as String?),
+      darkModeOption: _darkModeOptionFromName(
+        json['darkModeOption'] as String?,
+      ),
       onboardingDemoDone: json['onboardingDemoDone'] as bool? ?? false,
       planTier: _planTierFromName(json['planTier'] as String?),
       planExpiresAt: json['planExpiresAt'] != null

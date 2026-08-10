@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../theme/tokens.dart';
+import '../theme/app_colors_ext.dart';
 import '../state/app_state.dart';
 import '../widgets/badge_detail_dialog.dart';
 import 'home_screen.dart';
@@ -62,12 +63,12 @@ class _MainTabScaffoldState extends State<MainTabScaffold> {
     final appState = context.watch<AppState>();
     _maybeShowBadgeCelebration(appState);
     return Scaffold(
-      backgroundColor: AppColors.bgSoft,
+      backgroundColor: context.appColors.surfaceSoft,
       body: IndexedStack(index: _index, children: _screens),
       bottomNavigationBar: Container(
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           color: Colors.white,
-          border: Border(top: BorderSide(color: AppColors.border)),
+          border: Border(top: BorderSide(color: context.appColors.border)),
         ),
         padding: const EdgeInsets.only(top: 10, bottom: 22),
         child: Row(

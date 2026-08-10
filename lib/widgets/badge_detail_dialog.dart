@@ -2,6 +2,7 @@
 // タップ時の詳細表示と、新規獲得時のお祝い表示の両方をこの1つのウィジェットで担う。
 import 'package:flutter/material.dart';
 import '../theme/tokens.dart';
+import '../theme/app_colors_ext.dart';
 import '../models/badge.dart';
 import 'badge_medal.dart';
 
@@ -43,11 +44,7 @@ class BadgeDetailDialog extends StatelessWidget {
               ),
               const SizedBox(height: 14),
             ],
-            BadgeMedal(
-              badgeId: badge.id,
-              unlocked: badge.unlocked,
-              size: 92,
-            ),
+            BadgeMedal(badgeId: badge.id, unlocked: badge.unlocked, size: 92),
             const SizedBox(height: 14),
             Row(
               mainAxisSize: MainAxisSize.min,
@@ -58,14 +55,14 @@ class BadgeDetailDialog extends StatelessWidget {
                     vertical: 3,
                   ),
                   decoration: BoxDecoration(
-                    color: AppColors.bgSoft,
+                    color: context.appColors.surfaceSoft,
                     borderRadius: BorderRadius.circular(AppRadius.pill),
                   ),
                   child: Text(
                     '${badge.category.emoji} ${badge.category.label}',
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: AppFontSize.sm,
-                      color: AppColors.textDim,
+                      color: context.appColors.textDim,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
@@ -91,9 +88,9 @@ class BadgeDetailDialog extends StatelessWidget {
             Text(
               badge.description,
               textAlign: TextAlign.center,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: AppFontSize.base,
-                color: AppColors.textDim,
+                color: context.appColors.textDim,
                 height: 1.6,
               ),
             ),
@@ -105,23 +102,23 @@ class BadgeDetailDialog extends StatelessWidget {
                   vertical: 6,
                 ),
                 decoration: BoxDecoration(
-                  color: AppColors.bgSoft,
+                  color: context.appColors.surfaceSoft,
                   borderRadius: BorderRadius.circular(AppRadius.pill),
                 ),
-                child: const Row(
+                child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Icon(
                       Icons.lock_outline,
                       size: 14,
-                      color: AppColors.textMute,
+                      color: context.appColors.textMute,
                     ),
                     SizedBox(width: 6),
                     Text(
                       '未獲得だよ、これから挑戦してみよう',
                       style: TextStyle(
                         fontSize: AppFontSize.sm,
-                        color: AppColors.textMute,
+                        color: context.appColors.textMute,
                       ),
                     ),
                   ],

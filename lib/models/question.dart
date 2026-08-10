@@ -48,8 +48,7 @@ class Question {
       number: number,
       text: patch['text'] as String? ?? text,
       items:
-          (patch['items'] as List?)?.map((e) => e.toString()).toList() ??
-          items,
+          (patch['items'] as List?)?.map((e) => e.toString()).toList() ?? items,
       choices:
           (patch['choices'] as List?)?.map((e) => e.toString()).toList() ??
           choices,

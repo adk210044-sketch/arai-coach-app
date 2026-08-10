@@ -341,8 +341,8 @@ class PurchaseService {
           final product = _productFromId(purchase.productID);
           if (product != null) {
             final isRestore = purchase.status == PurchaseStatus.restored;
-            final isTrial = !isRestore &&
-                (_pendingTrialFlag[purchase.productID] ?? false);
+            final isTrial =
+                !isRestore && (_pendingTrialFlag[purchase.productID] ?? false);
             onPurchaseCompleted?.call(
               PurchaseResultEvent(
                 product: product,

@@ -6,19 +6,23 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../state/app_state.dart';
 import '../theme/tokens.dart';
+import '../theme/app_colors_ext.dart';
 import '../screens/question_screen.dart';
 
 /// 演習を開始する共通処理。
 /// 保存済みの中断セッションがなければ即座に [onStartNew] を呼んで新規セッションを
 /// 開始する。保存済みセッションがある場合は確認ダイアログを表示し、
 /// 「続きから」なら保存内容を復元、「最初から」なら [onStartNew] で新規開始する。
-void startQuizSession(BuildContext context, {required VoidCallback onStartNew}) {
+void startQuizSession(
+  BuildContext context, {
+  required VoidCallback onStartNew,
+}) {
   final appState = context.read<AppState>();
 
   void pushQuestionScreen() {
-    Navigator.of(context).push(
-      MaterialPageRoute(builder: (_) => const QuestionScreen()),
-    );
+    Navigator.of(
+      context,
+    ).push(MaterialPageRoute(builder: (_) => const QuestionScreen()));
   }
 
   if (!appState.hasSavedQuizProgress) {
@@ -32,10 +36,10 @@ void startQuizSession(BuildContext context, {required VoidCallback onStartNew}) 
     builder: (ctx) {
       return AlertDialog(
         title: const Text('前回の続きがあるよ'),
-        content: const Text(
+        content: Text(
           '前回中断した演習が残っているよ。続きから再開する?\n'
           '「最初から」を選ぶと、前回の進行状況は削除されるよ。',
-          style: TextStyle(color: AppColors.textDim, height: 1.6),
+          style: TextStyle(color: context.appColors.textDim, height: 1.6),
         ),
         actions: [
           TextButton(
@@ -45,9 +49,9 @@ void startQuizSession(BuildContext context, {required VoidCallback onStartNew}) 
               onStartNew();
               pushQuestionScreen();
             },
-            child: const Text(
+            child: Text(
               '最初から',
-              style: TextStyle(color: AppColors.textDim),
+              style: TextStyle(color: context.appColors.textDim),
             ),
           ),
           TextButton(

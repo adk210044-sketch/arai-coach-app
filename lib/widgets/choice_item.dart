@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../theme/tokens.dart';
+import '../theme/app_colors_ext.dart';
 
 enum ChoiceState { normal, selected, correct, incorrect }
 
@@ -32,7 +33,7 @@ class _ChoiceItemState extends State<ChoiceItem> {
     switch (widget.state) {
       case ChoiceState.normal:
         bg = Colors.white;
-        border = AppColors.border;
+        border = context.appColors.border;
         break;
       case ChoiceState.selected:
         bg = AppColors.primarySoft;
@@ -84,9 +85,9 @@ class _ChoiceItemState extends State<ChoiceItem> {
                 Expanded(
                   child: Text(
                     widget.label,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: AppFontSize.lg,
-                      color: AppColors.text,
+                      color: context.appColors.text,
                       fontWeight: FontWeight.w500,
                     ),
                   ),

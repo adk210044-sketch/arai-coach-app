@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../theme/tokens.dart';
+import '../theme/app_colors_ext.dart';
 import '../models/question.dart';
 import '../widgets/choice_item.dart';
 import '../widgets/app_chip.dart';
@@ -43,15 +44,15 @@ class _MockExamReviewScreenState extends State<MockExamReviewScreen> {
     }).toList();
 
     return Scaffold(
-      backgroundColor: AppColors.bgSoft,
+      backgroundColor: context.appColors.surfaceSoft,
       appBar: AppBar(
-        backgroundColor: AppColors.bgSoft,
-        title: const Text(
+        backgroundColor: context.appColors.surfaceSoft,
+        title: Text(
           '解答を確認',
           style: TextStyle(
             fontSize: AppFontSize.xl,
             fontWeight: FontWeight.w700,
-            color: AppColors.text,
+            color: context.appColors.text,
           ),
         ),
       ),
@@ -91,10 +92,10 @@ class _MockExamReviewScreenState extends State<MockExamReviewScreen> {
             const SizedBox(height: 4),
             Expanded(
               child: visibleIndexes.isEmpty
-                  ? const Center(
+                  ? Center(
                       child: Text(
                         '該当する問題はありません',
-                        style: TextStyle(color: AppColors.textDim),
+                        style: TextStyle(color: context.appColors.textDim),
                       ),
                     )
                   : ListView.builder(
@@ -134,9 +135,9 @@ class _MockExamReviewScreenState extends State<MockExamReviewScreen> {
           const SizedBox(height: 2),
           Text(
             label,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: AppFontSize.sm,
-              color: AppColors.textDim,
+              color: context.appColors.textDim,
             ),
           ),
         ],
@@ -154,7 +155,7 @@ class _MockExamReviewScreenState extends State<MockExamReviewScreen> {
           color: active ? AppColors.primary : Colors.white,
           borderRadius: BorderRadius.circular(AppRadius.pill),
           border: Border.all(
-            color: active ? AppColors.primary : AppColors.border,
+            color: active ? AppColors.primary : context.appColors.border,
           ),
         ),
         child: Text(
@@ -162,7 +163,7 @@ class _MockExamReviewScreenState extends State<MockExamReviewScreen> {
           style: TextStyle(
             fontSize: AppFontSize.sm,
             fontWeight: FontWeight.w600,
-            color: active ? Colors.white : AppColors.textDim,
+            color: active ? Colors.white : context.appColors.textDim,
           ),
         ),
       ),
@@ -212,10 +213,10 @@ class _MockExamReviewScreenState extends State<MockExamReviewScreen> {
               const SizedBox(width: 8),
               Text(
                 '第${i + 1}問',
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: AppFontSize.sm,
                   fontWeight: FontWeight.w700,
-                  color: AppColors.textDim,
+                  color: context.appColors.textDim,
                 ),
               ),
               const Spacer(),
@@ -242,9 +243,9 @@ class _MockExamReviewScreenState extends State<MockExamReviewScreen> {
                 padding: const EdgeInsets.only(bottom: 4),
                 child: Text(
                   it,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: AppFontSize.sm,
-                    color: AppColors.textDim,
+                    color: context.appColors.textDim,
                     height: 1.5,
                   ),
                 ),
@@ -268,14 +269,14 @@ class _MockExamReviewScreenState extends State<MockExamReviewScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
               margin: const EdgeInsets.only(bottom: 8),
               decoration: BoxDecoration(
-                color: AppColors.bgSoft,
+                color: context.appColors.surfaceSoft,
                 borderRadius: BorderRadius.circular(AppRadius.chip),
               ),
-              child: const Text(
+              child: Text(
                 '未回答でした',
                 style: TextStyle(
                   fontSize: AppFontSize.sm,
-                  color: AppColors.textDim,
+                  color: context.appColors.textDim,
                   fontWeight: FontWeight.w600,
                 ),
               ),
@@ -310,10 +311,10 @@ class _MockExamReviewScreenState extends State<MockExamReviewScreen> {
                   q.aiExplanation.isNotEmpty
                       ? q.aiExplanation
                       : q.officialExplanation,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: AppFontSize.sm,
                     height: 1.7,
-                    color: AppColors.text,
+                    color: context.appColors.text,
                   ),
                 ),
               ],

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../theme/tokens.dart';
+import '../theme/app_colors_ext.dart';
 
 enum AppButtonVariant { primary, primaryLarge, secondary, ghost }
 
@@ -79,8 +80,8 @@ class _AppButtonState extends State<AppButton>
     }
 
     if (isDisabled) {
-      bg = AppColors.border;
-      fg = AppColors.textMute;
+      bg = context.appColors.border;
+      fg = context.appColors.textMute;
     }
 
     return GestureDetector(
