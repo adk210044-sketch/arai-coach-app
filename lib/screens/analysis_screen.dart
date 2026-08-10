@@ -279,6 +279,20 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
                 ),
               ],
             ),
+            const SizedBox(height: 4),
+            const Wrap(
+              spacing: 10,
+              runSpacing: 2,
+              children: [
+                _StatusLegendDot(color: AppColors.textMute, label: '診断中:5問未満'),
+                _StatusLegendDot(color: AppColors.ng, label: '要復習:60%未満'),
+                _StatusLegendDot(
+                  color: AppColors.yellow,
+                  label: 'もう少し:60〜74%',
+                ),
+                _StatusLegendDot(color: AppColors.ok, label: '安全圏:75%以上'),
+              ],
+            ),
             const SizedBox(height: 8),
             Container(
               padding: const EdgeInsets.symmetric(vertical: 4),
@@ -291,9 +305,29 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
                 children: List.generate(kCategories.length, (i) {
                   final cat = kCategories[i];
                   final pct = cat.accuracyPercent;
-                  final barColor = pct < 60
-                      ? AppColors.ng
-                      : (pct < 75 ? AppColors.yellow : AppColors.ok);
+                  // 4段階の習熟度ステータス。回答数が少ない(5問未満)場合は
+                  // 正答率が不安定なため「診断中」として扱う(合格可能性診断と同じ基準)。
+                  final hasEnoughData = cat.total >= 5;
+                  final String statusLabel;
+                  final Color statusColor;
+                  final Color barColor;
+                  if (!hasEnoughData) {
+                    statusLabel = '診断中';
+                    statusColor = AppColors.textMute;
+                    barColor = AppColors.textMute;
+                  } else if (pct < 60) {
+                    statusLabel = '要復習';
+                    statusColor = AppColors.ng;
+                    barColor = AppColors.ng;
+                  } else if (pct < 75) {
+                    statusLabel = 'もう少し';
+                    statusColor = AppColors.yellow;
+                    barColor = AppColors.yellow;
+                  } else {
+                    statusLabel = '安全圏';
+                    statusColor = AppColors.ok;
+                    barColor = AppColors.ok;
+                  }
                   return Container(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 14,
@@ -321,29 +355,27 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
                                     fontWeight: FontWeight.w600,
                                   ),
                                 ),
-                                if (cat.weak) ...[
-                                  const SizedBox(width: 6),
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 7,
-                                      vertical: 2,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      color: const Color(0xFFFEE2E2),
-                                      borderRadius: BorderRadius.circular(
-                                        AppRadius.pill,
-                                      ),
-                                    ),
-                                    child: const Text(
-                                      '要復習',
-                                      style: TextStyle(
-                                        fontSize: 10,
-                                        color: AppColors.ng,
-                                        fontWeight: FontWeight.w600,
-                                      ),
+                                const SizedBox(width: 6),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 7,
+                                    vertical: 2,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: statusColor.withValues(alpha: 0.14),
+                                    borderRadius: BorderRadius.circular(
+                                      AppRadius.pill,
                                     ),
                                   ),
-                                ],
+                                  child: Text(
+                                    statusLabel,
+                                    style: TextStyle(
+                                      fontSize: 10,
+                                      color: statusColor,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ),
                               ],
                             ),
                             Text(
@@ -583,17 +615,22 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
       return cell.accuracyPercent < 60 ? Colors.white : AppColors.text;
     }
 
-    // 前週との比較で「上がっている↗️/下がっている↘️/ほぼ変わらず➡️」を矢印で表す。
+    // 前週との比較で「上がっている/下がっている/ほぼ変わらず」を矢印アイコンで表す。
+    // 絵文字矢印(↗️等)は環境によって色付きの四角い背景つきで表示されて見づらいため、
+    // Icons(ベクターアイコン)を使い、サイズ・色を自由に調整できるようにする。
     // 両方の週にデータがある場合のみ表示(片方でもデータ不足なら比較不能のため非表示)。
     // ±4ポイント以内は「ほぼ変わらず」とみなす。
-    String? trendArrow(CategoryWeekCell current, CategoryWeekCell? previous) {
+    ({IconData icon, Color color})? trendArrow(
+      CategoryWeekCell current,
+      CategoryWeekCell? previous,
+    ) {
       if (previous == null || !current.hasData || !previous.hasData) {
         return null;
       }
       final diff = current.accuracyPercent - previous.accuracyPercent;
-      if (diff > 4) return '↗️';
-      if (diff < -4) return '↘️';
-      return '➡️';
+      if (diff > 4) return (icon: Icons.trending_up, color: AppColors.ok);
+      if (diff < -4) return (icon: Icons.trending_down, color: AppColors.ng);
+      return (icon: Icons.trending_flat, color: AppColors.textMute);
     }
 
     return Container(
@@ -645,12 +682,37 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
           ),
           const SizedBox(height: 2),
           const Text(
-            '週ごとの正答率を色で表示。↗️前週より上昇 ↘️前週より下降 ➡️ほぼ変わらず。セルをタップするとその科目の演習に進めます。',
+            '週ごとの正答率を色で表示。セルをタップするとその科目の演習に進めます。',
             style: TextStyle(
               fontSize: 10,
               color: AppColors.textMute,
               height: 1.4,
             ),
+          ),
+          const SizedBox(height: 4),
+          Row(
+            children: [
+              Icon(Icons.trending_up, size: 14, color: AppColors.ok),
+              const SizedBox(width: 3),
+              const Text(
+                '前週より上昇',
+                style: TextStyle(fontSize: 10, color: AppColors.textDim),
+              ),
+              const SizedBox(width: 10),
+              Icon(Icons.trending_down, size: 14, color: AppColors.ng),
+              const SizedBox(width: 3),
+              const Text(
+                '前週より下降',
+                style: TextStyle(fontSize: 10, color: AppColors.textDim),
+              ),
+              const SizedBox(width: 10),
+              Icon(Icons.trending_flat, size: 14, color: AppColors.textMute),
+              const SizedBox(width: 3),
+              const Text(
+                'ほぼ変わらず',
+                style: TextStyle(fontSize: 10, color: AppColors.textDim),
+              ),
+            ],
           ),
           const SizedBox(height: 12),
           // ヘッダー行(週ラベル): 左に科目名の余白分だけ空けて右詰めで配置
@@ -718,7 +780,7 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
                             );
                           },
                           child: Container(
-                            height: 46,
+                            height: 56,
                             alignment: Alignment.center,
                             decoration: BoxDecoration(
                               color: cellColor(cell),
@@ -738,11 +800,14 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
                                     color: textColorFor(cell),
                                   ),
                                 ),
-                                if (arrow != null)
-                                  Text(
-                                    arrow,
-                                    style: const TextStyle(fontSize: 9),
+                                if (arrow != null) ...[
+                                  const SizedBox(height: 1),
+                                  Icon(
+                                    arrow.icon,
+                                    size: 22,
+                                    color: arrow.color,
                                   ),
+                                ],
                               ],
                             ),
                           ),
@@ -980,6 +1045,34 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
           ],
         ),
       ),
+    );
+  }
+}
+
+/// 「科目別の正答率」の4段階ステータス(診断中/要復習/もう少し/安全圏)の
+/// 凡例に使う、色付き丸+ラベルの小さな行ウィジェット。
+class _StatusLegendDot extends StatelessWidget {
+  final Color color;
+  final String label;
+
+  const _StatusLegendDot({required this.color, required this.label});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          width: 7,
+          height: 7,
+          decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+        ),
+        const SizedBox(width: 4),
+        Text(
+          label,
+          style: const TextStyle(fontSize: AppFontSize.xs, color: AppColors.textDim),
+        ),
+      ],
     );
   }
 }
