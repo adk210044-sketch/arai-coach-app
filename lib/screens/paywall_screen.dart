@@ -925,14 +925,30 @@ class _PaywallScreenState extends State<PaywallScreen> {
       return;
     }
 
+    // 3か月パック(上位プラン)から月額プレミアム(下位プラン)への切り替えは
+    // Appleの仕様上「ダウングレード」扱いとなり、現在支払い済みの3か月分の
+    // 期間が終わるまで反映されない(=すぐには切り替わらない)。
+    // 事前にその旨を案内し、「不具合では?」という誤解を防ぐ。
+    final currentProfile = appState.profile;
+    final isDowngradeFromIntensive =
+        tier == PlanTier.premium &&
+        currentProfile.planTier == PlanTier.intensivePack &&
+        currentProfile.isPremium;
+
+    final dialogMessage = isDowngradeFromIntensive
+        ? '現在お申し込み中の3か月パックの期間が残っているよ。\n'
+              'その期間が終わったあとに月額プレミアム(${info.priceLabel}${info.periodLabel})'
+              'へ自動的に切り替わるから、今すぐ変わるわけではない点だけ注意してね。'
+        : '${info.priceLabel}${info.periodLabel}で今すぐ申し込むよ。\n'
+              'トライアルを試したい場合は、キャンセルして上の「7日間無料トライアルを始める」から進めてね。';
+
     showDialog(
       context: context,
       builder: (ctx) {
         return AlertDialog(
           title: Text('${info.label}に申し込むよ'),
           content: Text(
-            '${info.priceLabel}${info.periodLabel}で今すぐ申し込むよ。\n'
-            'トライアルを試したい場合は、キャンセルして上の「7日間無料トライアルを始める」から進めてね。',
+            dialogMessage,
             style: const TextStyle(color: AppColors.textDim, height: 1.6),
           ),
           actions: [
