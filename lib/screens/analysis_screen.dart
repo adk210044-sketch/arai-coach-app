@@ -583,6 +583,19 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
       return cell.accuracyPercent < 60 ? Colors.white : AppColors.text;
     }
 
+    // 前週との比較で「上がっている↗️/下がっている↘️/ほぼ変わらず➡️」を矢印で表す。
+    // 両方の週にデータがある場合のみ表示(片方でもデータ不足なら比較不能のため非表示)。
+    // ±4ポイント以内は「ほぼ変わらず」とみなす。
+    String? trendArrow(CategoryWeekCell current, CategoryWeekCell? previous) {
+      if (previous == null || !current.hasData || !previous.hasData) {
+        return null;
+      }
+      final diff = current.accuracyPercent - previous.accuracyPercent;
+      if (diff > 4) return '↗️';
+      if (diff < -4) return '↘️';
+      return '➡️';
+    }
+
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
@@ -632,7 +645,7 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
           ),
           const SizedBox(height: 2),
           const Text(
-            '週ごとの正答率を色で表示。最近伸びている科目・落ち込んでいる科目が一目でわかります。セルをタップするとその科目の演習に進めます。',
+            '週ごとの正答率を色で表示。↗️前週より上昇 ↘️前週より下降 ➡️ほぼ変わらず。セルをタップするとその科目の演習に進めます。',
             style: TextStyle(
               fontSize: 10,
               color: AppColors.textMute,
@@ -686,6 +699,10 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
                   ),
                   ...List.generate(weeks.length, (weekIdx) {
                     final cell = weeks[weekIdx][catIdx];
+                    final prevCell = weekIdx > 0
+                        ? weeks[weekIdx - 1][catIdx]
+                        : null;
+                    final arrow = trendArrow(cell, prevCell);
                     return Expanded(
                       child: Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 2),
@@ -701,19 +718,32 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
                             );
                           },
                           child: Container(
-                            height: 40,
+                            height: 46,
                             alignment: Alignment.center,
                             decoration: BoxDecoration(
                               color: cellColor(cell),
                               borderRadius: BorderRadius.circular(8),
                             ),
-                            child: Text(
-                              cell.hasData ? '${cell.accuracyPercent}%' : '−',
-                              style: TextStyle(
-                                fontSize: 11,
-                                fontWeight: FontWeight.w700,
-                                color: textColorFor(cell),
-                              ),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  cell.hasData
+                                      ? '${cell.accuracyPercent}%'
+                                      : '−',
+                                  style: TextStyle(
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w700,
+                                    color: textColorFor(cell),
+                                  ),
+                                ),
+                                if (arrow != null)
+                                  Text(
+                                    arrow,
+                                    style: const TextStyle(fontSize: 9),
+                                  ),
+                              ],
                             ),
                           ),
                         ),
