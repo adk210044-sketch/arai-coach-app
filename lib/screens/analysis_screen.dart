@@ -253,12 +253,28 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
             ),
             const SizedBox(height: 16),
 
-            const Text(
-              '科目別の正答率',
-              style: TextStyle(
-                fontSize: AppFontSize.lg,
-                fontWeight: FontWeight.w700,
-              ),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                const Text(
+                  '科目別の正答率',
+                  style: TextStyle(
+                    fontSize: AppFontSize.lg,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                const SizedBox(width: 6),
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 2),
+                  child: Text(
+                    '※全期間累計',
+                    style: TextStyle(
+                      fontSize: AppFontSize.xs,
+                      color: AppColors.textMute,
+                    ),
+                  ),
+                ),
+              ],
             ),
             const SizedBox(height: 4),
             Row(
@@ -935,6 +951,17 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
                 style: TextStyle(
                   fontSize: AppFontSize.md,
                   fontWeight: FontWeight.w700,
+                ),
+              ),
+              const SizedBox(width: 6),
+              Padding(
+                padding: const EdgeInsets.only(top: 2),
+                child: Text(
+                  '※全期間累計',
+                  style: TextStyle(
+                    fontSize: AppFontSize.xs,
+                    color: AppColors.textMute,
+                  ),
                 ),
               ),
               const Spacer(),
