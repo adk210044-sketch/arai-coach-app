@@ -15,6 +15,7 @@ class MockExamScreen extends StatelessWidget {
     BuildContext context, {
     required int questionCount,
     required int durationSec,
+    required bool isMini,
   }) {
     final appState = context.read<AppState>();
     if (!appState.canUseMockExam) {
@@ -25,12 +26,13 @@ class MockExamScreen extends StatelessWidget {
       );
       return;
     }
-    if (appState.hasSavedMockExam) {
+    final savedProgress = appState.savedMockExamProgress;
+    if (savedProgress != null) {
       showDialog(
         context: context,
         builder: (ctx) => AlertDialog(
           title: const Text('進行中の模試があります'),
-          content: const Text('新しく始めると、保存されている進行状況は削除されます。よろしいですか?'),
+          content: const Text('保存されている進行状況から再開するか、新しく始めるか選んでね。'),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(ctx),
@@ -45,12 +47,26 @@ class MockExamScreen extends StatelessWidget {
                   context,
                   questionCount: questionCount,
                   durationSec: durationSec,
+                  isMini: isMini,
                 );
               },
               child: const Text(
                 '新しく始める',
                 style: TextStyle(
                   color: AppColors.ng,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.pop(ctx);
+                _resume(context, savedProgress);
+              },
+              child: const Text(
+                '再開する',
+                style: TextStyle(
+                  color: AppColors.primary,
                   fontWeight: FontWeight.w700,
                 ),
               ),
@@ -64,6 +80,7 @@ class MockExamScreen extends StatelessWidget {
       context,
       questionCount: questionCount,
       durationSec: durationSec,
+      isMini: isMini,
     );
   }
 
@@ -71,23 +88,29 @@ class MockExamScreen extends StatelessWidget {
     BuildContext context, {
     required int questionCount,
     required int durationSec,
+    required bool isMini,
   }) {
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (_) => MockExamSessionScreen(
           questionCount: questionCount,
           durationSec: durationSec,
+          isMini: isMini,
         ),
       ),
     );
   }
 
   void _resume(BuildContext context, Map<String, dynamic> data) {
+    // 旧データ(isMini未保存)は出題数から推定(10問以下ならミニ扱い)してフォールバック
+    final isMini =
+        data['isMini'] as bool? ?? ((data['questionCount'] as int? ?? 0) <= 10);
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (_) => MockExamSessionScreen(
           questionCount: data['questionCount'] as int,
           durationSec: data['durationSec'] as int,
+          isMini: isMini,
           resumeData: data,
         ),
       ),
@@ -108,7 +131,8 @@ class MockExamScreen extends StatelessWidget {
     // 本番と同じ出題数: 第一種44問 / 第二種30問(いずれも試験時間3時間)
     final fullQuestionCount = isType2 ? 30 : 44;
     final savedProgress = appState.savedMockExamProgress;
-    final history = appState.mockExamHistory;
+    final fullHistory = appState.mockExamHistory;
+    final miniHistory = appState.miniMockExamHistory;
     return Scaffold(
       backgroundColor: AppColors.bgSoft,
       appBar: AppBar(
@@ -161,10 +185,16 @@ class MockExamScreen extends StatelessWidget {
                             size: 26,
                           ),
                           const SizedBox(width: 8),
-                          const Expanded(
+                          Expanded(
                             child: Text(
-                              '進行中の模試があります',
-                              style: TextStyle(
+                              (savedProgress['isMini'] as bool? ??
+                                      ((savedProgress['questionCount']
+                                                  as int? ??
+                                              0) <=
+                                          10))
+                                  ? '進行中のミニ模試があります'
+                                  : '進行中のフル模擬試験があります',
+                              style: const TextStyle(
                                 fontWeight: FontWeight.w700,
                                 fontSize: AppFontSize.md,
                               ),
@@ -286,6 +316,7 @@ class MockExamScreen extends StatelessWidget {
                           context,
                           questionCount: fullQuestionCount,
                           durationSec: 180 * 60,
+                          isMini: false,
                         ),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.white,
@@ -344,6 +375,7 @@ class MockExamScreen extends StatelessWidget {
                         context,
                         questionCount: 10,
                         durationSec: 15 * 60,
+                        isMini: true,
                       ),
                       style: TextButton.styleFrom(
                         backgroundColor: AppColors.primaryFaint,
@@ -374,57 +406,46 @@ class MockExamScreen extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 8),
-              if (history.isEmpty)
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.symmetric(
-                    vertical: 28,
-                    horizontal: 16,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(AppRadius.md),
-                    boxShadow: AppShadow.card,
-                  ),
-                  child: Text(
-                    'まだ受験履歴がないよ。模擬試験を受けてみよう!',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(color: AppColors.textDim, height: 1.6),
-                  ),
-                )
-              else ...[
-                Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(AppRadius.md),
-                    boxShadow: AppShadow.card,
-                  ),
-                  child: Column(
-                    children: List.generate(history.length, (i) {
-                      final r = history[i];
-                      return _historyRow(
-                        context,
-                        r,
-                        isLast: i == history.length - 1,
-                      );
-                    }),
-                  ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 4),
+                child: Wrap(
+                  spacing: 10,
+                  runSpacing: 4,
+                  children: const [
+                    StatusLegendDot(color: AppColors.ok, label: 'A:85%以上'),
+                    StatusLegendDot(
+                      color: AppColors.primary,
+                      label: 'B:70%以上(合格ライン)',
+                    ),
+                    StatusLegendDot(color: AppColors.yellow, label: 'C:55%以上'),
+                    StatusLegendDot(color: AppColors.ng, label: 'D:55%未満'),
+                  ],
                 ),
-                const SizedBox(height: 8),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 4),
-                  child: Wrap(
-                    spacing: 10,
-                    runSpacing: 4,
-                    children: const [
-                      StatusLegendDot(color: AppColors.ok, label: 'A:85%以上'),
-                      StatusLegendDot(color: AppColors.primary, label: 'B:70%以上(合格ライン)'),
-                      StatusLegendDot(color: AppColors.yellow, label: 'C:55%以上'),
-                      StatusLegendDot(color: AppColors.ng, label: 'D:55%未満'),
-                    ],
-                  ),
+              ),
+              const SizedBox(height: 12),
+
+              Text(
+                'フル模擬試験',
+                style: TextStyle(
+                  fontSize: AppFontSize.md,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.textDim,
                 ),
-              ],
+              ),
+              const SizedBox(height: 6),
+              _historySection(context, fullHistory, 'フル模擬試験'),
+              const SizedBox(height: 16),
+
+              Text(
+                'ミニ模試',
+                style: TextStyle(
+                  fontSize: AppFontSize.md,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.textDim,
+                ),
+              ),
+              const SizedBox(height: 6),
+              _historySection(context, miniHistory, 'ミニ模試'),
             ],
           ),
         ),
@@ -480,6 +501,44 @@ class MockExamScreen extends StatelessWidget {
   }
 
   String _fmtDate(DateTime d) => '${d.month}月${d.day}日';
+
+  /// 受験履歴のリスト表示。履歴が空の場合は案内メッセージを表示する。
+  /// [emptyLabel] は空の場合に表示する種別名(例: 'フル模擬試験' / 'ミニ模試')。
+  Widget _historySection(
+    BuildContext context,
+    List<MockSessionResult> history,
+    String emptyLabel,
+  ) {
+    if (history.isEmpty) {
+      return Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(AppRadius.md),
+          boxShadow: AppShadow.card,
+        ),
+        child: Text(
+          'まだ$emptyLabelの受験履歴がないよ。',
+          textAlign: TextAlign.center,
+          style: TextStyle(color: AppColors.textDim, height: 1.6),
+        ),
+      );
+    }
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(AppRadius.md),
+        boxShadow: AppShadow.card,
+      ),
+      child: Column(
+        children: List.generate(history.length, (i) {
+          final r = history[i];
+          return _historyRow(context, r, isLast: i == history.length - 1);
+        }),
+      ),
+    );
+  }
 
   Widget _historyRow(
     BuildContext context,

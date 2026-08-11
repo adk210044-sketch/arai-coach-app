@@ -26,6 +26,7 @@ class MockSessionResult {
   final bool passed;
   final DateTime date;
   final String examTypeKey; // 'type1' / 'type2'(受験区分)
+  final bool isMini; // true: ミニ模試(10問) / false: フル模擬試験
 
   const MockSessionResult({
     required this.score,
@@ -34,6 +35,7 @@ class MockSessionResult {
     required this.passed,
     required this.date,
     required this.examTypeKey,
+    required this.isMini,
   });
 
   int get percentage => total == 0 ? 0 : (score / total * 100).round();
@@ -69,6 +71,7 @@ class MockSessionResult {
     'passed': passed,
     'date': date.toIso8601String(),
     'examTypeKey': examTypeKey,
+    'isMini': isMini,
   };
 
   factory MockSessionResult.fromJson(Map<String, dynamic> json) {
@@ -79,6 +82,8 @@ class MockSessionResult {
       passed: json['passed'] as bool? ?? false,
       date: DateTime.tryParse(json['date'] as String? ?? '') ?? DateTime.now(),
       examTypeKey: json['examTypeKey'] as String? ?? 'type1',
+      // 旧データ(isMini未保存)は出題数から推定(10問以下ならミニ扱い)してフォールバック
+      isMini: json['isMini'] as bool? ?? ((json['total'] as int? ?? 0) <= 10),
     );
   }
 }

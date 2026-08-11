@@ -13,6 +13,10 @@ class MockExamSessionScreen extends StatefulWidget {
   final int questionCount;
   final int durationSec;
 
+  /// true: ミニ模試(10問) / false: フル模擬試験。
+  /// 一時保存・受験履歴をフル/ミニで区別するために使う。
+  final bool isMini;
+
   /// 一時保存データから再開する場合に渡す(nullなら新規開始)。
   final Map<String, dynamic>? resumeData;
 
@@ -20,6 +24,7 @@ class MockExamSessionScreen extends StatefulWidget {
     super.key,
     required this.questionCount,
     required this.durationSec,
+    required this.isMini,
     this.resumeData,
   });
 
@@ -101,6 +106,7 @@ class _MockExamSessionScreenState extends State<MockExamSessionScreen> {
       remainingSec: _remainingSec,
       questionCount: widget.questionCount,
       durationSec: widget.durationSec,
+      isMini: widget.isMini,
     );
     if (!mounted) return;
     if (showFeedback) {
@@ -147,6 +153,7 @@ class _MockExamSessionScreenState extends State<MockExamSessionScreen> {
       score: score,
       total: _questions.length,
       passingScore: passingScore,
+      isMini: widget.isMini,
     );
     // 提出が完了したので一時保存データは不要になるため削除する
     appState.clearMockExamProgress();

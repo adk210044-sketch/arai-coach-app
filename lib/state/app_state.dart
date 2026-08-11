@@ -150,6 +150,7 @@ class AppState extends ChangeNotifier {
     required int score,
     required int total,
     required int passingScore,
+    required bool isMini,
   }) {
     _unlockBadge('first_mock_exam');
     _mockExamCount++;
@@ -164,15 +165,25 @@ class AppState extends ChangeNotifier {
       passed: score >= passingScore,
       date: DateTime.now(),
       examTypeKey: examTypeKey,
+      isMini: isMini,
     );
     LocalStore.appendMockExamHistory(result.toJson());
     notifyListeners();
   }
 
-  /// 受験履歴一覧(新しい順)。「模擬試験 > 受験履歴」の表示用。
+  /// 受験履歴一覧(新しい順・フル模擬試験のみ)。
   List<MockSessionResult> get mockExamHistory {
     return LocalStore.loadMockExamHistory()
         .map((e) => MockSessionResult.fromJson(e))
+        .where((r) => !r.isMini)
+        .toList();
+  }
+
+  /// 受験履歴一覧(新しい順・ミニ模試のみ)。
+  List<MockSessionResult> get miniMockExamHistory {
+    return LocalStore.loadMockExamHistory()
+        .map((e) => MockSessionResult.fromJson(e))
+        .where((r) => r.isMini)
         .toList();
   }
 
@@ -198,6 +209,7 @@ class AppState extends ChangeNotifier {
     required int remainingSec,
     required int questionCount,
     required int durationSec,
+    required bool isMini,
   }) async {
     await LocalStore.saveMockExamProgress({
       'examTypeKey': examTypeKey,
@@ -207,6 +219,7 @@ class AppState extends ChangeNotifier {
       'remainingSec': remainingSec,
       'questionCount': questionCount,
       'durationSec': durationSec,
+      'isMini': isMini,
       'savedAt': DateTime.now().toIso8601String(),
     });
   }
