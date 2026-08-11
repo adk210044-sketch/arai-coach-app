@@ -851,15 +851,24 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
                                     color: textColorFor(cell),
                                   ),
                                 ),
-                                if (arrow != null) ...[
-                                  const SizedBox(height: 1),
+                                const SizedBox(height: 1),
+                                if (arrow != null)
                                   TrendArrowIcon(
                                     direction: arrow,
                                     size: 28,
                                     color: arrowColorFor(cell),
                                     strokeWidth: 4.2,
+                                  )
+                                else
+                                  Text(
+                                    '‐',
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w700,
+                                      color: textColorFor(cell),
+                                      height: 1,
+                                    ),
                                   ),
-                                ],
                               ],
                             ),
                           ),
@@ -984,84 +993,108 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
                     : (w.accuracyPercent < 60
                           ? AppColors.yellow
                           : AppColors.ok);
-                return Container(
-                  margin: const EdgeInsets.only(bottom: 8),
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: AppColors.bgSoft,
-                    borderRadius: BorderRadius.circular(14),
-                  ),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Container(
-                        width: 26,
-                        height: 26,
-                        decoration: BoxDecoration(
-                          color: w.rank == 1 ? AppColors.accent : Colors.white,
-                          shape: BoxShape.circle,
-                          border: Border.all(color: AppColors.border),
-                        ),
-                        alignment: Alignment.center,
-                        child: Text(
-                          '${w.rank}',
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w800,
+                return GestureDetector(
+                  onTap: () {
+                    startQuizSession(
+                      context,
+                      onStartNew: () => context.read<AppState>().startSession(
+                        categoryKey: w.categoryKey,
+                        count: w.recommendedCount,
+                      ),
+                    );
+                  },
+                  child: Container(
+                    margin: const EdgeInsets.only(bottom: 8),
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: AppColors.bgSoft,
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Container(
+                          width: 26,
+                          height: 26,
+                          decoration: BoxDecoration(
                             color: w.rank == 1
-                                ? Colors.white
-                                : AppColors.textDim,
+                                ? AppColors.accent
+                                : Colors.white,
+                            shape: BoxShape.circle,
+                            border: Border.all(color: AppColors.border),
+                          ),
+                          alignment: Alignment.center,
+                          child: Text(
+                            '${w.rank}',
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w800,
+                              color: w.rank == 1
+                                  ? Colors.white
+                                  : AppColors.textDim,
+                            ),
                           ),
                         ),
-                      ),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: Text(
-                                    w.categoryName,
-                                    style: const TextStyle(
-                                      fontSize: AppFontSize.md,
-                                      fontWeight: FontWeight.w700,
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                      w.categoryName,
+                                      style: const TextStyle(
+                                        fontSize: AppFontSize.md,
+                                        fontWeight: FontWeight.w700,
+                                      ),
                                     ),
                                   ),
-                                ),
-                                Text(
-                                  '${w.accuracyPercent}%',
-                                  style: TextStyle(
-                                    fontSize: AppFontSize.md,
-                                    fontWeight: FontWeight.w800,
-                                    color: barColor,
+                                  Text(
+                                    '${w.accuracyPercent}%',
+                                    style: TextStyle(
+                                      fontSize: AppFontSize.md,
+                                      fontWeight: FontWeight.w800,
+                                      color: barColor,
+                                    ),
                                   ),
+                                ],
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                w.comment,
+                                style: TextStyle(
+                                  fontSize: AppFontSize.sm,
+                                  color: AppColors.textDim,
+                                  height: 1.5,
                                 ),
-                              ],
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              w.comment,
-                              style: TextStyle(
-                                fontSize: AppFontSize.sm,
-                                color: AppColors.textDim,
-                                height: 1.5,
                               ),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              '推奨: 復習${w.recommendedCount}問',
-                              style: const TextStyle(
-                                fontSize: 10,
-                                color: AppColors.primary,
-                                fontWeight: FontWeight.w700,
+                              const SizedBox(height: 4),
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                      '推奨: 復習${w.recommendedCount}問',
+                                      style: const TextStyle(
+                                        fontSize: 10,
+                                        color: AppColors.primary,
+                                        fontWeight: FontWeight.w700,
+                                      ),
+                                    ),
+                                  ),
+                                  const Icon(
+                                    Icons.chevron_right,
+                                    size: 16,
+                                    color: AppColors.primary,
+                                  ),
+                                ],
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 );
               }).toList(),
