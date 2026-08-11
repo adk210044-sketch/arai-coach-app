@@ -517,7 +517,7 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
               message: 'AIが毎週の伸び方を\n自動で分析するよ。\nプレミアムでトレンドの推移が見られるようになるよ。',
               trigger: PaywallTrigger.explanation,
             )
-          else if (trend.length < 2)
+          else if (trend.length < 2 || trend.every((v) => v == null))
             Text(
               'もう少しデータが集まると、週ごとの伸びをAIが分析できるようになるよ。',
               style: TextStyle(
@@ -534,6 +534,51 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
                 children: List.generate(trend.length, (i) {
                   final v = trend[i];
                   final isLast = i == trend.length - 1;
+                  // データ不足で診断できなかった週は、固定値で塗らず
+                  // グレーの点線バー+「未診断」表示にして誤解を防ぐ。
+                  if (v == null) {
+                    return Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 4),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            Text(
+                              '未診断',
+                              style: TextStyle(
+                                fontSize: 9,
+                                fontWeight: isLast
+                                    ? FontWeight.w800
+                                    : FontWeight.w500,
+                                color: AppColors.textMute,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Container(
+                              height: 28,
+                              decoration: BoxDecoration(
+                                border: Border.all(
+                                  color: AppColors.border,
+                                  width: 1.2,
+                                ),
+                                borderRadius: BorderRadius.circular(6),
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              i == trend.length - 1
+                                  ? '今週'
+                                  : '${trend.length - 1 - i}週前',
+                              style: TextStyle(
+                                fontSize: 9,
+                                color: AppColors.textMute,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  }
                   final barColor = v >= 65
                       ? AppColors.ok
                       : (v >= 45 ? AppColors.yellow : AppColors.ng);

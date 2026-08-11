@@ -475,7 +475,8 @@ class AppState extends ChangeNotifier {
 
   /// 直近4週間の「その時点までの累計データ」で合格可能性を再計算し、週次トレンドを算出する。
   /// プレミアム限定の分析強化機能(AIによる継続診断)として利用する。
-  List<int> get passProbabilityWeeklyTrend {
+  /// 各要素は合格可能性(%)。データ不足で診断できない週は null(未診断)を返す。
+  List<int?> get passProbabilityWeeklyTrend {
     final repo = QuestionRepository.instance;
     if (!repo.isLoaded || repo.all.isEmpty) return [];
     final questionsById = {for (final q in repo.all) q.id: q};
@@ -492,7 +493,7 @@ class AppState extends ChangeNotifier {
     if (logs.isEmpty) return [];
 
     final now = DateTime.now();
-    final trend = <int>[];
+    final trend = <int?>[];
     for (var weeksAgo = 3; weeksAgo >= 0; weeksAgo--) {
       final cutoff = now.subtract(Duration(days: weeksAgo * 7));
       final answeredByCategory = <String, int>{};
@@ -521,7 +522,7 @@ class AppState extends ChangeNotifier {
         categoryStats: stats,
         daysUntilExam: profile.daysUntilExam,
       );
-      trend.add(result.hasEnoughData ? result.percent : 50);
+      trend.add(result.hasEnoughData ? result.percent : null);
     }
     return trend;
   }
