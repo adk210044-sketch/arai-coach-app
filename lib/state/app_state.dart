@@ -7,6 +7,7 @@ import '../models/category.dart';
 import '../models/chat_message.dart';
 import '../models/plan.dart';
 import '../models/badge.dart';
+import '../models/mock_session.dart';
 import '../data/sample_data.dart';
 import '../data/local_store.dart';
 import '../data/question_repository.dart';
@@ -143,13 +144,36 @@ class AppState extends ChangeNotifier {
   int get mockExamCount => _mockExamCount;
 
   /// 模擬試験が終了した時点で呼ぶ(mock_exam_session_screen.dartから)。
-  /// 実施回数をカウントアップし、デビュー・回数マイルストーンのバッジを判定する。
-  void markMockExamCompleted() {
+  /// 実施回数をカウントアップし、デビュー・回数マイルストーンのバッジを判定した上で、
+  /// 受験履歴(日付・点数・判定)を保存する。
+  void markMockExamCompleted({
+    required int score,
+    required int total,
+    required int passingScore,
+  }) {
     _unlockBadge('first_mock_exam');
     _mockExamCount++;
     LocalStore.saveMockExamCount(_mockExamCount);
     _unlockBadges(BadgeEngine.mockExamBadgeIdsForCount(_mockExamCount));
     checkPassRateBadges();
+
+    final result = MockSessionResult(
+      score: score,
+      total: total,
+      passingScore: passingScore,
+      passed: score >= passingScore,
+      date: DateTime.now(),
+      examTypeKey: examTypeKey,
+    );
+    LocalStore.appendMockExamHistory(result.toJson());
+    notifyListeners();
+  }
+
+  /// 受験履歴一覧(新しい順)。「模擬試験 > 受験履歴」の表示用。
+  List<MockSessionResult> get mockExamHistory {
+    return LocalStore.loadMockExamHistory()
+        .map((e) => MockSessionResult.fromJson(e))
+        .toList();
   }
 
   String get examTypeKey =>

@@ -168,4 +168,33 @@ class LocalStore {
   static Future<void> clearQuizSessionProgress() async {
     await _progressBox?.delete(quizSessionProgressKey);
   }
+
+  // ─── 模擬試験の受験履歴(提出結果を新しい順に保存) ──────────────────────
+  static const String mockExamHistoryKey = 'mockExamHistory';
+
+  /// 保存件数の上限(古いものは自動的に削除される)。
+  static const int maxMockExamHistory = 20;
+
+  static List<Map<String, dynamic>> loadMockExamHistory() {
+    final raw = _progressBox?.get(mockExamHistoryKey);
+    if (raw == null) return [];
+    try {
+      return List<Map<String, dynamic>>.from(
+        (raw as List).map((e) => Map<String, dynamic>.from(e as Map)),
+      );
+    } catch (_) {
+      return [];
+    }
+  }
+
+  static Future<void> appendMockExamHistory(Map<String, dynamic> entry) async {
+    final box = _progressBox;
+    if (box == null) return;
+    final list = loadMockExamHistory();
+    list.insert(0, entry); // 新しいものを先頭に
+    if (list.length > maxMockExamHistory) {
+      list.removeRange(maxMockExamHistory, list.length);
+    }
+    await box.put(mockExamHistoryKey, list);
+  }
 }

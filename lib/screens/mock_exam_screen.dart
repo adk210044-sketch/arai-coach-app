@@ -3,6 +3,8 @@ import 'package:provider/provider.dart';
 import '../theme/tokens.dart';
 import '../state/app_state.dart';
 import '../models/user_profile.dart';
+import '../models/mock_session.dart';
+import '../widgets/status_legend_dot.dart';
 import 'mock_exam_session_screen.dart';
 import 'paywall_screen.dart';
 
@@ -106,6 +108,7 @@ class MockExamScreen extends StatelessWidget {
     // 本番と同じ出題数: 第一種44問 / 第二種30問(いずれも試験時間3時間)
     final fullQuestionCount = isType2 ? 30 : 44;
     final savedProgress = appState.savedMockExamProgress;
+    final history = appState.mockExamHistory;
     return Scaffold(
       backgroundColor: AppColors.bgSoft,
       appBar: AppBar(
@@ -371,42 +374,57 @@ class MockExamScreen extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 8),
-              Container(
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(AppRadius.md),
-                  boxShadow: AppShadow.card,
+              if (history.isEmpty)
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 28,
+                    horizontal: 16,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(AppRadius.md),
+                    boxShadow: AppShadow.card,
+                  ),
+                  child: Text(
+                    'まだ受験履歴がないよ。模擬試験を受けてみよう!',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(color: AppColors.textDim, height: 1.6),
+                  ),
+                )
+              else ...[
+                Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(AppRadius.md),
+                    boxShadow: AppShadow.card,
+                  ),
+                  child: Column(
+                    children: List.generate(history.length, (i) {
+                      final r = history[i];
+                      return _historyRow(
+                        context,
+                        r,
+                        isLast: i == history.length - 1,
+                      );
+                    }),
+                  ),
                 ),
-                child: Column(
-                  children: [
-                    _historyRow(
-                      context,
-                      '10月18日',
-                      72,
-                      'B',
-                      AppColors.yellow,
-                      '合格圏まであと少し!',
-                    ),
-                    _historyRow(
-                      context,
-                      '10月10日',
-                      65,
-                      'C',
-                      const Color(0xFFF97316),
-                      'コツコツ伸びてる',
-                    ),
-                    _historyRow(
-                      context,
-                      '10月2日',
-                      58,
-                      'D',
-                      AppColors.ng,
-                      '初回チャレンジ',
-                      isLast: true,
-                    ),
-                  ],
+                const SizedBox(height: 8),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 4),
+                  child: Wrap(
+                    spacing: 10,
+                    runSpacing: 4,
+                    children: const [
+                      StatusLegendDot(color: AppColors.ok, label: 'A:85%以上'),
+                      StatusLegendDot(color: AppColors.primary, label: 'B:70%以上(合格ライン)'),
+                      StatusLegendDot(color: AppColors.yellow, label: 'C:55%以上'),
+                      StatusLegendDot(color: AppColors.ng, label: 'D:55%未満'),
+                    ],
+                  ),
                 ),
-              ),
+              ],
             ],
           ),
         ),
@@ -446,15 +464,29 @@ class MockExamScreen extends StatelessWidget {
     );
   }
 
+  /// 判定(A〜D)に対応する色。mock_exam_screen冒頭のクラスコメント通り、
+  /// mock_session.dart の grade 境界値と一致させている。
+  Color _gradeColor(String grade) {
+    switch (grade) {
+      case 'A':
+        return AppColors.ok;
+      case 'B':
+        return AppColors.primary;
+      case 'C':
+        return AppColors.yellow;
+      default:
+        return AppColors.ng;
+    }
+  }
+
+  String _fmtDate(DateTime d) => '${d.month}月${d.day}日';
+
   Widget _historyRow(
     BuildContext context,
-    String date,
-    int score,
-    String judge,
-    Color color,
-    String msg, {
+    MockSessionResult r, {
     bool isLast = false,
   }) {
+    final color = _gradeColor(r.grade);
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
@@ -475,7 +507,7 @@ class MockExamScreen extends StatelessWidget {
             ),
             alignment: Alignment.center,
             child: Text(
-              judge,
+              r.grade,
               style: TextStyle(
                 color: color,
                 fontSize: 15,
@@ -489,7 +521,7 @@ class MockExamScreen extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  date,
+                  _fmtDate(r.date),
                   style: const TextStyle(
                     fontSize: AppFontSize.md,
                     fontWeight: FontWeight.w600,
@@ -497,7 +529,7 @@ class MockExamScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  msg,
+                  r.comment,
                   style: TextStyle(
                     fontSize: AppFontSize.sm,
                     color: AppColors.textDim,
@@ -510,7 +542,7 @@ class MockExamScreen extends StatelessWidget {
             text: TextSpan(
               children: [
                 TextSpan(
-                  text: '$score',
+                  text: '${r.percentage}',
                   style: TextStyle(
                     color: color,
                     fontSize: 18,

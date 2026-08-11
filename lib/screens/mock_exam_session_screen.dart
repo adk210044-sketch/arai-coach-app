@@ -142,7 +142,12 @@ class _MockExamSessionScreenState extends State<MockExamSessionScreen> {
       if (_answers[i] == _questions[i].correctIndex) score++;
     }
     final appState = context.read<AppState>();
-    appState.markMockExamCompleted();
+    final passingScore = (_questions.length * 0.7).ceil();
+    appState.markMockExamCompleted(
+      score: score,
+      total: _questions.length,
+      passingScore: passingScore,
+    );
     // 提出が完了したので一時保存データは不要になるため削除する
     appState.clearMockExamProgress();
     Navigator.of(context).pushReplacement(
@@ -150,7 +155,7 @@ class _MockExamSessionScreenState extends State<MockExamSessionScreen> {
         builder: (_) => MockExamResultScreen(
           score: score,
           total: _questions.length,
-          passingScore: (_questions.length * 0.7).ceil(),
+          passingScore: passingScore,
           questions: _questions,
           userAnswers: _answers,
         ),
