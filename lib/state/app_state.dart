@@ -767,8 +767,36 @@ class AppState extends ChangeNotifier {
   bool get hasSavedQuizProgress => savedQuizProgress != null;
 
   /// 現在の演習セッションの状態を保存する(×ボタンで中断する際に呼ぶ)。
+  ///
+  /// 【重要】結果画面(正解/不正解表示中)で×を押した場合、その時点では
+  /// 現在の問題は既に回答済み(answered=true)になっている。この状態のまま
+  /// 保存すると、再開時に「回答済みの問題」が選択肢ロック状態(タップ不可・
+  /// 回答するボタンも押せない)で復元されてしまい、操作不能になるバグが
+  /// あったため、回答済みの問題は「次の問題に進んだ状態」として保存する。
+  /// 最後の問題まで回答済みだった場合は、セッション自体を完了扱いとし、
+  /// 保存済み進行状況をクリアする(「続きから」自体を出さない)。
   Future<void> saveQuizProgress() async {
     if (questionQueue.isEmpty) return;
+
+    if (answered) {
+      if (hasNextQuestion) {
+        await LocalStore.saveQuizSessionProgress({
+          'examTypeKey': examTypeKey,
+          'questionIds': questionQueue.map((q) => q.id).toList(),
+          'currentIndex': currentIndex + 1,
+          'selectedAnswer': null,
+          'answered': false,
+          'sessionCorrectCount': sessionCorrectCount,
+          'sessionAnsweredCount': sessionAnsweredCount,
+          'savedAt': DateTime.now().toIso8601String(),
+        });
+      } else {
+        // 最後の問題まで回答済み = セッション完了。中断保存は不要。
+        await LocalStore.clearQuizSessionProgress();
+      }
+      return;
+    }
+
     await LocalStore.saveQuizSessionProgress({
       'examTypeKey': examTypeKey,
       'questionIds': questionQueue.map((q) => q.id).toList(),
@@ -806,6 +834,24 @@ class AppState extends ChangeNotifier {
     answered = data['answered'] as bool? ?? false;
     sessionCorrectCount = data['sessionCorrectCount'] as int? ?? 0;
     sessionAnsweredCount = data['sessionAnsweredCount'] as int? ?? 0;
+
+    // 【安全策】旧バージョンで保存された不整合データ(結果画面で×を押した際に
+    // answered=trueのまま保存されてしまったもの)が万一残っていた場合、
+    // そのまま復元すると選択肢・回答ボタンが一切操作できない不具合になる。
+    // ここで検知し、未回答の次の問題に進めるか、最後の問題なら新規開始に
+    // フォールバックすることで、操作不能状態を防ぐ。
+    if (answered) {
+      if (currentIndex < questionQueue.length - 1) {
+        currentIndex++;
+      } else {
+        questionStartedAt = DateTime.now();
+        notifyListeners();
+        return false;
+      }
+      selectedAnswer = null;
+      answered = false;
+    }
+
     questionStartedAt = DateTime.now();
     notifyListeners();
     return true;
