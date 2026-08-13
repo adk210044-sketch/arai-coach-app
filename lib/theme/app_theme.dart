@@ -13,7 +13,7 @@ class AppTheme {
         surface: AppColors.bg,
       ),
       scaffoldBackgroundColor: AppColors.bgSoft,
-      fontFamily: 'Hiragino Sans',
+      fontFamily: 'NotoSansJP',
     );
 
     return base.copyWith(
