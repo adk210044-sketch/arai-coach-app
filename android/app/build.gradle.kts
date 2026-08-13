@@ -41,6 +41,11 @@ android {
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+
+        // flutter_inapp_purchase (OpenIAP) はストア種別ごとに product flavor
+        // dimension "platform" を持つため、Google Play版を明示的に選択する。
+        // これが無いと "Ambiguous variants" エラーでビルドが失敗する。
+        missingDimensionStrategy("platform", "play")
     }
 
     signingConfigs {
