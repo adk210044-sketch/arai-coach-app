@@ -935,7 +935,9 @@ class AppState extends ChangeNotifier {
   void submitAnswer() {
     if (selectedAnswer == null || answered) return;
     answered = true;
-    final correct = selectedAnswer == currentQuestion.correctIndex;
+    final correct =
+        selectedAnswer != null &&
+        currentQuestion.isCorrectAnswer(selectedAnswer!);
     if (correct) sessionCorrectCount++;
     sessionAnsweredCount++;
     todayAnswered++;
@@ -961,7 +963,8 @@ class AppState extends ChangeNotifier {
   }
 
   bool get lastAnswerCorrect =>
-      selectedAnswer != null && selectedAnswer == currentQuestion.correctIndex;
+      selectedAnswer != null &&
+      currentQuestion.isCorrectAnswer(selectedAnswer!);
 
   // 正解時・不正解時のコーチコメントのバリエーション。
   // 問題IDのハッシュを使って決定的に選ぶことで、同じ問題では同じ文言になり

@@ -522,7 +522,7 @@ class _ExplanationScreenState extends State<ExplanationScreen>
                           const SizedBox(height: 16),
                           ...List.generate(q.choices.length, (i) {
                             ChoiceState state = ChoiceState.normal;
-                            if (i == q.correctIndex) {
+                            if (q.isCorrectAnswer(i)) {
                               state = ChoiceState.correct;
                             } else if (i == myAnswer) {
                               state = ChoiceState.incorrect;

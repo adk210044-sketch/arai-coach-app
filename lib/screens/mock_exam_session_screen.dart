@@ -145,7 +145,8 @@ class _MockExamSessionScreenState extends State<MockExamSessionScreen> {
   void _submit() {
     int score = 0;
     for (int i = 0; i < _questions.length; i++) {
-      if (_answers[i] == _questions[i].correctIndex) score++;
+      final ans = _answers[i];
+      if (ans != null && _questions[i].isCorrectAnswer(ans)) score++;
     }
     final appState = context.read<AppState>();
     final passingScore = (_questions.length * 0.7).ceil();

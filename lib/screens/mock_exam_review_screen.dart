@@ -25,8 +25,10 @@ class _MockExamReviewScreenState extends State<MockExamReviewScreen> {
   // -1: すべて表示, 0: 不正解のみ, 1: 正解のみ
   int _filter = -1;
 
-  bool _isCorrect(int i) =>
-      widget.userAnswers[i] == widget.questions[i].correctIndex;
+  bool _isCorrect(int i) {
+    final ans = widget.userAnswers[i];
+    return ans != null && widget.questions[i].isCorrectAnswer(ans);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -254,7 +256,7 @@ class _MockExamReviewScreenState extends State<MockExamReviewScreen> {
           const SizedBox(height: 12),
           ...List.generate(q.choices.length, (ci) {
             ChoiceState state;
-            if (ci == q.correctIndex) {
+            if (q.isCorrectAnswer(ci)) {
               state = ChoiceState.correct;
             } else if (ci == userAnswer) {
               state = ChoiceState.incorrect;

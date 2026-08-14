@@ -176,7 +176,7 @@ class QuestionScreen extends StatelessWidget {
                       ...List.generate(q.choices.length, (i) {
                         ChoiceState state = ChoiceState.normal;
                         if (appState.answered) {
-                          if (i == q.correctIndex) {
+                          if (q.isCorrectAnswer(i)) {
                             state = ChoiceState.correct;
                           } else if (i == appState.selectedAnswer) {
                             state = ChoiceState.incorrect;

@@ -16,6 +16,9 @@ class Question {
   final int correctIndex;
   final String aiExplanation;
   final String officialExplanation;
+  // 法改正等により正答が複数存在する問題用。null/空の場合は [correctIndex] を使う。
+  // 通常はnullのままで、後方互換性のため大半の問題には影響しない。
+  final List<int>? correctIndexes;
 
   const Question({
     required this.id,
@@ -32,7 +35,17 @@ class Question {
     required this.correctIndex,
     required this.aiExplanation,
     this.officialExplanation = '',
+    this.correctIndexes,
   });
+
+  /// 正答インデックスの一覧。通常は [correctIndex] のみだが、
+  /// 法改正等で正答が複数存在する問題は correctIndexes を参照する。
+  List<int> get allCorrectIndexes =>
+      (correctIndexes != null && correctIndexes!.isNotEmpty)
+      ? correctIndexes!
+      : [correctIndex];
+
+  bool isCorrectAnswer(int index) => allCorrectIndexes.contains(index);
 
   /// Firestore の question_patches から取得した修正内容を適用した新しい
   /// Question を返す。パッチ側で指定されていないフィールドは元の値を維持する。
@@ -56,6 +69,11 @@ class Question {
       aiExplanation: patch['aiExplanation'] as String? ?? aiExplanation,
       officialExplanation:
           patch['officialExplanation'] as String? ?? officialExplanation,
+      correctIndexes:
+          (patch['correctIndexes'] as List?)
+              ?.map((e) => e as int)
+              .toList() ??
+          correctIndexes,
     );
   }
 
@@ -81,6 +99,9 @@ class Question {
       correctIndex: json['correctIndex'] as int? ?? 0,
       aiExplanation: json['aiExplanation'] as String? ?? '',
       officialExplanation: json['officialExplanation'] as String? ?? '',
+      correctIndexes: (json['correctIndexes'] as List?)
+          ?.map((e) => e as int)
+          .toList(),
     );
   }
 

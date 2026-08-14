@@ -604,7 +604,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         ...List.generate(q.choices.length, (i) {
           ChoiceState state = ChoiceState.normal;
           if (_demoAnswered) {
-            if (i == q.correctIndex) {
+            if (q.isCorrectAnswer(i)) {
               state = ChoiceState.correct;
             } else if (i == _demoSelected) {
               state = ChoiceState.incorrect;
@@ -632,10 +632,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               borderRadius: BorderRadius.circular(AppRadius.md),
             ),
             child: CoachBubble(
-              mood: _demoSelected == q.correctIndex
+              mood: (_demoSelected != null && q.isCorrectAnswer(_demoSelected!))
                   ? CoachMood.correct
                   : CoachMood.incorrect,
-              message: _demoSelected == q.correctIndex
+              message: (_demoSelected != null && q.isCorrectAnswer(_demoSelected!))
                   ? '正解だよ!こんな感じで、解いたらすぐに解説が読めるんだ。'
                   : '惜しい!でも大丈夫、こうやってすぐ解説を確認できるのが強みだよ。\n\n${q.aiExplanation}',
             ),
