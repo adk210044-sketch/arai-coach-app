@@ -1,4 +1,4 @@
-// question_repository.dart — assets/data/exam_questions.json (814問) を読み込み、
+// question_repository.dart — assets/data/exam_questions.json (800問以上) を読み込み、
 // Question モデルへ変換して保持するリポジトリ。
 //
 // 誤字修正・内容更新の仕組み(ハイブリッド方式):

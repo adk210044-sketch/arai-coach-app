@@ -101,7 +101,7 @@ class IntensivePackPromoCard extends StatelessWidget {
                   ),
                   const SizedBox(height: 3),
                   Text(
-                    '全814問解放・AI優先復習・模擬試験も使い放題だよ',
+                    '800問以上解放・AI優先復習・模擬試験も使い放題だよ',
                     style: TextStyle(
                       color: Colors.white.withValues(alpha: 0.9),
                       fontSize: AppFontSize.sm,

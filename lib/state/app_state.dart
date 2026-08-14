@@ -236,7 +236,7 @@ class AppState extends ChangeNotifier {
   /// フリープランで利用可能な問題数(上限)。
   static const int freeQuestionLimit = 50;
 
-  /// 現在の受験区分に対応する問題プール(814問データ)。
+  /// 現在の受験区分に対応する問題プール(800問以上のデータ)。
   /// 読み込みに失敗している場合はハードコードのサンプル20問にフォールバックする。
   /// フリープランの場合は、カテゴリ均等に選出した50問に絞る。
   List<Question> get questionPool {

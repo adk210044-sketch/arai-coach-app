@@ -146,8 +146,8 @@ const List<PlanFeatureRow> kPlanFeatureMatrix = [
     },
     valueLabel: {
       PlanTier.free: '同じ50問',
-      PlanTier.premium: '全814問\n(R1以降)',
-      PlanTier.intensivePack: '全814問\n(R1以降)',
+      PlanTier.premium: '800問以上\n(R1以降)',
+      PlanTier.intensivePack: '800問以上\n(R1以降)',
     },
   ),
   PlanFeatureRow(
