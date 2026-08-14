@@ -1,0 +1,74 @@
+# Uncomment this line to define a global platform for your project
+# platform :ios, '13.0'
+
+# CocoaPods analytics sends network stats synchronously affecting flutter build latency.
+ENV['COCOAPODS_DISABLE_STATS'] = 'true'
+
+project 'Runner', {
+  'Debug' => :debug,
+  'Profile' => :release,
+  'Release' => :release,
+}
+
+def flutter_root
+  generated_xcode_build_settings_path = File.expand_path(File.join('..', 'Flutter', 'Generated.xcconfig'), __FILE__)
+  unless File.exist?(generated_xcode_build_settings_path)
+    raise "#{generated_xcode_build_settings_path} must exist. If you're running pod install manually, make sure flutter pub get is executed first"
+  end
+
+  File.foreach(generated_xcode_build_settings_path) do |line|
+    matches = line.match(/FLUTTER_ROOT\=(.*)/)
+    return matches[1].strip if matches
+  end
+  raise "FLUTTER_ROOT not found in #{generated_xcode_build_settings_path}. Try deleting Generated.xcconfig, then run flutter pub get"
+end
+
+require File.expand_path(File.join('packages', 'flutter_tools', 'bin', 'podhelper'), flutter_root)
+
+flutter_ios_podfile_setup
+
+target 'Runner' do
+  use_frameworks!
+
+  flutter_install_all_ios_pods File.dirname(File.realpath(__FILE__))
+  target 'RunnerTests' do
+    inherit! :search_paths
+  end
+end
+
+post_install do |installer|
+  installer.pods_project.targets.each do |target|
+    flutter_additional_ios_build_settings(target)
+  end
+
+  # ---------------------------------------------------------------------
+  # WORKAROUND: openiap (Apple) Commitment Billing Plan compile bug
+  #
+  # openiap-apple (used by flutter_inapp_purchase) guards new StoreKit 2
+  # "Commitment Billing Plan" APIs (PricingTerms, BillingPlanType,
+  # commitmentInfo, etc.) with `#if compiler(>=6.3)`. However, Xcode 26.4
+  # ships the Swift 6.3 compiler WITHOUT the corresponding StoreKit SDK
+  # symbols yet (they require the Xcode 26.5 SDK per openiap's own code
+  # comments), causing real compile errors such as:
+  #   "'PricingTerms' is not a member type of struct
+  #    'StoreKit.Product.SubscriptionInfo'"
+  #
+  # This app does not use billingPlanType / JWS promotional offers /
+  # win-back commitment info, so it is safe to force those code paths to
+  # take their `#else` (or be skipped entirely) by rewriting the guard to
+  # `#if false` directly in the checked-out Pod source after `pod install`.
+  # This keeps us on the latest flutter_inapp_purchase/openiap release
+  # instead of downgrading to an old, API-incompatible major version.
+  # ---------------------------------------------------------------------
+  bridge_file = File.join(__dir__, 'Pods', 'openiap', 'packages', 'apple', 'Sources', 'Helpers', 'StoreKitTypesBridge.swift')
+  if File.exist?(bridge_file)
+    content = File.read(bridge_file, encoding: 'UTF-8')
+    patched = content.gsub(/#if compiler\(>=6\.3\)/, '#if false')
+    if patched != content
+      File.write(bridge_file, patched, encoding: 'UTF-8')
+      puts "[Podfile] Patched openiap StoreKitTypesBridge.swift: disabled #if compiler(>=6.3) Commitment Billing Plan blocks (Xcode 26.4 SDK compatibility workaround)"
+    end
+  else
+    puts "[Podfile] WARNING: openiap StoreKitTypesBridge.swift not found at #{bridge_file}; skip Commitment Billing Plan workaround"
+  end
+end
