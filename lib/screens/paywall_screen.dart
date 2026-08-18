@@ -4,11 +4,25 @@
 // モック実装に自動フォールバックする(AppState.startStorePurchaseがfalseを返す場合)。
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../theme/tokens.dart';
 import '../state/app_state.dart';
 import '../models/plan.dart';
 import '../models/user_profile.dart';
 import '../widgets/coach_bubble.dart';
+
+/// 利用規約・プライバシーポリシーの公開URL。
+/// Apple/Googleの定期購読(サブスクリプション)ガイドラインにより、
+/// 購入画面内に両方への機能するリンクを設置する必要がある。
+const String kTermsOfServiceUrl =
+    'https://adk210044-sketch.github.io/arai-coach-app/terms-of-service.html';
+const String kPrivacyPolicyUrl =
+    'https://adk210044-sketch.github.io/arai-coach-app/privacy-policy.html';
+
+Future<void> _openExternalLink(String url) async {
+  final uri = Uri.parse(url);
+  await launchUrl(uri, mode: LaunchMode.externalApplication);
+}
 
 /// ペイウォール表示のきっかけ(どの機能をタップして遷移してきたか)を
 /// メッセージに反映するための種別。
@@ -182,9 +196,83 @@ class _PaywallScreenState extends State<PaywallScreen> {
                     ),
                   ),
                 ),
+
+              const SizedBox(height: 16),
+              _subscriptionLegalFooter(),
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  /// サブスクリプション契約条件(自動更新・解約方法)と、利用規約/
+  /// プライバシーポリシーへの機能するリンクを表示するフッター。
+  /// Apple Guideline 3.1.2(c) / Google Playの定期購読要件対応。
+  Widget _subscriptionLegalFooter() {
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(AppRadius.lg),
+        border: Border.all(color: AppColors.border),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            '定期購読について',
+            style: TextStyle(
+              fontSize: AppFontSize.sm,
+              fontWeight: FontWeight.w700,
+              color: AppColors.textDim,
+            ),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            'プレミアム(¥1,200/月)・集中パック(¥2,600/3か月)は自動更新の'
+            '定期購読です。期間終了の24時間前までに解約しない場合、'
+            '同一期間で自動的に更新され、購読しているストアアカウントに'
+            '課金されます。解約はご利用の端末のストア(App Store / Google Play)'
+            'の定期購入管理画面からいつでも行えます。',
+            style: TextStyle(
+              fontSize: 11,
+              color: AppColors.textMute,
+              height: 1.5,
+            ),
+          ),
+          const SizedBox(height: 10),
+          Wrap(
+            spacing: 16,
+            runSpacing: 4,
+            children: [
+              GestureDetector(
+                onTap: () => _openExternalLink(kTermsOfServiceUrl),
+                child: Text(
+                  '利用規約',
+                  style: TextStyle(
+                    fontSize: AppFontSize.sm,
+                    color: AppColors.primary,
+                    fontWeight: FontWeight.w700,
+                    decoration: TextDecoration.underline,
+                  ),
+                ),
+              ),
+              GestureDetector(
+                onTap: () => _openExternalLink(kPrivacyPolicyUrl),
+                child: Text(
+                  'プライバシーポリシー',
+                  style: TextStyle(
+                    fontSize: AppFontSize.sm,
+                    color: AppColors.primary,
+                    fontWeight: FontWeight.w700,
+                    decoration: TextDecoration.underline,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }

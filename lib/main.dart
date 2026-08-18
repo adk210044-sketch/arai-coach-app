@@ -1,3 +1,5 @@
+import 'dart:io' show Platform;
+import 'package:app_tracking_transparency/app_tracking_transparency.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -39,6 +41,30 @@ Future<void> main() async {
   // 安全にスキップされ、同梱データのみで問題なく起動を継続する。
   await QuestionRepository.instance.load();
   await NotificationService.init();
+  // App Tracking Transparency(ATT)許可リクエスト。
+  // iOSでは、広告SDK(AdMob)がトラッキング目的でデータを利用する可能性がある場合、
+  // そのデータ収集が始まる前に本許可リクエストを表示する必要がある(Appleガイドライン必須)。
+  // AdMobの初期化より必ず先に呼ぶこと。Androidでは何もしない(ATTはiOS専用API)。
+  if (!kIsWeb && Platform.isIOS) {
+    try {
+      final status = await AppTrackingTransparency.trackingAuthorizationStatus;
+      if (status == TrackingStatus.notDetermined) {
+        // システムダイアログの表示タイミングが早すぎると表示されないことがあるため、
+        // 描画完了を待ってから要求する。
+        await Future.delayed(const Duration(milliseconds: 200));
+        await AppTrackingTransparency.requestTrackingAuthorization();
+      }
+      if (kDebugMode) {
+        final result =
+            await AppTrackingTransparency.trackingAuthorizationStatus;
+        debugPrint('✅ ATT status: $result');
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        debugPrint('❌ ATT request failed: $e');
+      }
+    }
+  }
   // AdMob初期化(Web版はサポート対象外なのでスキップし、モックにフォールバック)。
   if (!kIsWeb) {
     try {
