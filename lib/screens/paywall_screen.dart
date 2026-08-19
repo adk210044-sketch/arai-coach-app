@@ -1,7 +1,10 @@
 // paywall_screen.dart — 料金プラン選択・ペイウォールUI
-// Android実機ではGoogle Play Billing(in_app_purchase)経由での実購入を行う。
-// Web版プレビュー等、ストア課金が利用できない環境ではローカル状態を切り替える
-// モック実装に自動フォールバックする(AppState.startStorePurchaseがfalseを返す場合)。
+// Android実機ではGoogle Play Billing、iOS実機ではApple StoreKit(in_app_purchase)
+// 経由での実購入を行う。Web版プレビュー等、ストア課金が利用できない環境では
+// ローカル状態を切り替えるモック実装に自動フォールバックする
+// (AppState.startStorePurchaseがfalseを返す場合)。
+import 'dart:io' show Platform;
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -10,6 +13,20 @@ import '../state/app_state.dart';
 import '../models/plan.dart';
 import '../models/user_profile.dart';
 import '../widgets/coach_bubble.dart';
+
+/// 実行中のプラットフォームに応じたストア名。
+/// App Store審査ガイドライン2.3.10対応:
+/// iOS版のUIにGoogle Play等の他社ストア名を表示しないようにする。
+String get _storeName {
+  if (kIsWeb) return 'ストア';
+  return Platform.isIOS ? 'App Store' : 'Google Play';
+}
+
+/// 実行中のプラットフォームに応じた「定期購入管理」画面の呼称。
+String get _subscriptionManagementLabel {
+  if (kIsWeb) return 'ストアの定期購入管理画面';
+  return Platform.isIOS ? 'App Storeの「サブスクリプション」管理画面' : 'Playストアの定期購入管理画面';
+}
 
 /// 利用規約・プライバシーポリシーの公開URL。
 /// Apple/Googleの定期購読(サブスクリプション)ガイドラインにより、
@@ -232,9 +249,9 @@ class _PaywallScreenState extends State<PaywallScreen> {
           Text(
             'プレミアム(¥1,200/月)・集中パック(¥2,600/3か月)は自動更新の'
             '定期購読です。期間終了の24時間前までに解約しない場合、'
-            '同一期間で自動的に更新され、購読しているストアアカウントに'
-            '課金されます。解約はご利用の端末のストア(App Store / Google Play)'
-            'の定期購入管理画面からいつでも行えます。',
+            '同一期間で自動的に更新され、購読している$_storeNameアカウントに'
+            '課金されます。解約はご利用の端末の$_subscriptionManagementLabel'
+            'からいつでも行えます。',
             style: TextStyle(
               fontSize: 11,
               color: AppColors.textMute,
@@ -867,7 +884,7 @@ class _PaywallScreenState extends State<PaywallScreen> {
           content: Text(
             '7日間は無料で全機能を使えるよ。期間が終わると自動的に${info.label}'
             '(${info.priceLabel}${info.periodLabel})に切り替わって課金が始まるから、\n'
-            '不要な場合は期間内にPlayストアの定期購入管理画面から解約してね。',
+            '不要な場合は期間内に$_subscriptionManagementLabelから解約してね。',
             style: TextStyle(color: AppColors.textDim, height: 1.6),
           ),
           actions: [
