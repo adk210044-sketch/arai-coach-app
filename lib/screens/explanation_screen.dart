@@ -571,6 +571,12 @@ class _ExplanationScreenState extends State<ExplanationScreen>
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.white,
+      // isScrollControlled を指定しないと、シートの高さが画面の約9/16に
+      // 自動で制限され、内部の SingleChildScrollView との間でジェスチャーが
+      // 競合して「文章が長い問題だけスワイプしても下まで見られない」という
+      // 不具合が発生することがあるため、他のモーダル(問題を見直す等)と
+      // 同様に明示的に true を指定する。
+      isScrollControlled: true,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
@@ -579,43 +585,45 @@ class _ExplanationScreenState extends State<ExplanationScreen>
         return SafeArea(
           child: Padding(
             padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    const Text(
-                      '📖 公式解説',
-                      style: TextStyle(
-                        fontSize: AppFontSize.xl,
-                        fontWeight: FontWeight.w700,
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                maxHeight: MediaQuery.of(context).size.height * 0.85,
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      const Text(
+                        '📖 公式解説',
+                        style: TextStyle(
+                          fontSize: AppFontSize.xl,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                      const Spacer(),
+                      IconButton(
+                        onPressed: () => Navigator.of(ctx).pop(),
+                        icon: const Icon(Icons.close),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Expanded(
+                    child: SingleChildScrollView(
+                      child: Text(
+                        official.isNotEmpty ? official : 'この問題には公式解説の全文がありません。',
+                        style: TextStyle(
+                          fontSize: 13.5,
+                          height: 1.9,
+                          color: AppColors.text,
+                        ),
                       ),
                     ),
-                    const Spacer(),
-                    IconButton(
-                      onPressed: () => Navigator.of(ctx).pop(),
-                      icon: const Icon(Icons.close),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 8),
-                ConstrainedBox(
-                  constraints: BoxConstraints(
-                    maxHeight: MediaQuery.of(context).size.height * 0.5,
                   ),
-                  child: SingleChildScrollView(
-                    child: Text(
-                      official.isNotEmpty ? official : 'この問題には公式解説の全文がありません。',
-                      style: TextStyle(
-                        fontSize: 13.5,
-                        height: 1.9,
-                        color: AppColors.text,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         );
